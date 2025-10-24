@@ -4,9 +4,9 @@ Input koordinat origin & destination secara dinamis
 """
 
 from datetime import datetime
-from ida_star_routing.data_loader import load_network_data
-from ida_star_routing.ida_star_multimodal import gmaps_style_route_ida_star
-from gmaps_style_routing import gmaps_style_route, print_gmaps_route
+from algorithms.ida_star_routing.data_loader import load_network_data
+from algorithms.ida_star_routing.ida_star_multimodal import gmaps_style_route_ida_star
+from core.gmaps_style_routing import gmaps_style_route, print_gmaps_route
 import json
 import sys
 
@@ -27,11 +27,11 @@ def main():
     
     # Load network once
     print("\n📂 Loading network...")
-    graph = load_network_data("dataset/network_data_bidirectional.json")
+    graph = load_network_data("dataset/network_data_correct_bidirectional.json")
     print("✅ Network loaded successfully!")
     print(f"   📊 Complete Network: {len(graph.stops)} stops, {len(graph.edges)} edges")
     print(f"   🚌 Routes: 8 Feeder + 2 Teman Bus + 1 LRT = 11 routes")
-    print(f"   🔄 Bidirectional: All routes can be traversed both ways")
+    print(f"   🔄 Smart Bidirectional: Circuit routes one-way, Linear routes bidirectional")
     
     while True:
         print("\n" + "="*100)

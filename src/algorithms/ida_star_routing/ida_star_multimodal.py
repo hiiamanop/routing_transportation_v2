@@ -334,8 +334,8 @@ def gmaps_style_route_ida_star(
     # Import from gmaps_style_routing
     import sys
     from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from gmaps_style_routing import find_nearest_stops_extended, create_walking_segment
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+    from core.gmaps_style_routing import find_nearest_stops_extended, create_walking_segment
     
     print(f"\n{'='*90}")
     print(f"{'🗺️  GOOGLE MAPS STYLE ROUTING (IDA* Algorithm)':^90}")
@@ -376,8 +376,8 @@ def gmaps_style_route_ida_star(
     for origin_stop, origin_dist in origin_stops[:5]:
         for dest_stop, dest_dist in dest_stops[:5]:
             # Find transit route with IDA*
-            # Network size: 402 stops - optimized for 1000 iterations
-            # User requested: timeout at 1000 iterations
+            # Network size: 402 stops, 794 edges - limit to 1000 iterations
+            # User requested: limit to 1000 iterations
             transit_route = router.search(origin_stop, dest_stop, departure_time, max_iterations=1000, timeout_seconds=120.0)
             
             if transit_route:
@@ -404,6 +404,15 @@ def gmaps_style_route_ida_star(
                         'total_time': total_time
                     }
                     print(f"   ✓ Found route: {total_time:.1f} min, Rp {transit_route.total_cost:,}")
+                
+                # Early termination: Stop after finding first viable route
+                # This prevents unnecessary iterations for other combinations
+                print(f"   🎯 Early termination: Found viable route, stopping search")
+                break
+        
+        # Break outer loop too if we found a route
+        if best_route:
+            break
     
     if not best_route:
         print(f"❌ No viable route found")

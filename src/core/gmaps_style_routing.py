@@ -9,12 +9,12 @@ import sys
 from datetime import datetime, timedelta
 from typing import Optional, Tuple, Dict, List
 
-from ida_star_routing.data_loader import load_network_data
-from ida_star_routing.dijkstra import DijkstraRouter, haversine_distance_km
-from ida_star_routing.data_structures import (
+from algorithms.ida_star_routing.data_loader import load_network_data
+from algorithms.ida_star_routing.dijkstra import DijkstraRouter, haversine_distance_km
+from algorithms.ida_star_routing.data_structures import (
     TransportationGraph, Route, RouteSegment, TransportationMode, Stop
 )
-from ida_star_routing.door_to_door import Location
+from algorithms.ida_star_routing.door_to_door import Location
 
 
 def find_nearest_stops_extended(graph: TransportationGraph, 
