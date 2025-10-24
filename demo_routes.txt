@@ -1,0 +1,39 @@
+# Demo Routes for Interactive Routing System
+# Copy-paste these inputs when running interactive_routing.py
+
+## Route 1: Bandara SMB II → SMA Negeri 10 Palembang
+Origin Name: Bandara SMB II
+Origin Latitude: -2.897653
+Origin Longitude: 104.698147
+Destination Name: SMA Negeri 10 Palembang
+Destination Latitude: -2.99361
+Destination Longitude: 104.72556
+Algorithm: 1 (Dijkstra)
+
+## Route 2: SMA 10 → Pasar Modern Plaju
+Origin Name: SMA Negeri 10 Palembang
+Origin Latitude: -2.99361
+Origin Longitude: 104.72556
+Destination Name: Pasar Modern Plaju
+Destination Latitude: -3.01495
+Destination Longitude: 104.807771
+Algorithm: 3 (Both - Compare)
+
+## Route 3: Bandara → Jakabaring (LRT Only)
+Origin Name: Bandara SMB II
+Origin Latitude: -2.897653
+Origin Longitude: 104.698147
+Destination Name: Stasiun LRT Jakabaring
+Destination Latitude: -2.974083
+Destination Longitude: 104.764639
+Algorithm: 1 (Dijkstra)
+
+## Route 4: Bumi Sriwijaya → Plaju (Multi-modal Challenge)
+Origin Name: Bumi Sriwijaya
+Origin Latitude: -2.982500
+Origin Longitude: 104.737500
+Destination Name: Pasar Modern Plaju
+Destination Latitude: -3.01495
+Destination Longitude: 104.807771
+Algorithm: 3 (Both - Compare)
+

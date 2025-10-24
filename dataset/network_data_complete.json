@@ -1,0 +1,5581 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "stop_id": "Feeder_Koridor_1_1",
+      "name": "Talang Kelapa ATS (Up Point)",
+      "lat": -2.94493176,
+      "lon": 104.6871163,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 1,
+      "stop_id": "Feeder_Koridor_1_2",
+      "name": "Kantor Desa Tl. Kelapa",
+      "lat": -2.94203905,
+      "lon": 104.68806441,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 2,
+      "stop_id": "Feeder_Koridor_1_3",
+      "name": "Simpang Empat Perumnas Tl. Kelapa",
+      "lat": -2.94201638,
+      "lon": 104.6881303,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 3,
+      "stop_id": "Feeder_Koridor_1_4",
+      "name": "Griya Palm Tl. Kelapa",
+      "lat": -2.93895688,
+      "lon": 104.68877294,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 4,
+      "stop_id": "Feeder_Koridor_1_5",
+      "name": "Springhill Tl. Kelapa",
+      "lat": -2.93877287,
+      "lon": 104.68907415,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 5,
+      "stop_id": "Feeder_Koridor_1_6",
+      "name": "Kantor Camat Alang-Alang Lebar",
+      "lat": -2.93616237,
+      "lon": 104.69126615,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 6,
+      "stop_id": "Feeder_Koridor_1_7",
+      "name": "Griya Hero Abadi",
+      "lat": -2.93552188,
+      "lon": 104.69202961,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 7,
+      "stop_id": "Feeder_Koridor_1_8",
+      "name": "PDAM (A)",
+      "lat": -2.93386113,
+      "lon": 104.69331622,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 8,
+      "stop_id": "Feeder_Koridor_1_9",
+      "name": "Alfamart (A)",
+      "lat": -2.93219738,
+      "lon": 104.69063315,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 9,
+      "stop_id": "Feeder_Koridor_1_10",
+      "name": "Halte Surveyor Indonesia",
+      "lat": -2.93387775,
+      "lon": 104.69482349,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 10,
+      "stop_id": "Feeder_Koridor_1_11",
+      "name": "Halte LRT Asrama Haji (A) ",
+      "lat": -2.93372739204,
+      "lon": 104.695015366,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 11,
+      "stop_id": "Feeder_Koridor_1_12",
+      "name": "Asrama Haji (A)",
+      "lat": -2.93343495435,
+      "lon": 104.703299296,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 12,
+      "stop_id": "Feeder_Koridor_1_13",
+      "name": "Asrama Haji (B)",
+      "lat": -2.93328502,
+      "lon": 104.70361686,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 13,
+      "stop_id": "Feeder_Koridor_1_14",
+      "name": "Halte LRT Asrama Haji (B)",
+      "lat": -2.93098749,
+      "lon": 104.70489515,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 14,
+      "stop_id": "Feeder_Koridor_1_15",
+      "name": "Kebun Bunga (A)",
+      "lat": -2.93123551348,
+      "lon": 104.704876321,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 15,
+      "stop_id": "Feeder_Koridor_1_16",
+      "name": "Halte Prindustrian ",
+      "lat": -2.92577947,
+      "lon": 104.70945839,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 16,
+      "stop_id": "Feeder_Koridor_1_17",
+      "name": "Halte Trackindo ",
+      "lat": -2.92551793,
+      "lon": 104.70990754,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 17,
+      "stop_id": "Feeder_Koridor_1_18",
+      "name": "JM Sukarami (A)",
+      "lat": -2.91988414,
+      "lon": 104.71169675,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 18,
+      "stop_id": "Feeder_Koridor_1_19",
+      "name": "Halte Aisyia ",
+      "lat": -2.91938992,
+      "lon": 104.71188362,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 19,
+      "stop_id": "Feeder_Koridor_1_20",
+      "name": "RSU. Ar-Rasyid ",
+      "lat": -2.91954775,
+      "lon": 104.71187669,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 20,
+      "stop_id": "Feeder_Koridor_1_21",
+      "name": "Gramedia (A)",
+      "lat": -2.91673141,
+      "lon": 104.71220843,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 21,
+      "stop_id": "Feeder_Koridor_1_22",
+      "name": "Stasiun LRT Sukarela (A)",
+      "lat": -2.91670149,
+      "lon": 104.71205783,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 22,
+      "stop_id": "Feeder_Koridor_1_23",
+      "name": "Halte Charitas KM.7",
+      "lat": -2.91700706,
+      "lon": 104.71217771,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 23,
+      "stop_id": "Feeder_Koridor_1_24",
+      "name": "Halte Sumeks (A)",
+      "lat": -2.9195411,
+      "lon": 104.71175651,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 24,
+      "stop_id": "Feeder_Koridor_1_25",
+      "name": "Halte Charitas KM.7 (B)",
+      "lat": -2.92659192107,
+      "lon": 104.714712498,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 25,
+      "stop_id": "Feeder_Koridor_1_26",
+      "name": "Stasiun LRT Sukarela (B)",
+      "lat": -2.92598478,
+      "lon": 104.71389424,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 26,
+      "stop_id": "Feeder_Koridor_1_27",
+      "name": "Gramedia (B)",
+      "lat": -2.92761503,
+      "lon": 104.71534164,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 27,
+      "stop_id": "Feeder_Koridor_1_28",
+      "name": "PUPR ",
+      "lat": -2.928729,
+      "lon": 104.71615195,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 28,
+      "stop_id": "Feeder_Koridor_1_29",
+      "name": "RSU. Ar-Rasyid (B)",
+      "lat": -2.92971945,
+      "lon": 104.71654636,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 29,
+      "stop_id": "Feeder_Koridor_1_30",
+      "name": "Halte Aisyia (B)",
+      "lat": -2.93108133,
+      "lon": 104.71730037,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 30,
+      "stop_id": "Feeder_Koridor_1_31",
+      "name": "JM Sukarami (B)",
+      "lat": -2.93301081,
+      "lon": 104.7178448,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 31,
+      "stop_id": "Feeder_Koridor_1_32",
+      "name": "Daihatshu ",
+      "lat": -2.93283719121,
+      "lon": 104.71797434,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 32,
+      "stop_id": "Feeder_Koridor_1_33",
+      "name": "Damri ",
+      "lat": -2.93587437,
+      "lon": 104.71893476,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 33,
+      "stop_id": "Feeder_Koridor_1_34",
+      "name": "Kebun Bunga (B)",
+      "lat": -2.9358039,
+      "lon": 104.7190313,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 34,
+      "stop_id": "Feeder_Koridor_1_35",
+      "name": "Stasiun LRT Asrama Haji (A)",
+      "lat": -2.93771013,
+      "lon": 104.72001482,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 35,
+      "stop_id": "Feeder_Koridor_1_36",
+      "name": "Asrama Haji (A)",
+      "lat": -2.93774711,
+      "lon": 104.72015984,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 36,
+      "stop_id": "Feeder_Koridor_1_37",
+      "name": "Asrama Haji (B)",
+      "lat": -2.94055561,
+      "lon": 104.72074143,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 37,
+      "stop_id": "Feeder_Koridor_1_38",
+      "name": "Stasiun LRT Asrama Haji (B)",
+      "lat": -2.93967237,
+      "lon": 104.72248886,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 38,
+      "stop_id": "Feeder_Koridor_1_39",
+      "name": "Halte Surveyor Indonesia (B)",
+      "lat": -2.93987947,
+      "lon": 104.72266748,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 39,
+      "stop_id": "Feeder_Koridor_1_40",
+      "name": "Alfamart (B)",
+      "lat": -2.9402229,
+      "lon": 104.72351509,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 40,
+      "stop_id": "Feeder_Koridor_1_41",
+      "name": "PDAM (B)",
+      "lat": -2.94063773,
+      "lon": 104.72394057,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 41,
+      "stop_id": "Feeder_Koridor_1_42",
+      "name": "Griya Hero Abadi (B)",
+      "lat": -2.94149491,
+      "lon": 104.72589485,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 42,
+      "stop_id": "Feeder_Koridor_1_43",
+      "name": "Springhill Talang Kelapa",
+      "lat": -2.94190784,
+      "lon": 104.72642096,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 43,
+      "stop_id": "Feeder_Koridor_1_44",
+      "name": "Simpang Empat Perumnas Tl. Kelapa",
+      "lat": -2.94255547,
+      "lon": 104.72788943,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 44,
+      "stop_id": "Feeder_Koridor_1_45",
+      "name": "Kantor Desa Tl. Kelapa",
+      "lat": -2.94291005,
+      "lon": 104.72821589,
+      "route": "Feeder Koridor 1"
+    },
+    {
+      "id": 45,
+      "stop_id": "Feeder_Koridor_2_1",
+      "name": "104° 42' 42,323\" E",
+      "lat": -2.9195411,
+      "lon": 104.71175651,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 46,
+      "stop_id": "Feeder_Koridor_2_2",
+      "name": "104° 42' 43,408\" E",
+      "lat": -2.91670149,
+      "lon": 104.71205783,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 47,
+      "stop_id": "Feeder_Koridor_2_3",
+      "name": "104° 42' 57,902\" E",
+      "lat": -2.91011465013,
+      "lon": 104.716083861,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 48,
+      "stop_id": "Feeder_Koridor_2_4",
+      "name": "104° 42' 58,660\" E",
+      "lat": -2.91031668,
+      "lon": 104.71629453,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 49,
+      "stop_id": "Feeder_Koridor_2_5",
+      "name": "104° 43' 29,396\" E",
+      "lat": -2.90771488472,
+      "lon": 104.724832299,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 50,
+      "stop_id": "Feeder_Koridor_2_6",
+      "name": "104° 43' 29,811\" E",
+      "lat": -2.90782902,
+      "lon": 104.72494742,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 51,
+      "stop_id": "Feeder_Koridor_2_7",
+      "name": "104° 43' 49,742\" E",
+      "lat": -2.90477141573,
+      "lon": 104.730483794,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 52,
+      "stop_id": "Feeder_Koridor_2_8",
+      "name": "104° 43' 49,716\" E",
+      "lat": -2.90497292,
+      "lon": 104.73047674,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 53,
+      "stop_id": "Feeder_Koridor_2_9",
+      "name": "104° 44' 17,874\" E",
+      "lat": -2.90743138008,
+      "lon": 104.738298359,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 54,
+      "stop_id": "Feeder_Koridor_2_10",
+      "name": "104° 44' 17,151\" E",
+      "lat": -2.90766837,
+      "lon": 104.73809742,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 55,
+      "stop_id": "Feeder_Koridor_2_11",
+      "name": "104° 44' 25,466\" E",
+      "lat": -2.9095545581,
+      "lon": 104.740407103,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 56,
+      "stop_id": "Feeder_Koridor_2_12",
+      "name": "104° 44' 25,085\" E",
+      "lat": -2.90974137,
+      "lon": 104.7403014,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 57,
+      "stop_id": "Feeder_Koridor_2_13",
+      "name": "104° 44' 34,488\" E",
+      "lat": -2.91210752408,
+      "lon": 104.742913353,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 58,
+      "stop_id": "Feeder_Koridor_2_14",
+      "name": "104° 44' 33,838\" E",
+      "lat": -2.91221228,
+      "lon": 104.74273271,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 59,
+      "stop_id": "Feeder_Koridor_2_15",
+      "name": "104° 45' 37,929\" E",
+      "lat": -2.91805116326,
+      "lon": 104.760535901,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 60,
+      "stop_id": "Feeder_Koridor_2_16",
+      "name": "104° 45' 38,287\" E",
+      "lat": -2.91826254,
+      "lon": 104.76063538,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 61,
+      "stop_id": "Feeder_Koridor_2_17",
+      "name": "104° 45' 58,629\" E",
+      "lat": -2.91806385251,
+      "lon": 104.766285712,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 62,
+      "stop_id": "Feeder_Koridor_2_18",
+      "name": "104° 45' 58,804\" E",
+      "lat": -2.91833532,
+      "lon": 104.76633447,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 63,
+      "stop_id": "Feeder_Koridor_2_19",
+      "name": "104° 46' 7,509\" E",
+      "lat": -2.91808699047,
+      "lon": 104.768752405,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 64,
+      "stop_id": "Feeder_Koridor_2_20",
+      "name": "104° 46' 7,919\" E",
+      "lat": -2.91835815,
+      "lon": 104.76886635,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 65,
+      "stop_id": "Feeder_Koridor_2_21",
+      "name": "104° 46' 14,228\" E",
+      "lat": -2.92037110455,
+      "lon": 104.770618841,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 66,
+      "stop_id": "Feeder_Koridor_2_22",
+      "name": "104° 46' 13,991\" E",
+      "lat": -2.9203847,
+      "lon": 104.77055292,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 67,
+      "stop_id": "Feeder_Koridor_2_23",
+      "name": "104° 46' 12,176\" E",
+      "lat": -2.92349379555,
+      "lon": 104.770048924,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 68,
+      "stop_id": "Feeder_Koridor_2_24",
+      "name": "104° 46' 12,367\" E",
+      "lat": -2.92348302541,
+      "lon": 104.770101868,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 69,
+      "stop_id": "Feeder_Koridor_2_25",
+      "name": "104° 46' 12,655\" E",
+      "lat": -2.92668722924,
+      "lon": 104.770181845,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 70,
+      "stop_id": "Feeder_Koridor_2_26",
+      "name": "104° 46' 12,814\" E",
+      "lat": -2.92667241,
+      "lon": 104.7702262,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 71,
+      "stop_id": "Feeder_Koridor_2_27",
+      "name": "104° 46' 12,882\" E",
+      "lat": -2.92776128868,
+      "lon": 104.770244988,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 72,
+      "stop_id": "Feeder_Koridor_2_28",
+      "name": "104° 46' 13,155\" E",
+      "lat": -2.92789459,
+      "lon": 104.7703208,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 73,
+      "stop_id": "Feeder_Koridor_2_29",
+      "name": "104° 46' 20,274\" E",
+      "lat": -2.9289333,
+      "lon": 104.77229821,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 74,
+      "stop_id": "Feeder_Koridor_2_30",
+      "name": "104° 46' 20,483\" E",
+      "lat": -2.92898231253,
+      "lon": 104.772356522,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 75,
+      "stop_id": "Feeder_Koridor_2_31",
+      "name": "104° 46' 29,263\" E",
+      "lat": -2.9290902,
+      "lon": 104.77479526,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 76,
+      "stop_id": "Feeder_Koridor_2_32",
+      "name": "104° 46' 29,662\" E",
+      "lat": -2.92897237,
+      "lon": 104.77490599,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 77,
+      "stop_id": "Feeder_Koridor_2_33",
+      "name": "104° 46' 36,259\" E",
+      "lat": -2.92756053645,
+      "lon": 104.776738646,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 78,
+      "stop_id": "Feeder_Koridor_2_34",
+      "name": "104° 46' 36,490\" E",
+      "lat": -2.92785724833,
+      "lon": 104.77680282,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 79,
+      "stop_id": "Feeder_Koridor_2_35",
+      "name": "104° 46' 50,275\" E",
+      "lat": -2.92928383794,
+      "lon": 104.78063184,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 80,
+      "stop_id": "Feeder_Koridor_2_36",
+      "name": "104° 46' 51,347\" E",
+      "lat": -2.92923946,
+      "lon": 104.78092981,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 81,
+      "stop_id": "Feeder_Koridor_2_37",
+      "name": "104° 46' 56,495\" E",
+      "lat": -2.92908207413,
+      "lon": 104.782359772,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 82,
+      "stop_id": "Feeder_Koridor_2_38",
+      "name": "104° 46' 56,569\" E",
+      "lat": -2.92926122972,
+      "lon": 104.782380182,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 83,
+      "stop_id": "Feeder_Koridor_2_39",
+      "name": "104° 47' 1,023\" E",
+      "lat": -2.93127445,
+      "lon": 104.78361746,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 84,
+      "stop_id": "Feeder_Koridor_2_40",
+      "name": "104° 47' 1,289\" E",
+      "lat": -2.93149893,
+      "lon": 104.78369134,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 85,
+      "stop_id": "Feeder_Koridor_2_41",
+      "name": "104° 47' 9,818\" E",
+      "lat": -2.93316006973,
+      "lon": 104.786060445,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 86,
+      "stop_id": "Feeder_Koridor_2_42",
+      "name": "104° 47' 9,751\" E",
+      "lat": -2.93327159,
+      "lon": 104.7860419,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 87,
+      "stop_id": "Feeder_Koridor_2_43",
+      "name": "104° 47' 14,867\" E",
+      "lat": -2.93371215,
+      "lon": 104.78746308,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 88,
+      "stop_id": "Feeder_Koridor_2_44",
+      "name": "104° 47' 14,536\" E",
+      "lat": -2.93381987,
+      "lon": 104.78737103,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 89,
+      "stop_id": "Feeder_Koridor_2_45",
+      "name": "104° 47' 14,892\" E",
+      "lat": -2.92809113,
+      "lon": 104.78746996,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 90,
+      "stop_id": "Feeder_Koridor_2_46",
+      "name": "104° 47' 11,071\" E",
+      "lat": -2.92261666,
+      "lon": 104.78640863,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 91,
+      "stop_id": "Feeder_Koridor_2_47",
+      "name": "104° 47' 1,485\" E",
+      "lat": -2.9224854,
+      "lon": 104.78374597,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 92,
+      "stop_id": "Feeder_Koridor_2_48",
+      "name": "104° 47' 23,162\" E",
+      "lat": -2.92208662,
+      "lon": 104.78976712,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 93,
+      "stop_id": "Feeder_Koridor_2_49",
+      "name": "104° 47' 51,092\" E",
+      "lat": -2.92036649,
+      "lon": 104.79752559,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 94,
+      "stop_id": "Feeder_Koridor_2_50",
+      "name": "104° 48' 11,216\" E",
+      "lat": -2.91946255,
+      "lon": 104.80311542,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 95,
+      "stop_id": "Feeder_Koridor_2_51",
+      "name": "104° 48' 27,049\" E",
+      "lat": -2.91868376,
+      "lon": 104.80751353,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 96,
+      "stop_id": "Feeder_Koridor_2_52",
+      "name": "104° 49' 10,626\" E",
+      "lat": -2.91638225,
+      "lon": 104.81961827,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 97,
+      "stop_id": "Feeder_Koridor_2_53",
+      "name": "104° 49' 28,712\" E",
+      "lat": -2.92101408,
+      "lon": 104.82464216,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 98,
+      "stop_id": "Feeder_Koridor_2_54",
+      "name": "104° 49' 16,591\" E",
+      "lat": -2.93389265,
+      "lon": 104.82127522,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 99,
+      "stop_id": "Feeder_Koridor_2_55",
+      "name": "104° 49' 13,983\" E",
+      "lat": -2.93556708,
+      "lon": 104.82055092,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 100,
+      "stop_id": "Feeder_Koridor_2_56",
+      "name": "104° 49' 25,889\" E",
+      "lat": -2.94330021,
+      "lon": 104.8238581,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 101,
+      "stop_id": "Feeder_Koridor_2_57",
+      "name": "104° 49' 22,316\" E",
+      "lat": -2.94757306,
+      "lon": 104.82286567,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 102,
+      "stop_id": "Feeder_Koridor_2_58",
+      "name": "104° 49' 19,759\" E",
+      "lat": -2.9507519,
+      "lon": 104.82215538,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 103,
+      "stop_id": "Feeder_Koridor_2_59",
+      "name": "104° 48' 53,940\" E",
+      "lat": -2.94977253,
+      "lon": 104.81498322,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 104,
+      "stop_id": "Feeder_Koridor_2_60",
+      "name": "104° 48' 20,540\" E",
+      "lat": -2.94798657,
+      "lon": 104.80570556,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 105,
+      "stop_id": "Feeder_Koridor_2_61",
+      "name": "104° 48' 12,813\" E",
+      "lat": -2.94771056,
+      "lon": 104.80355927,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 106,
+      "stop_id": "Feeder_Koridor_2_62",
+      "name": "104° 48' 0,926\" E",
+      "lat": -2.94734692,
+      "lon": 104.80025731,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 107,
+      "stop_id": "Feeder_Koridor_2_63",
+      "name": "104° 48' 2,661\" E",
+      "lat": -2.94553623,
+      "lon": 104.80073927,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 108,
+      "stop_id": "Feeder_Koridor_2_64",
+      "name": "104° 48' 4,705\" E",
+      "lat": -2.94314597,
+      "lon": 104.80130688,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 109,
+      "stop_id": "Feeder_Koridor_2_65",
+      "name": "104° 48' 7,941\" E",
+      "lat": -2.93983044,
+      "lon": 104.80220579,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 110,
+      "stop_id": "Feeder_Koridor_2_66",
+      "name": "104° 47' 54,700\" E",
+      "lat": -2.93931313,
+      "lon": 104.79852789,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 111,
+      "stop_id": "Feeder_Koridor_2_67",
+      "name": "104° 47' 41,095\" E",
+      "lat": -2.93750616,
+      "lon": 104.79474869,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 112,
+      "stop_id": "Feeder_Koridor_2_68",
+      "name": "104° 47' 29,428\" E",
+      "lat": -2.93320456,
+      "lon": 104.79150791,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 113,
+      "stop_id": "Feeder_Koridor_2_69",
+      "name": "104° 47' 24,299\" E",
+      "lat": -2.93088625,
+      "lon": 104.79008312,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 114,
+      "stop_id": "Feeder_Koridor_2_70",
+      "name": "104° 44' 56,102\" E",
+      "lat": -2.9167583,
+      "lon": 104.74891709,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 115,
+      "stop_id": "Feeder_Koridor_2_71",
+      "name": "104° 44' 57,225\" E",
+      "lat": -2.91658736401,
+      "lon": 104.749229214,
+      "route": "Feeder Koridor 2"
+    },
+    {
+      "id": 116,
+      "stop_id": "Feeder_Koridor_3_1",
+      "name": "Koridor 3 Feeder (Asrama Haji - Talang Betutu)",
+      "lat": -2.893893,
+      "lon": 104.680344,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 117,
+      "stop_id": "Feeder_Koridor_3_2",
+      "name": "Feeder Koridor 3 - Halte 2",
+      "lat": -2.895906,
+      "lon": 104.688298,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 118,
+      "stop_id": "Feeder_Koridor_3_3",
+      "name": "Feeder Koridor 3 - Halte 3",
+      "lat": -2.898227,
+      "lon": 104.694356,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 119,
+      "stop_id": "Feeder_Koridor_3_4",
+      "name": "Feeder Koridor 3 - Halte 4",
+      "lat": -2.903703,
+      "lon": 104.699228,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 120,
+      "stop_id": "Feeder_Koridor_3_5",
+      "name": "Feeder Koridor 3 - Halte 5",
+      "lat": -2.916197,
+      "lon": 104.704615,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 121,
+      "stop_id": "Feeder_Koridor_3_6",
+      "name": "Feeder Koridor 3 - Halte 6",
+      "lat": -2.922329,
+      "lon": 104.710044,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 122,
+      "stop_id": "Feeder_Koridor_3_7",
+      "name": "Feeder Koridor 3 - Halte 7",
+      "lat": -2.919994,
+      "lon": 104.711819,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 123,
+      "stop_id": "Feeder_Koridor_3_8",
+      "name": "Feeder Koridor 3 - Halte 8",
+      "lat": -2.916219,
+      "lon": 104.712113,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 124,
+      "stop_id": "Feeder_Koridor_3_9",
+      "name": "Feeder Koridor 3 - Halte 9",
+      "lat": -2.919492,
+      "lon": 104.711711,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 125,
+      "stop_id": "Feeder_Koridor_3_10",
+      "name": "Feeder Koridor 3 - Halte 10",
+      "lat": -2.918147,
+      "lon": 104.705813,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 126,
+      "stop_id": "Feeder_Koridor_3_11",
+      "name": "Feeder Koridor 3 - Halte 11",
+      "lat": -2.901022,
+      "lon": 104.698754,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 127,
+      "stop_id": "Feeder_Koridor_3_12",
+      "name": "Feeder Koridor 3 - Halte 12",
+      "lat": -2.895949,
+      "lon": 104.688895,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 128,
+      "stop_id": "Feeder_Koridor_3_13",
+      "name": "Koridor 3 Feeder (Asrama Haji - Talang Betutu)",
+      "lat": -2.893893,
+      "lon": 104.680344,
+      "route": "Feeder Koridor 3"
+    },
+    {
+      "id": 129,
+      "stop_id": "Feeder_Koridor_4_1",
+      "name": "Koridor 4 Feeder (Sta Polresta - Perum OPI)",
+      "lat": -3.005205,
+      "lon": 104.772646,
+      "route": "Feeder Koridor 4"
+    },
+    {
+      "id": 130,
+      "stop_id": "Feeder_Koridor_4_2",
+      "name": "Feeder Koridor 4 - Halte 2",
+      "lat": -3.0129,
+      "lon": 104.774609,
+      "route": "Feeder Koridor 4"
+    },
+    {
+      "id": 131,
+      "stop_id": "Feeder_Koridor_4_3",
+      "name": "Feeder Koridor 4 - Halte 3",
+      "lat": -3.026408,
+      "lon": 104.77495,
+      "route": "Feeder Koridor 4"
+    },
+    {
+      "id": 132,
+      "stop_id": "Feeder_Koridor_4_4",
+      "name": "Feeder Koridor 4 - Halte 4",
+      "lat": -3.036145,
+      "lon": 104.779937,
+      "route": "Feeder Koridor 4"
+    },
+    {
+      "id": 133,
+      "stop_id": "Feeder_Koridor_4_5",
+      "name": "Feeder Koridor 4 - Halte 5",
+      "lat": -3.044529,
+      "lon": 104.784603,
+      "route": "Feeder Koridor 4"
+    },
+    {
+      "id": 134,
+      "stop_id": "Feeder_Koridor_4_6",
+      "name": "Feeder Koridor 4 - Halte 6",
+      "lat": -3.041752,
+      "lon": 104.782203,
+      "route": "Feeder Koridor 4"
+    },
+    {
+      "id": 135,
+      "stop_id": "Feeder_Koridor_4_7",
+      "name": "Feeder Koridor 4 - Halte 7",
+      "lat": -3.033971,
+      "lon": 104.779183,
+      "route": "Feeder Koridor 4"
+    },
+    {
+      "id": 136,
+      "stop_id": "Feeder_Koridor_4_8",
+      "name": "Feeder Koridor 4 - Halte 8",
+      "lat": -3.022531,
+      "lon": 104.77503,
+      "route": "Feeder Koridor 4"
+    },
+    {
+      "id": 137,
+      "stop_id": "Feeder_Koridor_4_9",
+      "name": "Koridor 4 Feeder (Sta Polresta - Perum OPI)",
+      "lat": -3.005228,
+      "lon": 104.772652,
+      "route": "Feeder Koridor 4"
+    },
+    {
+      "id": 138,
+      "stop_id": "Feeder_Koridor_5_1",
+      "name": "BS lingga motor ada",
+      "lat": -2.99941,
+      "lon": 104.816,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 139,
+      "stop_id": "Feeder_Koridor_5_2",
+      "name": "BS lorong setia ada",
+      "lat": -3.0026,
+      "lon": 104.817,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 140,
+      "stop_id": "Feeder_Koridor_5_3",
+      "name": "BS lorong aman B ada",
+      "lat": -3.00434,
+      "lon": 104.818,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 141,
+      "stop_id": "Feeder_Koridor_5_4",
+      "name": "BS SPBU 24 ada",
+      "lat": -3.00558,
+      "lon": 104.818,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 142,
+      "stop_id": "Feeder_Koridor_5_5",
+      "name": "BS pasar tegal binangun B ada",
+      "lat": -3.00783,
+      "lon": 104.818,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 143,
+      "stop_id": "Feeder_Koridor_5_6",
+      "name": "BS sma fitria abadi B ada",
+      "lat": -3.01191,
+      "lon": 104.815,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 144,
+      "stop_id": "Feeder_Koridor_5_7",
+      "name": "BS puskesmas tegal binangun B ada",
+      "lat": -3.01442,
+      "lon": 104.813,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 145,
+      "stop_id": "Feeder_Koridor_5_8",
+      "name": "BS Paud al bayyinah ada",
+      "lat": -3.01746,
+      "lon": 104.81,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 146,
+      "stop_id": "Feeder_Koridor_5_9",
+      "name": "BS GNPK ri ada",
+      "lat": -3.0202,
+      "lon": 104.808,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 147,
+      "stop_id": "Feeder_Koridor_5_10",
+      "name": "BS jl. talang peti ada",
+      "lat": -3.02214,
+      "lon": 104.806,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 148,
+      "stop_id": "Feeder_Koridor_5_11",
+      "name": "BS SDN 320 B ada",
+      "lat": -3.02323,
+      "lon": 104.805,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 149,
+      "stop_id": "Feeder_Koridor_5_12",
+      "name": "BS toko jaya ada",
+      "lat": -3.02515,
+      "lon": 104.804,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 150,
+      "stop_id": "Feeder_Koridor_5_13",
+      "name": "BS SDN 288 B ada",
+      "lat": -3.02736,
+      "lon": 104.802,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 151,
+      "stop_id": "Feeder_Koridor_5_14",
+      "name": "BS Indomaret ada",
+      "lat": -3.02832,
+      "lon": 104.801,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 152,
+      "stop_id": "Feeder_Koridor_5_15",
+      "name": "BS puskesmas ada",
+      "lat": -3.03168,
+      "lon": 104.799,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 153,
+      "stop_id": "Feeder_Koridor_5_16",
+      "name": "BS perumahan Chelsea ada",
+      "lat": -3.03435,
+      "lon": 104.798,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 154,
+      "stop_id": "Feeder_Koridor_5_17",
+      "name": "BS cluster winola B ada",
+      "lat": -3.03685,
+      "lon": 104.797,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 155,
+      "stop_id": "Feeder_Koridor_5_18",
+      "name": "BS plam springs ada",
+      "lat": -3.03877,
+      "lon": 104.796,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 156,
+      "stop_id": "Feeder_Koridor_5_19",
+      "name": "BS kios bunga ada",
+      "lat": -3.03904,
+      "lon": 104.795,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 157,
+      "stop_id": "Feeder_Koridor_5_20",
+      "name": "BS Depo djka B ada",
+      "lat": -3.03492,
+      "lon": 104.792,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 158,
+      "stop_id": "Feeder_Koridor_5_21",
+      "name": "BS stasiun lrt djka B ada",
+      "lat": -3.03154,
+      "lon": 104.79,
+      "route": "Feeder Koridor 5"
+    },
+    {
+      "id": 159,
+      "stop_id": "Feeder_Koridor_6_1",
+      "name": "BS lingga motor ada",
+      "lat": -2.93038,
+      "lon": 104.745,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 160,
+      "stop_id": "Feeder_Koridor_6_2",
+      "name": "BS lorong setia ada",
+      "lat": -2.92967,
+      "lon": 104.742,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 161,
+      "stop_id": "Feeder_Koridor_6_3",
+      "name": "BS lorong aman B ada",
+      "lat": -2.92927,
+      "lon": 104.741,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 162,
+      "stop_id": "Feeder_Koridor_6_4",
+      "name": "BS SPBU 24 ada",
+      "lat": -2.93096,
+      "lon": 104.738,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 163,
+      "stop_id": "Feeder_Koridor_6_5",
+      "name": "BS pasar tegal binangun B ada",
+      "lat": -2.93298,
+      "lon": 104.737,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 164,
+      "stop_id": "Feeder_Koridor_6_6",
+      "name": "BS sma fitria abadi B ada",
+      "lat": -2.93569,
+      "lon": 104.735,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 165,
+      "stop_id": "Feeder_Koridor_6_7",
+      "name": "BS puskesmas tegal binangun B ada",
+      "lat": -2.93871,
+      "lon": 104.733,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 166,
+      "stop_id": "Feeder_Koridor_6_8",
+      "name": "BS Paud al bayyinah ada",
+      "lat": -2.94034,
+      "lon": 104.732,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 167,
+      "stop_id": "Feeder_Koridor_6_9",
+      "name": "BS GNPK ri ada",
+      "lat": -2.94211,
+      "lon": 104.731,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 168,
+      "stop_id": "Feeder_Koridor_6_10",
+      "name": "BS jl. talang peti ada",
+      "lat": -2.94502,
+      "lon": 104.731,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 169,
+      "stop_id": "Feeder_Koridor_6_11",
+      "name": "BS SDN 320 B ada",
+      "lat": -2.94737,
+      "lon": 104.732,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 170,
+      "stop_id": "Feeder_Koridor_6_12",
+      "name": "BS toko jaya ada",
+      "lat": -2.94828,
+      "lon": 104.733,
+      "route": "Feeder Koridor 6"
+    },
+    {
+      "id": 171,
+      "stop_id": "Feeder_Koridor_7_1",
+      "name": "BS stadion kamboja ada",
+      "lat": -2.97027,
+      "lon": 104.746,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 172,
+      "stop_id": "Feeder_Koridor_7_2",
+      "name": "BS kantor camat ilir timur 1 ada",
+      "lat": -2.96906,
+      "lon": 104.746,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 173,
+      "stop_id": "Feeder_Koridor_7_3",
+      "name": "BS kopral umar said ada",
+      "lat": -2.96573,
+      "lon": 104.747,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 174,
+      "stop_id": "Feeder_Koridor_7_4",
+      "name": "20 Sep 2023 08.18.48",
+      "lat": -2.97017,
+      "lon": 104.746,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 175,
+      "stop_id": "Feeder_Koridor_7_5",
+      "name": "BS Univ Tridinanti A ada",
+      "lat": -2.9711,
+      "lon": 104.746,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 176,
+      "stop_id": "Feeder_Koridor_7_6",
+      "name": "BS simpang soraja A ada",
+      "lat": -2.97265,
+      "lon": 104.744,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 177,
+      "stop_id": "Feeder_Koridor_7_7",
+      "name": "BS palembang square ada",
+      "lat": -2.97555,
+      "lon": 104.743,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 178,
+      "stop_id": "Feeder_Koridor_7_8",
+      "name": "BS LRT bumi sriwijaya ada",
+      "lat": -2.97674,
+      "lon": 104.745,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 179,
+      "stop_id": "Feeder_Koridor_7_9",
+      "name": "BS Dprd sumsel ada",
+      "lat": -2.97939,
+      "lon": 104.744,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 180,
+      "stop_id": "Feeder_Koridor_7_10",
+      "name": "BS arya duta ada",
+      "lat": -2.97785,
+      "lon": 104.741,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 181,
+      "stop_id": "Feeder_Koridor_7_11",
+      "name": "BS puncak sikuning A ada",
+      "lat": -2.97772,
+      "lon": 104.737,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 182,
+      "stop_id": "Feeder_Koridor_7_12",
+      "name": "BS Family A ada",
+      "lat": -2.97911,
+      "lon": 104.737,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 183,
+      "stop_id": "Feeder_Koridor_7_13",
+      "name": "BS sdn 22 ada",
+      "lat": -2.98355,
+      "lon": 104.738,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 184,
+      "stop_id": "Feeder_Koridor_7_14",
+      "name": "BS sman 2 ada",
+      "lat": -2.98532,
+      "lon": 104.738,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 185,
+      "stop_id": "Feeder_Koridor_7_15",
+      "name": "BS riau A ada",
+      "lat": -2.98677,
+      "lon": 104.738,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 186,
+      "stop_id": "Feeder_Koridor_7_16",
+      "name": "BS emporium ada",
+      "lat": -2.98848,
+      "lon": 104.738,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 187,
+      "stop_id": "Feeder_Koridor_7_17",
+      "name": "BS kemang manis A ada",
+      "lat": -2.98955,
+      "lon": 104.738,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 188,
+      "stop_id": "Feeder_Koridor_7_18",
+      "name": "BS simpang polsek ada",
+      "lat": -2.98979,
+      "lon": 104.735,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 189,
+      "stop_id": "Feeder_Koridor_7_19",
+      "name": "BS k.camat ilir barat 1 ada",
+      "lat": -2.99032,
+      "lon": 104.734,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 190,
+      "stop_id": "Feeder_Koridor_7_20",
+      "name": "BS simpang univ plg ada",
+      "lat": -2.99134,
+      "lon": 104.732,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 191,
+      "stop_id": "Feeder_Koridor_7_21",
+      "name": "BS smpn 17 ada",
+      "lat": -2.99029,
+      "lon": 104.73,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 192,
+      "stop_id": "Feeder_Koridor_7_22",
+      "name": "Bs pasca sarjana A ada",
+      "lat": -2.99023,
+      "lon": 104.729,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 193,
+      "stop_id": "Feeder_Koridor_7_23",
+      "name": "Bs srijaya negara A ada",
+      "lat": -2.99176,
+      "lon": 104.727,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 194,
+      "stop_id": "Feeder_Koridor_7_24",
+      "name": "Bs ada",
+      "lat": -2.99287,
+      "lon": 104.727,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 195,
+      "stop_id": "Feeder_Koridor_7_25",
+      "name": "Bs ada",
+      "lat": -2.99447,
+      "lon": 104.726,
+      "route": "Feeder Koridor 7"
+    },
+    {
+      "id": 196,
+      "stop_id": "Feeder_Koridor_8_1",
+      "name": "Stasiun LRT Asrama Haji A",
+      "lat": -2.91935038924161,
+      "lon": 104.711404331302,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 197,
+      "stop_id": "Feeder_Koridor_8_2",
+      "name": "Asrama Haji B",
+      "lat": -2.91651417880875,
+      "lon": 104.712020112636,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 198,
+      "stop_id": "Feeder_Koridor_8_3",
+      "name": "Kerajinan Karet B",
+      "lat": -2.91075817833598,
+      "lon": 104.714536793033,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 199,
+      "stop_id": "Feeder_Koridor_8_4",
+      "name": "PDK",
+      "lat": -2.90727174615211,
+      "lon": 104.725187690695,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 200,
+      "stop_id": "Feeder_Koridor_8_5",
+      "name": "Simpang Bandara A",
+      "lat": -2.90295760181717,
+      "lon": 104.727297415991,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 201,
+      "stop_id": "Feeder_Koridor_8_6",
+      "name": "Simpang Talang Jambe",
+      "lat": -2.89565880265001,
+      "lon": 104.726002273989,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 202,
+      "stop_id": "Feeder_Koridor_8_7",
+      "name": "YAPIS Hikmatul Furqon A",
+      "lat": -2.89601508476471,
+      "lon": 104.722742598362,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 203,
+      "stop_id": "Feeder_Koridor_8_8",
+      "name": "Perum Graha Utama Bandara",
+      "lat": -2.89573909935291,
+      "lon": 104.719088671088,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 204,
+      "stop_id": "Feeder_Koridor_8_9",
+      "name": "Simpang Karantina A",
+      "lat": -2.89623394890395,
+      "lon": 104.716342841057,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 205,
+      "stop_id": "Feeder_Koridor_8_10",
+      "name": "Stasiun LRT Asrama Haji A",
+      "lat": -2.91935038924161,
+      "lon": 104.711404331302,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 206,
+      "stop_id": "Feeder_Koridor_8_11",
+      "name": "Asrama Haji B",
+      "lat": -2.91651417880875,
+      "lon": 104.712020112636,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 207,
+      "stop_id": "Feeder_Koridor_8_12",
+      "name": "Kerajinan Karet B",
+      "lat": -2.91075817833598,
+      "lon": 104.714536793033,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 208,
+      "stop_id": "Feeder_Koridor_8_13",
+      "name": "PDK",
+      "lat": -2.90727174615211,
+      "lon": 104.725187690695,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 209,
+      "stop_id": "Feeder_Koridor_8_14",
+      "name": "Simpang Bandara A",
+      "lat": -2.90295760181717,
+      "lon": 104.727297415991,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 210,
+      "stop_id": "Feeder_Koridor_8_15",
+      "name": "Simpang Talang Jambe",
+      "lat": -2.89565880265001,
+      "lon": 104.726002273989,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 211,
+      "stop_id": "Feeder_Koridor_8_16",
+      "name": "YAPIS Hikmatul Furqon A",
+      "lat": -2.89601508476471,
+      "lon": 104.722742598362,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 212,
+      "stop_id": "Feeder_Koridor_8_17",
+      "name": "Perum Graha Utama Bandara",
+      "lat": -2.89573909935291,
+      "lon": 104.719088671088,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 213,
+      "stop_id": "Feeder_Koridor_8_18",
+      "name": "Simpang Karantina A",
+      "lat": -2.89623394890395,
+      "lon": 104.716342841057,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 214,
+      "stop_id": "Feeder_Koridor_8_19",
+      "name": "Simpang Karantina B",
+      "lat": -2.8961638131922,
+      "lon": 104.716343276861,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 215,
+      "stop_id": "Feeder_Koridor_8_20",
+      "name": "Perum Graha Utama Bandara B",
+      "lat": -2.89567352168743,
+      "lon": 104.718959644092,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 216,
+      "stop_id": "Feeder_Koridor_8_21",
+      "name": "YAPIS Hikmatul Furqon B",
+      "lat": -2.89500452115879,
+      "lon": 104.724583911283,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 217,
+      "stop_id": "Feeder_Koridor_8_22",
+      "name": "Lorong Bambu Kuning",
+      "lat": -2.89663804481032,
+      "lon": 104.72572746987,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 218,
+      "stop_id": "Feeder_Koridor_8_23",
+      "name": "PDK B",
+      "lat": -2.90784879763623,
+      "lon": 104.724864621922,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 219,
+      "stop_id": "Feeder_Koridor_8_24",
+      "name": "Palembang Asrama Haji",
+      "lat": -2.90966723705134,
+      "lon": 104.71835103394,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 220,
+      "stop_id": "Feeder_Koridor_8_25",
+      "name": "BCA",
+      "lat": -2.91031157017995,
+      "lon": 104.716134028208,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 221,
+      "stop_id": "Feeder_Koridor_8_26",
+      "name": "Asrama Haji A",
+      "lat": -2.91704081891895,
+      "lon": 104.712210293682,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 222,
+      "stop_id": "Feeder_Koridor_8_27",
+      "name": "LRT Asrama Haji",
+      "lat": -2.91955842267099,
+      "lon": 104.711913739659,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 223,
+      "stop_id": "Feeder_Koridor_8_28",
+      "name": "Simpang Karantina B",
+      "lat": -2.8961638131922,
+      "lon": 104.716343276861,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 224,
+      "stop_id": "Feeder_Koridor_8_29",
+      "name": "Perum Graha Utama Bandara B",
+      "lat": -2.89567352168743,
+      "lon": 104.718959644092,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 225,
+      "stop_id": "Feeder_Koridor_8_30",
+      "name": "YAPIS Hikmatul Furqon B",
+      "lat": -2.89500452115879,
+      "lon": 104.724583911283,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 226,
+      "stop_id": "Feeder_Koridor_8_31",
+      "name": "Lorong Bambu Kuning",
+      "lat": -2.89663804481032,
+      "lon": 104.72572746987,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 227,
+      "stop_id": "Feeder_Koridor_8_32",
+      "name": "PDK B",
+      "lat": -2.90784879763623,
+      "lon": 104.724864621922,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 228,
+      "stop_id": "Feeder_Koridor_8_33",
+      "name": "Palembang Asrama Haji",
+      "lat": -2.90966723705134,
+      "lon": 104.71835103394,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 229,
+      "stop_id": "Feeder_Koridor_8_34",
+      "name": "BCA",
+      "lat": -2.91031157017995,
+      "lon": 104.716134028208,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 230,
+      "stop_id": "Feeder_Koridor_8_35",
+      "name": "Asrama Haji A",
+      "lat": -2.91704081891895,
+      "lon": 104.712210293682,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 231,
+      "stop_id": "Feeder_Koridor_8_36",
+      "name": "LRT Asrama Haji",
+      "lat": -2.91955842267099,
+      "lon": 104.711913739659,
+      "route": "Feeder Koridor 8"
+    },
+    {
+      "id": 232,
+      "stop_id": "Teman_Bus_Koridor_2_1",
+      "name": "Terminal sako",
+      "lat": -2.931505699999946,
+      "lon": 104.7903950700001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 233,
+      "stop_id": "Teman_Bus_Koridor_2_2",
+      "name": "H.simpang bombat",
+      "lat": -2.934411429999955,
+      "lon": 104.7864796300001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 234,
+      "stop_id": "Teman_Bus_Koridor_2_3",
+      "name": "H.lorong manalagi A",
+      "lat": -2.936946529999943,
+      "lon": 104.78316641,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 235,
+      "stop_id": "Teman_Bus_Koridor_2_4",
+      "name": "H. sapta marga",
+      "lat": -2.94080914999995,
+      "lon": 104.7834042300001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 236,
+      "stop_id": "Teman_Bus_Koridor_2_5",
+      "name": "H.spbu cilentang",
+      "lat": -2.94328693999995,
+      "lon": 104.7844734600001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 237,
+      "stop_id": "Teman_Bus_Koridor_2_6",
+      "name": "H.Grand garden",
+      "lat": -2.94719189999995,
+      "lon": 104.7855403300001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 238,
+      "stop_id": "Teman_Bus_Koridor_2_7",
+      "name": "H.Simpang celentang A",
+      "lat": -2.949698699999942,
+      "lon": 104.7854903000001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 239,
+      "stop_id": "Teman_Bus_Koridor_2_8",
+      "name": "H. BHL",
+      "lat": -2.950334729999952,
+      "lon": 104.7833798900001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 240,
+      "stop_id": "Teman_Bus_Koridor_2_9",
+      "name": "H. kusuma bangsa B",
+      "lat": -2.949140389999968,
+      "lon": 104.77724398,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 241,
+      "stop_id": "Teman_Bus_Koridor_2_10",
+      "name": "H. tunas bangsa",
+      "lat": -2.949453109999979,
+      "lon": 104.77284574,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 242,
+      "stop_id": "Teman_Bus_Koridor_2_11",
+      "name": "H. PTC A",
+      "lat": -2.951879189999943,
+      "lon": 104.7612299300001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 243,
+      "stop_id": "Teman_Bus_Koridor_2_12",
+      "name": "H. spbu sukamto",
+      "lat": -2.952192999999966,
+      "lon": 104.75875067,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 244,
+      "stop_id": "Teman_Bus_Koridor_2_13",
+      "name": "H.BLPT A",
+      "lat": -2.953506119999929,
+      "lon": 104.7526711,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 245,
+      "stop_id": "Teman_Bus_Koridor_2_14",
+      "name": "H. smp 9/10",
+      "lat": -2.954187629999979,
+      "lon": 104.7508899900001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 246,
+      "stop_id": "Teman_Bus_Koridor_2_15",
+      "name": "H. rimba kemuning A",
+      "lat": -2.957028359999924,
+      "lon": 104.7434213700001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 247,
+      "stop_id": "Teman_Bus_Koridor_2_16",
+      "name": "H. transit gloria polda",
+      "lat": -2.962608629999977,
+      "lon": 104.7408785700001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 248,
+      "stop_id": "Teman_Bus_Koridor_2_17",
+      "name": "H. PDAM",
+      "lat": -2.962707569999964,
+      "lon": 104.74066507,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 249,
+      "stop_id": "Teman_Bus_Koridor_2_18",
+      "name": "H. smkn 2",
+      "lat": -2.966208399999971,
+      "lon": 104.73506632,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 250,
+      "stop_id": "Teman_Bus_Koridor_2_19",
+      "name": "H. rs siti khodija A",
+      "lat": -2.970936649999942,
+      "lon": 104.73118872,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 251,
+      "stop_id": "Teman_Bus_Koridor_2_20",
+      "name": "H. BCA",
+      "lat": -2.974222669999961,
+      "lon": 104.72734274,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 252,
+      "stop_id": "Teman_Bus_Koridor_2_21",
+      "name": "H. perpustakaan daerah A",
+      "lat": -2.976122439999926,
+      "lon": 104.7257942300001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 253,
+      "stop_id": "Teman_Bus_Koridor_2_22",
+      "name": "H. Capil",
+      "lat": -2.978650949999974,
+      "lon": 104.7246680900001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 254,
+      "stop_id": "Teman_Bus_Koridor_2_23",
+      "name": "H. bengkel pass",
+      "lat": -2.983935419999966,
+      "lon": 104.7244442800001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 255,
+      "stop_id": "Teman_Bus_Koridor_2_24",
+      "name": "H. prameswara A",
+      "lat": -2.987684319999971,
+      "lon": 104.7254156600001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 256,
+      "stop_id": "Teman_Bus_Koridor_2_25",
+      "name": "H. simpang sma 10 A",
+      "lat": -2.99189526999993,
+      "lon": 104.7266623800001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 257,
+      "stop_id": "Teman_Bus_Koridor_2_26",
+      "name": "H. smkn 3",
+      "lat": -2.987392229999955,
+      "lon": 104.7300787600001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 258,
+      "stop_id": "Teman_Bus_Koridor_2_27",
+      "name": "H. Unsri A",
+      "lat": -2.987073259999932,
+      "lon": 104.7323203400001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 259,
+      "stop_id": "Teman_Bus_Koridor_2_28",
+      "name": "H. padang selasa",
+      "lat": -2.988838299999941,
+      "lon": 104.7338621600001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 260,
+      "stop_id": "Teman_Bus_Koridor_2_29",
+      "name": "H. PHB A",
+      "lat": -2.987270619999947,
+      "lon": 104.74230636,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 261,
+      "stop_id": "Teman_Bus_Koridor_2_30",
+      "name": "H. jasarahaja",
+      "lat": -2.986743839999974,
+      "lon": 104.74409961,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 262,
+      "stop_id": "Teman_Bus_Koridor_2_31",
+      "name": "H. PDPDE",
+      "lat": -2.983273849999932,
+      "lon": 104.74459132,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 263,
+      "stop_id": "Teman_Bus_Koridor_2_32",
+      "name": "H. bank mandiri",
+      "lat": -2.981669579999959,
+      "lon": 104.7452239,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 264,
+      "stop_id": "Teman_Bus_Koridor_2_33",
+      "name": "H. Simpang PI",
+      "lat": -2.977004399999957,
+      "lon": 104.7446109700001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 265,
+      "stop_id": "Teman_Bus_Koridor_2_34",
+      "name": "H. PI",
+      "lat": -2.978619549999966,
+      "lon": 104.7464062000001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 266,
+      "stop_id": "Teman_Bus_Koridor_2_35",
+      "name": "H. Kantor Pos",
+      "lat": -2.98151831999996,
+      "lon": 104.7454532800001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 267,
+      "stop_id": "Teman_Bus_Koridor_2_36",
+      "name": "H. Kantor Camat Bukit Kecil",
+      "lat": -2.983657639999953,
+      "lon": 104.7446750200001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 268,
+      "stop_id": "Teman_Bus_Koridor_2_37",
+      "name": "H. Gajah Mada",
+      "lat": -2.985556699999949,
+      "lon": 104.74437707,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 269,
+      "stop_id": "Teman_Bus_Koridor_2_38",
+      "name": "H. PHB",
+      "lat": -2.98748221999997,
+      "lon": 104.7418254000001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 270,
+      "stop_id": "Teman_Bus_Koridor_2_39",
+      "name": "H. Kemang Manis",
+      "lat": -2.98917351999997,
+      "lon": 104.7383137000001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 271,
+      "stop_id": "Teman_Bus_Koridor_2_40",
+      "name": "H. Pasca Sarjana",
+      "lat": -2.990337549999939,
+      "lon": 104.7290500200001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 272,
+      "stop_id": "Teman_Bus_Koridor_2_41",
+      "name": "H. Simpang SMA 10",
+      "lat": -2.992099119999984,
+      "lon": 104.7266162800001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 273,
+      "stop_id": "Teman_Bus_Koridor_2_42",
+      "name": "H. Parameswara",
+      "lat": -2.988501749999978,
+      "lon": 104.7255322200001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 274,
+      "stop_id": "Teman_Bus_Koridor_2_43",
+      "name": "H. PMK",
+      "lat": -2.984213029999982,
+      "lon": 104.72438443,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 275,
+      "stop_id": "Teman_Bus_Koridor_2_44",
+      "name": "H. Kancil Putih",
+      "lat": -2.980254319999975,
+      "lon": 104.72422077,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 276,
+      "stop_id": "Teman_Bus_Koridor_2_45",
+      "name": "H. Perpustakaan Daerah",
+      "lat": -2.976196629999948,
+      "lon": 104.72561418,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 277,
+      "stop_id": "Teman_Bus_Koridor_2_46",
+      "name": "H. RS Siti Khadijah",
+      "lat": -2.970041249999959,
+      "lon": 104.7320567400001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 278,
+      "stop_id": "Teman_Bus_Koridor_2_47",
+      "name": "H. Griya Agung",
+      "lat": -2.974471639999954,
+      "lon": 104.7269361800001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 279,
+      "stop_id": "Teman_Bus_Koridor_2_48",
+      "name": "H. LRT Demang",
+      "lat": -2.964321549999969,
+      "lon": 104.7357951000001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 280,
+      "stop_id": "Teman_Bus_Koridor_2_49",
+      "name": "H. Sersan Sani",
+      "lat": -2.954229399999978,
+      "lon": 104.75017289,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 281,
+      "stop_id": "Teman_Bus_Koridor_2_50",
+      "name": "H. BLPTB",
+      "lat": -2.953209299999967,
+      "lon": 104.75304714,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 282,
+      "stop_id": "Teman_Bus_Koridor_2_51",
+      "name": "H. R. Sukamto",
+      "lat": -2.952100319999948,
+      "lon": 104.7574669900001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 283,
+      "stop_id": "Teman_Bus_Koridor_2_52",
+      "name": "H. PTC",
+      "lat": -2.951715289999955,
+      "lon": 104.7612915400001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 284,
+      "stop_id": "Teman_Bus_Koridor_2_53",
+      "name": "H. Komplek Kedamaian",
+      "lat": -2.949168849999982,
+      "lon": 104.7748273400001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 285,
+      "stop_id": "Teman_Bus_Koridor_2_54",
+      "name": " H. Kumbang",
+      "lat": -2.949017349999993,
+      "lon": 104.7776538000001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 286,
+      "stop_id": "Teman_Bus_Koridor_2_55",
+      "name": " H. PLN Celentang",
+      "lat": -2.950404679999959,
+      "lon": 104.7843666600001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 287,
+      "stop_id": "Teman_Bus_Koridor_2_56",
+      "name": "H. The Basilica",
+      "lat": -2.948831059999997,
+      "lon": 104.7854418900001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 288,
+      "stop_id": "Teman_Bus_Koridor_2_57",
+      "name": "H. Azzahra",
+      "lat": -2.94239789999995,
+      "lon": 104.7840244100001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 289,
+      "stop_id": "Teman_Bus_Koridor_2_58",
+      "name": "H. Lrg Pancasila",
+      "lat": -2.939994559999954,
+      "lon": 104.7829736900001,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 290,
+      "stop_id": "Teman_Bus_Koridor_2_59",
+      "name": "H. Lrg. Manalagi",
+      "lat": -2.937059149999928,
+      "lon": 104.78297301,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 291,
+      "stop_id": "Teman_Bus_Koridor_2_60",
+      "name": "Terminal Sako",
+      "lat": -2.931202319999961,
+      "lon": 104.79039943,
+      "route": "Teman Bus Koridor 2"
+    },
+    {
+      "id": 292,
+      "stop_id": "Teman_Bus_Koridor_5_1",
+      "name": "Teman Bus Koridor 5 - Halte 1",
+      "lat": -2.96126,
+      "lon": 104.68,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 293,
+      "stop_id": "Teman_Bus_Koridor_5_2",
+      "name": "Teman Bus Koridor 5 - Halte 2",
+      "lat": -2.96123,
+      "lon": 104.68,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 294,
+      "stop_id": "Teman_Bus_Koridor_5_3",
+      "name": "Teman Bus Koridor 5 - Halte 3",
+      "lat": -2.96105,
+      "lon": 104.681,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 295,
+      "stop_id": "Teman_Bus_Koridor_5_4",
+      "name": "Teman Bus Koridor 5 - Halte 4",
+      "lat": -2.96116,
+      "lon": 104.681,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 296,
+      "stop_id": "Teman_Bus_Koridor_5_5",
+      "name": "Teman Bus Koridor 5 - Halte 5",
+      "lat": -2.96118,
+      "lon": 104.682,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 297,
+      "stop_id": "Teman_Bus_Koridor_5_6",
+      "name": "Teman Bus Koridor 5 - Halte 6",
+      "lat": -2.96278,
+      "lon": 104.683,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 298,
+      "stop_id": "Teman_Bus_Koridor_5_7",
+      "name": "Teman Bus Koridor 5 - Halte 7",
+      "lat": -2.963,
+      "lon": 104.683,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 299,
+      "stop_id": "Teman_Bus_Koridor_5_8",
+      "name": "Teman Bus Koridor 5 - Halte 8",
+      "lat": -2.96622,
+      "lon": 104.683,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 300,
+      "stop_id": "Teman_Bus_Koridor_5_9",
+      "name": "Teman Bus Koridor 5 - Halte 9",
+      "lat": -2.96715,
+      "lon": 104.683,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 301,
+      "stop_id": "Teman_Bus_Koridor_5_10",
+      "name": "Teman Bus Koridor 5 - Halte 10",
+      "lat": -2.9676,
+      "lon": 104.683,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 302,
+      "stop_id": "Teman_Bus_Koridor_5_11",
+      "name": "Teman Bus Koridor 5 - Halte 11",
+      "lat": -2.96763,
+      "lon": 104.683,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 303,
+      "stop_id": "Teman_Bus_Koridor_5_12",
+      "name": "Teman Bus Koridor 5 - Halte 12",
+      "lat": -2.96766,
+      "lon": 104.683,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 304,
+      "stop_id": "Teman_Bus_Koridor_5_13",
+      "name": "Teman Bus Koridor 5 - Halte 13",
+      "lat": -2.96851,
+      "lon": 104.685,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 305,
+      "stop_id": "Teman_Bus_Koridor_5_14",
+      "name": "Teman Bus Koridor 5 - Halte 14",
+      "lat": -2.97157,
+      "lon": 104.686,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 306,
+      "stop_id": "Teman_Bus_Koridor_5_15",
+      "name": "Teman Bus Koridor 5 - Halte 15",
+      "lat": -2.97162,
+      "lon": 104.686,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 307,
+      "stop_id": "Teman_Bus_Koridor_5_16",
+      "name": "Teman Bus Koridor 5 - Halte 16",
+      "lat": -2.97196,
+      "lon": 104.688,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 308,
+      "stop_id": "Teman_Bus_Koridor_5_17",
+      "name": "Teman Bus Koridor 5 - Halte 17",
+      "lat": -2.97209,
+      "lon": 104.689,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 309,
+      "stop_id": "Teman_Bus_Koridor_5_18",
+      "name": "Teman Bus Koridor 5 - Halte 18",
+      "lat": -2.97402,
+      "lon": 104.69,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 310,
+      "stop_id": "Teman_Bus_Koridor_5_19",
+      "name": "Teman Bus Koridor 5 - Halte 19",
+      "lat": -2.97418,
+      "lon": 104.69,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 311,
+      "stop_id": "Teman_Bus_Koridor_5_20",
+      "name": "Teman Bus Koridor 5 - Halte 20",
+      "lat": -2.97455,
+      "lon": 104.691,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 312,
+      "stop_id": "Teman_Bus_Koridor_5_21",
+      "name": "Teman Bus Koridor 5 - Halte 21",
+      "lat": -2.97482,
+      "lon": 104.692,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 313,
+      "stop_id": "Teman_Bus_Koridor_5_22",
+      "name": "Teman Bus Koridor 5 - Halte 22",
+      "lat": -2.97476,
+      "lon": 104.693,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 314,
+      "stop_id": "Teman_Bus_Koridor_5_23",
+      "name": "Teman Bus Koridor 5 - Halte 23",
+      "lat": -2.9747,
+      "lon": 104.693,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 315,
+      "stop_id": "Teman_Bus_Koridor_5_24",
+      "name": "Teman Bus Koridor 5 - Halte 24",
+      "lat": -2.97484,
+      "lon": 104.695,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 316,
+      "stop_id": "Teman_Bus_Koridor_5_25",
+      "name": "Teman Bus Koridor 5 - Halte 25",
+      "lat": -2.97492,
+      "lon": 104.695,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 317,
+      "stop_id": "Teman_Bus_Koridor_5_26",
+      "name": "Teman Bus Koridor 5 - Halte 26",
+      "lat": -2.97496,
+      "lon": 104.695,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 318,
+      "stop_id": "Teman_Bus_Koridor_5_27",
+      "name": "Teman Bus Koridor 5 - Halte 27",
+      "lat": -2.9774,
+      "lon": 104.698,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 319,
+      "stop_id": "Teman_Bus_Koridor_5_28",
+      "name": "Teman Bus Koridor 5 - Halte 28",
+      "lat": -2.97789,
+      "lon": 104.699,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 320,
+      "stop_id": "Teman_Bus_Koridor_5_29",
+      "name": "Teman Bus Koridor 5 - Halte 29",
+      "lat": -2.97824,
+      "lon": 104.7,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 321,
+      "stop_id": "Teman_Bus_Koridor_5_30",
+      "name": "Teman Bus Koridor 5 - Halte 30",
+      "lat": -2.97833,
+      "lon": 104.7,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 322,
+      "stop_id": "Teman_Bus_Koridor_5_31",
+      "name": "Teman Bus Koridor 5 - Halte 31",
+      "lat": -2.97834,
+      "lon": 104.7,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 323,
+      "stop_id": "Teman_Bus_Koridor_5_32",
+      "name": "Teman Bus Koridor 5 - Halte 32",
+      "lat": -2.97984,
+      "lon": 104.702,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 324,
+      "stop_id": "Teman_Bus_Koridor_5_33",
+      "name": "Teman Bus Koridor 5 - Halte 33",
+      "lat": -2.97984,
+      "lon": 104.702,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 325,
+      "stop_id": "Teman_Bus_Koridor_5_34",
+      "name": "Teman Bus Koridor 5 - Halte 34",
+      "lat": -2.98168,
+      "lon": 104.704,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 326,
+      "stop_id": "Teman_Bus_Koridor_5_35",
+      "name": "Teman Bus Koridor 5 - Halte 35",
+      "lat": -2.98175,
+      "lon": 104.704,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 327,
+      "stop_id": "Teman_Bus_Koridor_5_36",
+      "name": "Teman Bus Koridor 5 - Halte 36",
+      "lat": -2.98153,
+      "lon": 104.707,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 328,
+      "stop_id": "Teman_Bus_Koridor_5_37",
+      "name": "Teman Bus Koridor 5 - Halte 37",
+      "lat": -2.98154,
+      "lon": 104.707,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 329,
+      "stop_id": "Teman_Bus_Koridor_5_38",
+      "name": "Teman Bus Koridor 5 - Halte 38",
+      "lat": -2.98154,
+      "lon": 104.708,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 330,
+      "stop_id": "Teman_Bus_Koridor_5_39",
+      "name": "Teman Bus Koridor 5 - Halte 39",
+      "lat": -2.98134,
+      "lon": 104.709,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 331,
+      "stop_id": "Teman_Bus_Koridor_5_40",
+      "name": "Teman Bus Koridor 5 - Halte 40",
+      "lat": -2.98202,
+      "lon": 104.711,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 332,
+      "stop_id": "Teman_Bus_Koridor_5_41",
+      "name": "Teman Bus Koridor 5 - Halte 41",
+      "lat": -2.98245,
+      "lon": 104.712,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 333,
+      "stop_id": "Teman_Bus_Koridor_5_42",
+      "name": "Teman Bus Koridor 5 - Halte 42",
+      "lat": -2.98241,
+      "lon": 104.712,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 334,
+      "stop_id": "Teman_Bus_Koridor_5_43",
+      "name": "Teman Bus Koridor 5 - Halte 43",
+      "lat": -2.98206,
+      "lon": 104.713,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 335,
+      "stop_id": "Teman_Bus_Koridor_5_44",
+      "name": "Teman Bus Koridor 5 - Halte 44",
+      "lat": -2.98166,
+      "lon": 104.714,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 336,
+      "stop_id": "Teman_Bus_Koridor_5_45",
+      "name": "Teman Bus Koridor 5 - Halte 45",
+      "lat": -2.98158,
+      "lon": 104.714,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 337,
+      "stop_id": "Teman_Bus_Koridor_5_46",
+      "name": "Teman Bus Koridor 5 - Halte 46",
+      "lat": -2.98057,
+      "lon": 104.716,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 338,
+      "stop_id": "Teman_Bus_Koridor_5_47",
+      "name": "Teman Bus Koridor 5 - Halte 47",
+      "lat": -2.97502,
+      "lon": 104.714,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 339,
+      "stop_id": "Teman_Bus_Koridor_5_48",
+      "name": "Teman Bus Koridor 5 - Halte 48",
+      "lat": -2.97577,
+      "lon": 104.714,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 340,
+      "stop_id": "Teman_Bus_Koridor_5_49",
+      "name": "Teman Bus Koridor 5 - Halte 49",
+      "lat": -2.97581,
+      "lon": 104.715,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 341,
+      "stop_id": "Teman_Bus_Koridor_5_50",
+      "name": "Teman Bus Koridor 5 - Halte 50",
+      "lat": -2.98112,
+      "lon": 104.716,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 342,
+      "stop_id": "Teman_Bus_Koridor_5_51",
+      "name": "Teman Bus Koridor 5 - Halte 51",
+      "lat": -2.98121,
+      "lon": 104.716,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 343,
+      "stop_id": "Teman_Bus_Koridor_5_52",
+      "name": "Teman Bus Koridor 5 - Halte 52",
+      "lat": -2.98228,
+      "lon": 104.717,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 344,
+      "stop_id": "Teman_Bus_Koridor_5_53",
+      "name": "Teman Bus Koridor 5 - Halte 53",
+      "lat": -2.98427,
+      "lon": 104.718,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 345,
+      "stop_id": "Teman_Bus_Koridor_5_54",
+      "name": "Teman Bus Koridor 5 - Halte 54",
+      "lat": -2.98574,
+      "lon": 104.718,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 346,
+      "stop_id": "Teman_Bus_Koridor_5_55",
+      "name": "Teman Bus Koridor 5 - Halte 55",
+      "lat": -2.98601,
+      "lon": 104.718,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 347,
+      "stop_id": "Teman_Bus_Koridor_5_56",
+      "name": "Teman Bus Koridor 5 - Halte 56",
+      "lat": -2.98626,
+      "lon": 104.718,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 348,
+      "stop_id": "Teman_Bus_Koridor_5_57",
+      "name": "Teman Bus Koridor 5 - Halte 57",
+      "lat": -2.98623,
+      "lon": 104.718,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 349,
+      "stop_id": "Teman_Bus_Koridor_5_58",
+      "name": "Teman Bus Koridor 5 - Halte 58",
+      "lat": -2.98628,
+      "lon": 104.718,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 350,
+      "stop_id": "Teman_Bus_Koridor_5_59",
+      "name": "Teman Bus Koridor 5 - Halte 59",
+      "lat": -2.98636,
+      "lon": 104.718,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 351,
+      "stop_id": "Teman_Bus_Koridor_5_60",
+      "name": "Teman Bus Koridor 5 - Halte 60",
+      "lat": -2.98718,
+      "lon": 104.72,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 352,
+      "stop_id": "Teman_Bus_Koridor_5_61",
+      "name": "Teman Bus Koridor 5 - Halte 61",
+      "lat": -2.98702,
+      "lon": 104.721,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 353,
+      "stop_id": "Teman_Bus_Koridor_5_62",
+      "name": "Teman Bus Koridor 5 - Halte 62",
+      "lat": -2.98696,
+      "lon": 104.721,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 354,
+      "stop_id": "Teman_Bus_Koridor_5_63",
+      "name": "Teman Bus Koridor 5 - Halte 63",
+      "lat": -2.98692,
+      "lon": 104.723,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 355,
+      "stop_id": "Teman_Bus_Koridor_5_64",
+      "name": "Teman Bus Koridor 5 - Halte 64",
+      "lat": -2.98695,
+      "lon": 104.723,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 356,
+      "stop_id": "Teman_Bus_Koridor_5_65",
+      "name": "Teman Bus Koridor 5 - Halte 65",
+      "lat": -2.98696,
+      "lon": 104.723,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 357,
+      "stop_id": "Teman_Bus_Koridor_5_66",
+      "name": "Teman Bus Koridor 5 - Halte 66",
+      "lat": -2.98625,
+      "lon": 104.725,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 358,
+      "stop_id": "Teman_Bus_Koridor_5_67",
+      "name": "Teman Bus Koridor 5 - Halte 67",
+      "lat": -2.9854,
+      "lon": 104.725,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 359,
+      "stop_id": "Teman_Bus_Koridor_5_68",
+      "name": "Teman Bus Koridor 5 - Halte 68",
+      "lat": -2.98435,
+      "lon": 104.724,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 360,
+      "stop_id": "Teman_Bus_Koridor_5_69",
+      "name": "Teman Bus Koridor 5 - Halte 69",
+      "lat": -2.98377,
+      "lon": 104.724,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 361,
+      "stop_id": "Teman_Bus_Koridor_5_70",
+      "name": "Teman Bus Koridor 5 - Halte 70",
+      "lat": -2.98246,
+      "lon": 104.724,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 362,
+      "stop_id": "Teman_Bus_Koridor_5_71",
+      "name": "Teman Bus Koridor 5 - Halte 71",
+      "lat": -2.98047,
+      "lon": 104.724,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 363,
+      "stop_id": "Teman_Bus_Koridor_5_72",
+      "name": "Teman Bus Koridor 5 - Halte 72",
+      "lat": -2.97849,
+      "lon": 104.725,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 364,
+      "stop_id": "Teman_Bus_Koridor_5_73",
+      "name": "Teman Bus Koridor 5 - Halte 73",
+      "lat": -2.97652,
+      "lon": 104.725,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 365,
+      "stop_id": "Teman_Bus_Koridor_5_74",
+      "name": "Teman Bus Koridor 5 - Halte 74",
+      "lat": -2.97642,
+      "lon": 104.726,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 366,
+      "stop_id": "Teman_Bus_Koridor_5_75",
+      "name": "Teman Bus Koridor 5 - Halte 75",
+      "lat": -2.97627,
+      "lon": 104.726,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 367,
+      "stop_id": "Teman_Bus_Koridor_5_76",
+      "name": "Teman Bus Koridor 5 - Halte 76",
+      "lat": -2.97588,
+      "lon": 104.726,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 368,
+      "stop_id": "Teman_Bus_Koridor_5_77",
+      "name": "Teman Bus Koridor 5 - Halte 77",
+      "lat": -2.97456,
+      "lon": 104.727,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 369,
+      "stop_id": "Teman_Bus_Koridor_5_78",
+      "name": "Teman Bus Koridor 5 - Halte 78",
+      "lat": -2.9745,
+      "lon": 104.727,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 370,
+      "stop_id": "Teman_Bus_Koridor_5_79",
+      "name": "Teman Bus Koridor 5 - Halte 79",
+      "lat": -2.97416,
+      "lon": 104.727,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 371,
+      "stop_id": "Teman_Bus_Koridor_5_80",
+      "name": "Teman Bus Koridor 5 - Halte 80",
+      "lat": -2.97394,
+      "lon": 104.728,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 372,
+      "stop_id": "Teman_Bus_Koridor_5_81",
+      "name": "Teman Bus Koridor 5 - Halte 81",
+      "lat": -2.97254,
+      "lon": 104.729,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 373,
+      "stop_id": "Teman_Bus_Koridor_5_82",
+      "name": "Teman Bus Koridor 5 - Halte 82",
+      "lat": -2.97091,
+      "lon": 104.731,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 374,
+      "stop_id": "Teman_Bus_Koridor_5_83",
+      "name": "Teman Bus Koridor 5 - Halte 83",
+      "lat": -2.96965,
+      "lon": 104.733,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 375,
+      "stop_id": "Teman_Bus_Koridor_5_84",
+      "name": "Teman Bus Koridor 5 - Halte 84",
+      "lat": -2.96926,
+      "lon": 104.733,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 376,
+      "stop_id": "Teman_Bus_Koridor_5_85",
+      "name": "Teman Bus Koridor 5 - Halte 85",
+      "lat": -2.97065,
+      "lon": 104.737,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 377,
+      "stop_id": "Teman_Bus_Koridor_5_86",
+      "name": "Teman Bus Koridor 5 - Halte 86",
+      "lat": -2.97068,
+      "lon": 104.737,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 378,
+      "stop_id": "Teman_Bus_Koridor_5_87",
+      "name": "Teman Bus Koridor 5 - Halte 87",
+      "lat": -2.97081,
+      "lon": 104.738,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 379,
+      "stop_id": "Teman_Bus_Koridor_5_88",
+      "name": "Teman Bus Koridor 5 - Halte 88",
+      "lat": -2.97126,
+      "lon": 104.739,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 380,
+      "stop_id": "Teman_Bus_Koridor_5_89",
+      "name": "Teman Bus Koridor 5 - Halte 89",
+      "lat": -2.97493,
+      "lon": 104.742,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 381,
+      "stop_id": "Teman_Bus_Koridor_5_90",
+      "name": "Teman Bus Koridor 5 - Halte 90",
+      "lat": -2.97533,
+      "lon": 104.742,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 382,
+      "stop_id": "Teman_Bus_Koridor_5_91",
+      "name": "Teman Bus Koridor 5 - Halte 91",
+      "lat": -2.97674,
+      "lon": 104.745,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 383,
+      "stop_id": "Teman_Bus_Koridor_5_92",
+      "name": "Teman Bus Koridor 5 - Halte 92",
+      "lat": -2.97933,
+      "lon": 104.744,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 384,
+      "stop_id": "Teman_Bus_Koridor_5_93",
+      "name": "Teman Bus Koridor 5 - Halte 93",
+      "lat": -2.97778,
+      "lon": 104.741,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 385,
+      "stop_id": "Teman_Bus_Koridor_5_94",
+      "name": "Teman Bus Koridor 5 - Halte 94",
+      "lat": -2.9777,
+      "lon": 104.741,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 386,
+      "stop_id": "Teman_Bus_Koridor_5_95",
+      "name": "Teman Bus Koridor 5 - Halte 95",
+      "lat": -2.97766,
+      "lon": 104.741,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 387,
+      "stop_id": "Teman_Bus_Koridor_5_96",
+      "name": "Teman Bus Koridor 5 - Halte 96",
+      "lat": -2.97762,
+      "lon": 104.741,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 388,
+      "stop_id": "Teman_Bus_Koridor_5_97",
+      "name": "Teman Bus Koridor 5 - Halte 97",
+      "lat": -2.97484,
+      "lon": 104.738,
+      "route": "Teman Bus Koridor 5"
+    },
+    {
+      "id": 389,
+      "stop_id": "LRT_Sumsel_1",
+      "name": "Stasiun LRT Punti Kayu",
+      "lat": -2.940535,
+      "lon": 104.72382,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 390,
+      "stop_id": "LRT_Sumsel_2",
+      "name": "Stasiun LRT RSDU Prov Sumsel",
+      "lat": -2.948308,
+      "lon": 104.732686,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 391,
+      "stop_id": "LRT_Sumsel_3",
+      "name": "Stasiun LRT Garuda Dempo",
+      "lat": -2.956055,
+      "lon": 104.735784,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 392,
+      "stop_id": "LRT_Sumsel_4",
+      "name": "Stasiun LRT Demang",
+      "lat": -2.964308,
+      "lon": 104.736048,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 393,
+      "stop_id": "LRT_Sumsel_5",
+      "name": "Stasiun LRT Bandara SMB 2",
+      "lat": -2.894114,
+      "lon": 104.705661,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 394,
+      "stop_id": "LRT_Sumsel_6",
+      "name": "Stasiun LRT Asrama Haji",
+      "lat": -2.919806,
+      "lon": 104.71165,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 395,
+      "stop_id": "LRT_Sumsel_7",
+      "name": "Stasiun LRT Bumi Sriwijaya",
+      "lat": -2.977152,
+      "lon": 104.744793,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 396,
+      "stop_id": "LRT_Sumsel_8",
+      "name": "Stasiun LRT Dishub",
+      "lat": -2.978429,
+      "lon": 104.749119,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 397,
+      "stop_id": "LRT_Sumsel_9",
+      "name": "Stasiun LRT Pasar Cinde",
+      "lat": -2.980622,
+      "lon": 104.756007,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 398,
+      "stop_id": "LRT_Sumsel_10",
+      "name": "Stasiun LRT Pasar 16 Ilir",
+      "lat": -2.988717,
+      "lon": 104.761762,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 399,
+      "stop_id": "LRT_Sumsel_11",
+      "name": "Stasiun LRT Polresta",
+      "lat": -3.004957,
+      "lon": 104.772349,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 400,
+      "stop_id": "LRT_Sumsel_12",
+      "name": "Stasiun LRT Jakabaring",
+      "lat": -3.023214,
+      "lon": 104.784621,
+      "route": "LRT Sumsel"
+    },
+    {
+      "id": 401,
+      "stop_id": "LRT_Sumsel_13",
+      "name": "Stasiun LRT DJKA",
+      "lat": -3.031568,
+      "lon": 104.790251,
+      "route": "LRT Sumsel"
+    }
+  ],
+  "edges": [
+    {
+      "from": 0,
+      "to": 1,
+      "route": "Feeder Koridor 1",
+      "distance": 338.4477184981237
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "route": "Feeder Koridor 1",
+      "distance": 7.7390264403576685
+    },
+    {
+      "from": 2,
+      "to": 3,
+      "route": "Feeder Koridor 1",
+      "distance": 347.60536490153584
+    },
+    {
+      "from": 3,
+      "to": 4,
+      "route": "Feeder Koridor 1",
+      "distance": 39.21078308444531
+    },
+    {
+      "from": 4,
+      "to": 5,
+      "route": "Feeder Koridor 1",
+      "distance": 378.82980499709214
+    },
+    {
+      "from": 5,
+      "to": 6,
+      "route": "Feeder Koridor 1",
+      "distance": 110.72522540313422
+    },
+    {
+      "from": 6,
+      "to": 7,
+      "route": "Feeder Koridor 1",
+      "distance": 233.48596245821003
+    },
+    {
+      "from": 7,
+      "to": 8,
+      "route": "Feeder Koridor 1",
+      "distance": 350.7152218825884
+    },
+    {
+      "from": 8,
+      "to": 9,
+      "route": "Feeder Koridor 1",
+      "distance": 501.44620481001766
+    },
+    {
+      "from": 9,
+      "to": 10,
+      "route": "Feeder Koridor 1",
+      "distance": 27.08400529037515
+    },
+    {
+      "from": 10,
+      "to": 11,
+      "route": "Feeder Koridor 1",
+      "distance": 920.4984154488963
+    },
+    {
+      "from": 11,
+      "to": 12,
+      "route": "Feeder Koridor 1",
+      "distance": 39.00757067445723
+    },
+    {
+      "from": 12,
+      "to": 13,
+      "route": "Feeder Koridor 1",
+      "distance": 292.262782433185
+    },
+    {
+      "from": 13,
+      "to": 14,
+      "route": "Feeder Koridor 1",
+      "distance": 27.65810374437775
+    },
+    {
+      "from": 14,
+      "to": 15,
+      "route": "Feeder Koridor 1",
+      "distance": 791.8216043113028
+    },
+    {
+      "from": 15,
+      "to": 16,
+      "route": "Feeder Koridor 1",
+      "distance": 57.73719401117535
+    },
+    {
+      "from": 16,
+      "to": 17,
+      "route": "Feeder Koridor 1",
+      "distance": 657.2037780198825
+    },
+    {
+      "from": 17,
+      "to": 18,
+      "route": "Feeder Koridor 1",
+      "distance": 58.742418880956485
+    },
+    {
+      "from": 18,
+      "to": 19,
+      "route": "Feeder Koridor 1",
+      "distance": 17.56676061595738
+    },
+    {
+      "from": 19,
+      "to": 20,
+      "route": "Feeder Koridor 1",
+      "distance": 315.322172646761
+    },
+    {
+      "from": 20,
+      "to": 21,
+      "route": "Feeder Koridor 1",
+      "distance": 17.05196663323301
+    },
+    {
+      "from": 21,
+      "to": 22,
+      "route": "Feeder Koridor 1",
+      "distance": 36.49278337528954
+    },
+    {
+      "from": 22,
+      "to": 23,
+      "route": "Feeder Koridor 1",
+      "distance": 285.62832639576123
+    },
+    {
+      "from": 23,
+      "to": 24,
+      "route": "Feeder Koridor 1",
+      "distance": 849.96299330791
+    },
+    {
+      "from": 24,
+      "to": 25,
+      "route": "Feeder Koridor 1",
+      "distance": 113.2017572555332
+    },
+    {
+      "from": 25,
+      "to": 26,
+      "route": "Feeder Koridor 1",
+      "distance": 242.27279550411404
+    },
+    {
+      "from": 26,
+      "to": 27,
+      "route": "Feeder Koridor 1",
+      "distance": 153.10285676901472
+    },
+    {
+      "from": 27,
+      "to": 28,
+      "route": "Feeder Koridor 1",
+      "distance": 118.52274562324018
+    },
+    {
+      "from": 28,
+      "to": 29,
+      "route": "Feeder Koridor 1",
+      "distance": 173.04168392865165
+    },
+    {
+      "from": 29,
+      "to": 30,
+      "route": "Feeder Koridor 1",
+      "distance": 222.904134535955
+    },
+    {
+      "from": 30,
+      "to": 31,
+      "route": "Feeder Koridor 1",
+      "distance": 24.075733718565935
+    },
+    {
+      "from": 31,
+      "to": 32,
+      "route": "Feeder Koridor 1",
+      "distance": 354.15966981733914
+    },
+    {
+      "from": 32,
+      "to": 33,
+      "route": "Feeder Koridor 1",
+      "distance": 13.279087862957654
+    },
+    {
+      "from": 33,
+      "to": 34,
+      "route": "Feeder Koridor 1",
+      "distance": 238.44728118998225
+    },
+    {
+      "from": 34,
+      "to": 35,
+      "route": "Feeder Koridor 1",
+      "distance": 16.620975187704403
+    },
+    {
+      "from": 35,
+      "to": 36,
+      "route": "Feeder Koridor 1",
+      "distance": 318.8994091664223
+    },
+    {
+      "from": 36,
+      "to": 37,
+      "route": "Feeder Koridor 1",
+      "distance": 217.4874718403278
+    },
+    {
+      "from": 37,
+      "to": 38,
+      "route": "Feeder Koridor 1",
+      "distance": 30.39337838032308
+    },
+    {
+      "from": 38,
+      "to": 39,
+      "route": "Feeder Koridor 1",
+      "distance": 101.57745210132376
+    },
+    {
+      "from": 39,
+      "to": 40,
+      "route": "Feeder Koridor 1",
+      "distance": 66.03151154906097
+    },
+    {
+      "from": 40,
+      "to": 41,
+      "route": "Feeder Koridor 1",
+      "distance": 237.02818915291508
+    },
+    {
+      "from": 41,
+      "to": 42,
+      "route": "Feeder Koridor 1",
+      "distance": 74.30732937032114
+    },
+    {
+      "from": 42,
+      "to": 43,
+      "route": "Feeder Koridor 1",
+      "distance": 178.2641378337388
+    },
+    {
+      "from": 43,
+      "to": 44,
+      "route": "Feeder Koridor 1",
+      "distance": 53.56113368891814
+    },
+    {
+      "from": 45,
+      "to": 46,
+      "route": "Feeder Koridor 2",
+      "distance": 317.518342264168
+    },
+    {
+      "from": 46,
+      "to": 47,
+      "route": "Feeder Koridor 2",
+      "distance": 858.1014991925945
+    },
+    {
+      "from": 47,
+      "to": 48,
+      "route": "Feeder Koridor 2",
+      "distance": 32.43445540320837
+    },
+    {
+      "from": 48,
+      "to": 49,
+      "route": "Feeder Koridor 2",
+      "distance": 991.2894918619438
+    },
+    {
+      "from": 49,
+      "to": 50,
+      "route": "Feeder Koridor 2",
+      "distance": 18.014128004122714
+    },
+    {
+      "from": 50,
+      "to": 51,
+      "route": "Feeder Koridor 2",
+      "distance": 702.5687852678649
+    },
+    {
+      "from": 51,
+      "to": 52,
+      "route": "Feeder Koridor 2",
+      "distance": 22.419942165828015
+    },
+    {
+      "from": 52,
+      "to": 53,
+      "route": "Feeder Koridor 2",
+      "distance": 910.6076080676297
+    },
+    {
+      "from": 53,
+      "to": 54,
+      "route": "Feeder Koridor 2",
+      "distance": 34.530781256895494
+    },
+    {
+      "from": 54,
+      "to": 55,
+      "route": "Feeder Koridor 2",
+      "distance": 331.3273941148783
+    },
+    {
+      "from": 55,
+      "to": 56,
+      "route": "Feeder Koridor 2",
+      "distance": 23.859804224710924
+    },
+    {
+      "from": 56,
+      "to": 57,
+      "route": "Feeder Koridor 2",
+      "distance": 391.6112495972757
+    },
+    {
+      "from": 57,
+      "to": 58,
+      "route": "Feeder Koridor 2",
+      "distance": 23.197262912022687
+    },
+    {
+      "from": 58,
+      "to": 59,
+      "route": "Feeder Koridor 2",
+      "distance": 2080.9392938519704
+    },
+    {
+      "from": 59,
+      "to": 60,
+      "route": "Feeder Koridor 2",
+      "distance": 25.97075269920733
+    },
+    {
+      "from": 60,
+      "to": 61,
+      "route": "Feeder Koridor 2",
+      "distance": 627.8623533827542
+    },
+    {
+      "from": 61,
+      "to": 62,
+      "route": "Feeder Koridor 2",
+      "distance": 30.66758878628691
+    },
+    {
+      "from": 62,
+      "to": 63,
+      "route": "Feeder Koridor 2",
+      "distance": 269.92952887236936
+    },
+    {
+      "from": 63,
+      "to": 64,
+      "route": "Feeder Koridor 2",
+      "distance": 32.699118012119854
+    },
+    {
+      "from": 64,
+      "to": 65,
+      "route": "Feeder Koridor 2",
+      "distance": 296.60596352260285
+    },
+    {
+      "from": 65,
+      "to": 66,
+      "route": "Feeder Koridor 2",
+      "distance": 7.475024360770224
+    },
+    {
+      "from": 66,
+      "to": 67,
+      "route": "Feeder Koridor 2",
+      "distance": 350.21683839562434
+    },
+    {
+      "from": 67,
+      "to": 68,
+      "route": "Feeder Koridor 2",
+      "distance": 6.0001709716555025
+    },
+    {
+      "from": 68,
+      "to": 69,
+      "route": "Feeder Koridor 2",
+      "distance": 356.4018888237303
+    },
+    {
+      "from": 69,
+      "to": 70,
+      "route": "Feeder Koridor 2",
+      "distance": 5.193942443339419
+    },
+    {
+      "from": 70,
+      "to": 71,
+      "route": "Feeder Koridor 2",
+      "distance": 121.0957600048021
+    },
+    {
+      "from": 71,
+      "to": 72,
+      "route": "Feeder Koridor 2",
+      "distance": 17.04647831925165
+    },
+    {
+      "from": 72,
+      "to": 73,
+      "route": "Feeder Koridor 2",
+      "distance": 248.1133154046762
+    },
+    {
+      "from": 73,
+      "to": 74,
+      "route": "Feeder Koridor 2",
+      "distance": 8.463708592571491
+    },
+    {
+      "from": 74,
+      "to": 75,
+      "route": "Feeder Koridor 2",
+      "distance": 271.0866014741133
+    },
+    {
+      "from": 75,
+      "to": 76,
+      "route": "Feeder Koridor 2",
+      "distance": 17.968572612159658
+    },
+    {
+      "from": 76,
+      "to": 77,
+      "route": "Feeder Koridor 2",
+      "distance": 257.0295883611117
+    },
+    {
+      "from": 77,
+      "to": 78,
+      "route": "Feeder Koridor 2",
+      "distance": 33.75375038232627
+    },
+    {
+      "from": 78,
+      "to": 79,
+      "route": "Feeder Koridor 2",
+      "distance": 453.83718121188076
+    },
+    {
+      "from": 79,
+      "to": 80,
+      "route": "Feeder Koridor 2",
+      "distance": 33.45538374373404
+    },
+    {
+      "from": 80,
+      "to": 81,
+      "route": "Feeder Koridor 2",
+      "distance": 159.7582054342584
+    },
+    {
+      "from": 81,
+      "to": 82,
+      "route": "Feeder Koridor 2",
+      "distance": 20.04971436092543
+    },
+    {
+      "from": 82,
+      "to": 83,
+      "route": "Feeder Koridor 2",
+      "distance": 262.66285056418013
+    },
+    {
+      "from": 83,
+      "to": 84,
+      "route": "Feeder Koridor 2",
+      "distance": 26.274787024027052
+    },
+    {
+      "from": 84,
+      "to": 85,
+      "route": "Feeder Koridor 2",
+      "distance": 321.4544261068022
+    },
+    {
+      "from": 85,
+      "to": 86,
+      "route": "Feeder Koridor 2",
+      "distance": 12.570332971890435
+    },
+    {
+      "from": 86,
+      "to": 87,
+      "route": "Feeder Koridor 2",
+      "distance": 165.2491242419008
+    },
+    {
+      "from": 87,
+      "to": 88,
+      "route": "Feeder Koridor 2",
+      "distance": 15.746789732309566
+    },
+    {
+      "from": 88,
+      "to": 89,
+      "route": "Feeder Koridor 2",
+      "distance": 637.1015529947615
+    },
+    {
+      "from": 89,
+      "to": 90,
+      "route": "Feeder Koridor 2",
+      "distance": 620.038199269924
+    },
+    {
+      "from": 90,
+      "to": 91,
+      "route": "Feeder Koridor 2",
+      "distance": 296.04920145021697
+    },
+    {
+      "from": 91,
+      "to": 92,
+      "route": "Feeder Koridor 2",
+      "distance": 670.119380753096
+    },
+    {
+      "from": 92,
+      "to": 93,
+      "route": "Feeder Koridor 2",
+      "distance": 882.556922224569
+    },
+    {
+      "from": 93,
+      "to": 94,
+      "route": "Feeder Koridor 2",
+      "distance": 628.8387850397469
+    },
+    {
+      "from": 94,
+      "to": 95,
+      "route": "Feeder Koridor 2",
+      "distance": 496.03058985016605
+    },
+    {
+      "from": 95,
+      "to": 96,
+      "route": "Feeder Koridor 2",
+      "distance": 1368.384856281484
+    },
+    {
+      "from": 96,
+      "to": 97,
+      "route": "Feeder Koridor 2",
+      "distance": 759.2902288456976
+    },
+    {
+      "from": 97,
+      "to": 98,
+      "route": "Feeder Koridor 2",
+      "distance": 1480.0386495269518
+    },
+    {
+      "from": 98,
+      "to": 99,
+      "route": "Feeder Koridor 2",
+      "distance": 202.81878938402124
+    },
+    {
+      "from": 99,
+      "to": 100,
+      "route": "Feeder Koridor 2",
+      "distance": 935.0295184391815
+    },
+    {
+      "from": 100,
+      "to": 101,
+      "route": "Feeder Koridor 2",
+      "distance": 487.7334974339639
+    },
+    {
+      "from": 101,
+      "to": 102,
+      "route": "Feeder Koridor 2",
+      "distance": 362.164456082284
+    },
+    {
+      "from": 102,
+      "to": 103,
+      "route": "Feeder Koridor 2",
+      "distance": 803.8614735603799
+    },
+    {
+      "from": 103,
+      "to": 104,
+      "route": "Feeder Koridor 2",
+      "distance": 1049.2278315573747
+    },
+    {
+      "from": 104,
+      "to": 105,
+      "route": "Feeder Koridor 2",
+      "distance": 240.30865430079737
+    },
+    {
+      "from": 105,
+      "to": 106,
+      "route": "Feeder Koridor 2",
+      "distance": 368.89819412448105
+    },
+    {
+      "from": 106,
+      "to": 107,
+      "route": "Feeder Koridor 2",
+      "distance": 208.33163971521543
+    },
+    {
+      "from": 107,
+      "to": 108,
+      "route": "Feeder Koridor 2",
+      "distance": 273.1567122374327
+    },
+    {
+      "from": 108,
+      "to": 109,
+      "route": "Feeder Koridor 2",
+      "distance": 381.9452746958562
+    },
+    {
+      "from": 109,
+      "to": 110,
+      "route": "Feeder Koridor 2",
+      "distance": 412.45649290732007
+    },
+    {
+      "from": 110,
+      "to": 111,
+      "route": "Feeder Koridor 2",
+      "distance": 465.29412432238365
+    },
+    {
+      "from": 111,
+      "to": 112,
+      "route": "Feeder Koridor 2",
+      "distance": 598.584873447339
+    },
+    {
+      "from": 112,
+      "to": 113,
+      "route": "Feeder Koridor 2",
+      "distance": 302.4681113497216
+    },
+    {
+      "from": 113,
+      "to": 114,
+      "route": "Feeder Koridor 2",
+      "distance": 4833.887626438085
+    },
+    {
+      "from": 114,
+      "to": 115,
+      "route": "Feeder Koridor 2",
+      "distance": 39.53105015870301
+    },
+    {
+      "from": 116,
+      "to": 117,
+      "route": "Feeder Koridor 3",
+      "distance": 911.2348919229137
+    },
+    {
+      "from": 117,
+      "to": 118,
+      "route": "Feeder Koridor 3",
+      "distance": 720.5624927059343
+    },
+    {
+      "from": 118,
+      "to": 119,
+      "route": "Feeder Koridor 3",
+      "distance": 814.5524590362033
+    },
+    {
+      "from": 119,
+      "to": 120,
+      "route": "Feeder Koridor 3",
+      "distance": 1512.5985054886337
+    },
+    {
+      "from": 120,
+      "to": 121,
+      "route": "Feeder Koridor 3",
+      "distance": 910.1630252872541
+    },
+    {
+      "from": 121,
+      "to": 122,
+      "route": "Feeder Koridor 3",
+      "distance": 325.98642297592244
+    },
+    {
+      "from": 122,
+      "to": 123,
+      "route": "Feeder Koridor 3",
+      "distance": 421.0286468225234
+    },
+    {
+      "from": 123,
+      "to": 124,
+      "route": "Feeder Koridor 3",
+      "distance": 366.6687775081113
+    },
+    {
+      "from": 124,
+      "to": 125,
+      "route": "Feeder Koridor 3",
+      "distance": 671.8348304852849
+    },
+    {
+      "from": 125,
+      "to": 126,
+      "route": "Feeder Koridor 3",
+      "distance": 2059.2589405338044
+    },
+    {
+      "from": 126,
+      "to": 127,
+      "route": "Feeder Koridor 3",
+      "distance": 1231.6396626922483
+    },
+    {
+      "from": 127,
+      "to": 128,
+      "route": "Feeder Koridor 3",
+      "distance": 976.7462055014972
+    },
+    {
+      "from": 129,
+      "to": 130,
+      "route": "Feeder Koridor 4",
+      "distance": 882.9729699850783
+    },
+    {
+      "from": 130,
+      "to": 131,
+      "route": "Feeder Koridor 4",
+      "distance": 1502.498265169678
+    },
+    {
+      "from": 131,
+      "to": 132,
+      "route": "Feeder Koridor 4",
+      "distance": 1216.0973386478868
+    },
+    {
+      "from": 132,
+      "to": 133,
+      "route": "Feeder Koridor 4",
+      "distance": 1066.5545032522355
+    },
+    {
+      "from": 133,
+      "to": 134,
+      "route": "Feeder Koridor 4",
+      "distance": 407.8822627707026
+    },
+    {
+      "from": 134,
+      "to": 135,
+      "route": "Feeder Koridor 4",
+      "distance": 927.9198026938045
+    },
+    {
+      "from": 135,
+      "to": 136,
+      "route": "Feeder Koridor 4",
+      "distance": 1353.0776672630045
+    },
+    {
+      "from": 136,
+      "to": 137,
+      "route": "Feeder Koridor 4",
+      "distance": 1942.0411533427987
+    },
+    {
+      "from": 138,
+      "to": 139,
+      "route": "Feeder Koridor 5",
+      "distance": 371.6865547002672
+    },
+    {
+      "from": 139,
+      "to": 140,
+      "route": "Feeder Koridor 5",
+      "distance": 223.07971004520542
+    },
+    {
+      "from": 140,
+      "to": 141,
+      "route": "Feeder Koridor 5",
+      "distance": 137.88170903926832
+    },
+    {
+      "from": 141,
+      "to": 142,
+      "route": "Feeder Koridor 5",
+      "distance": 250.1885849502239
+    },
+    {
+      "from": 142,
+      "to": 143,
+      "route": "Feeder Koridor 5",
+      "distance": 562.8439200489366
+    },
+    {
+      "from": 143,
+      "to": 144,
+      "route": "Feeder Koridor 5",
+      "distance": 356.67490886647414
+    },
+    {
+      "from": 144,
+      "to": 145,
+      "route": "Feeder Koridor 5",
+      "distance": 474.59117714415663
+    },
+    {
+      "from": 145,
+      "to": 146,
+      "route": "Feeder Koridor 5",
+      "distance": 377.023053866934
+    },
+    {
+      "from": 146,
+      "to": 147,
+      "route": "Feeder Koridor 5",
+      "distance": 309.60327447964585
+    },
+    {
+      "from": 147,
+      "to": 148,
+      "route": "Feeder Koridor 5",
+      "distance": 164.37752378327676
+    },
+    {
+      "from": 148,
+      "to": 149,
+      "route": "Feeder Koridor 5",
+      "distance": 240.64433519320144
+    },
+    {
+      "from": 149,
+      "to": 150,
+      "route": "Feeder Koridor 5",
+      "distance": 331.22188396420245
+    },
+    {
+      "from": 150,
+      "to": 151,
+      "route": "Feeder Koridor 5",
+      "distance": 154.02845190758094
+    },
+    {
+      "from": 151,
+      "to": 152,
+      "route": "Feeder Koridor 5",
+      "distance": 434.6345522567174
+    },
+    {
+      "from": 152,
+      "to": 153,
+      "route": "Feeder Koridor 5",
+      "distance": 316.9757690580272
+    },
+    {
+      "from": 153,
+      "to": 154,
+      "route": "Feeder Koridor 5",
+      "distance": 299.3435912666466
+    },
+    {
+      "from": 154,
+      "to": 155,
+      "route": "Feeder Koridor 5",
+      "distance": 240.64369027879357
+    },
+    {
+      "from": 155,
+      "to": 156,
+      "route": "Feeder Koridor 5",
+      "distance": 115.02573750282383
+    },
+    {
+      "from": 156,
+      "to": 157,
+      "route": "Feeder Koridor 5",
+      "distance": 566.4302481963617
+    },
+    {
+      "from": 157,
+      "to": 158,
+      "route": "Feeder Koridor 5",
+      "distance": 436.54737284429126
+    },
+    {
+      "from": 159,
+      "to": 160,
+      "route": "Feeder Koridor 6",
+      "distance": 342.37537474961596
+    },
+    {
+      "from": 160,
+      "to": 161,
+      "route": "Feeder Koridor 6",
+      "distance": 119.62569707766411
+    },
+    {
+      "from": 161,
+      "to": 162,
+      "route": "Feeder Koridor 6",
+      "distance": 382.4941052172547
+    },
+    {
+      "from": 162,
+      "to": 163,
+      "route": "Feeder Koridor 6",
+      "distance": 250.5659592581047
+    },
+    {
+      "from": 163,
+      "to": 164,
+      "route": "Feeder Koridor 6",
+      "distance": 374.34260071350724
+    },
+    {
+      "from": 164,
+      "to": 165,
+      "route": "Feeder Koridor 6",
+      "distance": 402.6100552786344
+    },
+    {
+      "from": 165,
+      "to": 166,
+      "route": "Feeder Koridor 6",
+      "distance": 212.56183908786
+    },
+    {
+      "from": 166,
+      "to": 167,
+      "route": "Feeder Koridor 6",
+      "distance": 225.9821015561344
+    },
+    {
+      "from": 167,
+      "to": 168,
+      "route": "Feeder Koridor 6",
+      "distance": 323.57723653567655
+    },
+    {
+      "from": 168,
+      "to": 169,
+      "route": "Feeder Koridor 6",
+      "distance": 283.9252709365102
+    },
+    {
+      "from": 169,
+      "to": 170,
+      "route": "Feeder Koridor 6",
+      "distance": 150.23481107356213
+    },
+    {
+      "from": 171,
+      "to": 172,
+      "route": "Feeder Koridor 7",
+      "distance": 134.5458612399597
+    },
+    {
+      "from": 172,
+      "to": 173,
+      "route": "Feeder Koridor 7",
+      "distance": 386.5718469299075
+    },
+    {
+      "from": 173,
+      "to": 174,
+      "route": "Feeder Koridor 7",
+      "distance": 506.0397807183107
+    },
+    {
+      "from": 174,
+      "to": 175,
+      "route": "Feeder Koridor 7",
+      "distance": 103.41128177940702
+    },
+    {
+      "from": 175,
+      "to": 176,
+      "route": "Feeder Koridor 7",
+      "distance": 281.1219762957891
+    },
+    {
+      "from": 176,
+      "to": 177,
+      "route": "Feeder Koridor 7",
+      "distance": 341.04968614610567
+    },
+    {
+      "from": 177,
+      "to": 178,
+      "route": "Feeder Koridor 7",
+      "distance": 258.52084352792156
+    },
+    {
+      "from": 178,
+      "to": 179,
+      "route": "Feeder Koridor 7",
+      "distance": 314.8957243167157
+    },
+    {
+      "from": 179,
+      "to": 180,
+      "route": "Feeder Koridor 7",
+      "distance": 374.5684631618164
+    },
+    {
+      "from": 180,
+      "to": 181,
+      "route": "Feeder Koridor 7",
+      "distance": 444.41429814760545
+    },
+    {
+      "from": 181,
+      "to": 182,
+      "route": "Feeder Koridor 7",
+      "distance": 154.560948035944
+    },
+    {
+      "from": 182,
+      "to": 183,
+      "route": "Feeder Koridor 7",
+      "distance": 506.0394850192175
+    },
+    {
+      "from": 183,
+      "to": 184,
+      "route": "Feeder Koridor 7",
+      "distance": 196.8150201608882
+    },
+    {
+      "from": 184,
+      "to": 185,
+      "route": "Feeder Koridor 7",
+      "distance": 161.23264363460544
+    },
+    {
+      "from": 185,
+      "to": 186,
+      "route": "Feeder Koridor 7",
+      "distance": 190.14332456218256
+    },
+    {
+      "from": 186,
+      "to": 187,
+      "route": "Feeder Koridor 7",
+      "distance": 118.97857150966125
+    },
+    {
+      "from": 187,
+      "to": 188,
+      "route": "Feeder Koridor 7",
+      "distance": 334.1979724923061
+    },
+    {
+      "from": 188,
+      "to": 189,
+      "route": "Feeder Koridor 7",
+      "distance": 125.71318281563781
+    },
+    {
+      "from": 189,
+      "to": 190,
+      "route": "Feeder Koridor 7",
+      "distance": 249.3720852348074
+    },
+    {
+      "from": 190,
+      "to": 191,
+      "route": "Feeder Koridor 7",
+      "distance": 250.90687914218577
+    },
+    {
+      "from": 191,
+      "to": 192,
+      "route": "Feeder Koridor 7",
+      "distance": 111.24376875748148
+    },
+    {
+      "from": 192,
+      "to": 193,
+      "route": "Feeder Koridor 7",
+      "distance": 279.7609862557939
+    },
+    {
+      "from": 193,
+      "to": 194,
+      "route": "Feeder Koridor 7",
+      "distance": 123.42636857543555
+    },
+    {
+      "from": 194,
+      "to": 195,
+      "route": "Feeder Koridor 7",
+      "distance": 209.72178196749732
+    },
+    {
+      "from": 196,
+      "to": 197,
+      "route": "Feeder Koridor 8",
+      "distance": 322.7008895305029
+    },
+    {
+      "from": 197,
+      "to": 198,
+      "route": "Feeder Koridor 8",
+      "distance": 698.3967099877179
+    },
+    {
+      "from": 198,
+      "to": 199,
+      "route": "Feeder Koridor 8",
+      "distance": 1244.711128806216
+    },
+    {
+      "from": 199,
+      "to": 200,
+      "route": "Feeder Koridor 8",
+      "distance": 533.8670866598533
+    },
+    {
+      "from": 200,
+      "to": 201,
+      "route": "Feeder Koridor 8",
+      "distance": 824.2355015867761
+    },
+    {
+      "from": 201,
+      "to": 202,
+      "route": "Feeder Koridor 8",
+      "distance": 364.1579119879837
+    },
+    {
+      "from": 202,
+      "to": 203,
+      "route": "Feeder Koridor 8",
+      "distance": 406.9381148059742
+    },
+    {
+      "from": 203,
+      "to": 204,
+      "route": "Feeder Koridor 8",
+      "distance": 309.85725407621317
+    },
+    {
+      "from": 204,
+      "to": 205,
+      "route": "Feeder Koridor 8",
+      "distance": 2628.286633124468
+    },
+    {
+      "from": 205,
+      "to": 206,
+      "route": "Feeder Koridor 8",
+      "distance": 322.7008895305029
+    },
+    {
+      "from": 206,
+      "to": 207,
+      "route": "Feeder Koridor 8",
+      "distance": 698.3967099877179
+    },
+    {
+      "from": 207,
+      "to": 208,
+      "route": "Feeder Koridor 8",
+      "distance": 1244.711128806216
+    },
+    {
+      "from": 208,
+      "to": 209,
+      "route": "Feeder Koridor 8",
+      "distance": 533.8670866598533
+    },
+    {
+      "from": 209,
+      "to": 210,
+      "route": "Feeder Koridor 8",
+      "distance": 824.2355015867761
+    },
+    {
+      "from": 210,
+      "to": 211,
+      "route": "Feeder Koridor 8",
+      "distance": 364.1579119879837
+    },
+    {
+      "from": 211,
+      "to": 212,
+      "route": "Feeder Koridor 8",
+      "distance": 406.9381148059742
+    },
+    {
+      "from": 212,
+      "to": 213,
+      "route": "Feeder Koridor 8",
+      "distance": 309.85725407621317
+    },
+    {
+      "from": 213,
+      "to": 214,
+      "route": "Feeder Koridor 8",
+      "distance": 7.798885493449393
+    },
+    {
+      "from": 214,
+      "to": 215,
+      "route": "Feeder Koridor 8",
+      "distance": 295.6256925326511
+    },
+    {
+      "from": 215,
+      "to": 216,
+      "route": "Feeder Koridor 8",
+      "distance": 629.0059774857999
+    },
+    {
+      "from": 216,
+      "to": 217,
+      "route": "Feeder Koridor 8",
+      "distance": 221.63210542457608
+    },
+    {
+      "from": 217,
+      "to": 218,
+      "route": "Feeder Koridor 8",
+      "distance": 1250.2561786520816
+    },
+    {
+      "from": 218,
+      "to": 219,
+      "route": "Feeder Koridor 8",
+      "distance": 751.0745775760829
+    },
+    {
+      "from": 219,
+      "to": 220,
+      "route": "Feeder Koridor 8",
+      "distance": 256.4149197326041
+    },
+    {
+      "from": 220,
+      "to": 221,
+      "route": "Feeder Koridor 8",
+      "distance": 865.884407099431
+    },
+    {
+      "from": 221,
+      "to": 222,
+      "route": "Feeder Koridor 8",
+      "distance": 281.8751909864577
+    },
+    {
+      "from": 222,
+      "to": 223,
+      "route": "Feeder Koridor 8",
+      "distance": 2647.4623709193343
+    },
+    {
+      "from": 223,
+      "to": 224,
+      "route": "Feeder Koridor 8",
+      "distance": 295.6256925326511
+    },
+    {
+      "from": 224,
+      "to": 225,
+      "route": "Feeder Koridor 8",
+      "distance": 629.0059774857999
+    },
+    {
+      "from": 225,
+      "to": 226,
+      "route": "Feeder Koridor 8",
+      "distance": 221.63210542457608
+    },
+    {
+      "from": 226,
+      "to": 227,
+      "route": "Feeder Koridor 8",
+      "distance": 1250.2561786520816
+    },
+    {
+      "from": 227,
+      "to": 228,
+      "route": "Feeder Koridor 8",
+      "distance": 751.0745775760829
+    },
+    {
+      "from": 228,
+      "to": 229,
+      "route": "Feeder Koridor 8",
+      "distance": 256.4149197326041
+    },
+    {
+      "from": 229,
+      "to": 230,
+      "route": "Feeder Koridor 8",
+      "distance": 865.884407099431
+    },
+    {
+      "from": 230,
+      "to": 231,
+      "route": "Feeder Koridor 8",
+      "distance": 281.8751909864577
+    },
+    {
+      "from": 232,
+      "to": 233,
+      "route": "Teman Bus Koridor 2",
+      "distance": 541.7121930614737
+    },
+    {
+      "from": 233,
+      "to": 234,
+      "route": "Teman Bus Koridor 2",
+      "distance": 463.5023561226459
+    },
+    {
+      "from": 234,
+      "to": 235,
+      "route": "Teman Bus Koridor 2",
+      "distance": 430.3149265579648
+    },
+    {
+      "from": 235,
+      "to": 236,
+      "route": "Teman Bus Koridor 2",
+      "distance": 300.01381056751177
+    },
+    {
+      "from": 236,
+      "to": 237,
+      "route": "Teman Bus Koridor 2",
+      "distance": 450.0843084492336
+    },
+    {
+      "from": 237,
+      "to": 238,
+      "route": "Teman Bus Koridor 2",
+      "distance": 278.7988029415242
+    },
+    {
+      "from": 238,
+      "to": 239,
+      "route": "Teman Bus Koridor 2",
+      "distance": 244.79476650928868
+    },
+    {
+      "from": 239,
+      "to": 240,
+      "route": "Teman Bus Koridor 2",
+      "distance": 694.1996379020449
+    },
+    {
+      "from": 240,
+      "to": 241,
+      "route": "Teman Bus Koridor 2",
+      "distance": 489.65046200054013
+    },
+    {
+      "from": 241,
+      "to": 242,
+      "route": "Teman Bus Koridor 2",
+      "distance": 1317.8141287156798
+    },
+    {
+      "from": 242,
+      "to": 243,
+      "route": "Teman Bus Koridor 2",
+      "distance": 277.5177714566906
+    },
+    {
+      "from": 243,
+      "to": 244,
+      "route": "Teman Bus Koridor 2",
+      "distance": 690.7288096340995
+    },
+    {
+      "from": 244,
+      "to": 245,
+      "route": "Teman Bus Koridor 2",
+      "distance": 211.80764250491956
+    },
+    {
+      "from": 245,
+      "to": 246,
+      "route": "Teman Bus Koridor 2",
+      "distance": 887.4841152902218
+    },
+    {
+      "from": 246,
+      "to": 247,
+      "route": "Teman Bus Koridor 2",
+      "distance": 681.7256184125622
+    },
+    {
+      "from": 247,
+      "to": 248,
+      "route": "Teman Bus Koridor 2",
+      "distance": 26.136628881330054
+    },
+    {
+      "from": 248,
+      "to": 249,
+      "route": "Teman Bus Koridor 2",
+      "distance": 733.5324130147984
+    },
+    {
+      "from": 249,
+      "to": 250,
+      "route": "Teman Bus Koridor 2",
+      "distance": 679.5802695145863
+    },
+    {
+      "from": 250,
+      "to": 251,
+      "route": "Teman Bus Koridor 2",
+      "distance": 562.0539073445674
+    },
+    {
+      "from": 251,
+      "to": 252,
+      "route": "Teman Bus Koridor 2",
+      "distance": 272.3833044642496
+    },
+    {
+      "from": 252,
+      "to": 253,
+      "route": "Teman Bus Koridor 2",
+      "distance": 307.7134033415226
+    },
+    {
+      "from": 253,
+      "to": 254,
+      "route": "Teman Bus Koridor 2",
+      "distance": 588.1315959142928
+    },
+    {
+      "from": 254,
+      "to": 255,
+      "route": "Teman Bus Koridor 2",
+      "distance": 430.5881960723329
+    },
+    {
+      "from": 255,
+      "to": 256,
+      "route": "Teman Bus Koridor 2",
+      "distance": 488.2733983168165
+    },
+    {
+      "from": 256,
+      "to": 257,
+      "route": "Teman Bus Koridor 2",
+      "distance": 628.199892630635
+    },
+    {
+      "from": 257,
+      "to": 258,
+      "route": "Teman Bus Koridor 2",
+      "distance": 251.42785166779288
+    },
+    {
+      "from": 258,
+      "to": 259,
+      "route": "Teman Bus Koridor 2",
+      "distance": 260.4458631295178
+    },
+    {
+      "from": 259,
+      "to": 260,
+      "route": "Teman Bus Koridor 2",
+      "distance": 953.7412443575985
+    },
+    {
+      "from": 260,
+      "to": 261,
+      "route": "Teman Bus Koridor 2",
+      "distance": 207.5658363109982
+    },
+    {
+      "from": 261,
+      "to": 262,
+      "route": "Teman Bus Koridor 2",
+      "distance": 389.68949648996903
+    },
+    {
+      "from": 262,
+      "to": 263,
+      "route": "Teman Bus Koridor 2",
+      "distance": 191.71876987381194
+    },
+    {
+      "from": 263,
+      "to": 264,
+      "route": "Teman Bus Koridor 2",
+      "distance": 523.1904183856876
+    },
+    {
+      "from": 264,
+      "to": 265,
+      "route": "Teman Bus Koridor 2",
+      "distance": 268.32012489444963
+    },
+    {
+      "from": 265,
+      "to": 266,
+      "route": "Teman Bus Koridor 2",
+      "distance": 339.2533291591124
+    },
+    {
+      "from": 266,
+      "to": 267,
+      "route": "Teman Bus Koridor 2",
+      "distance": 253.09340209002474
+    },
+    {
+      "from": 267,
+      "to": 268,
+      "route": "Teman Bus Koridor 2",
+      "distance": 213.7420573215857
+    },
+    {
+      "from": 268,
+      "to": 269,
+      "route": "Teman Bus Koridor 2",
+      "distance": 355.1450513714091
+    },
+    {
+      "from": 269,
+      "to": 270,
+      "route": "Teman Bus Koridor 2",
+      "distance": 432.9327964002292
+    },
+    {
+      "from": 270,
+      "to": 271,
+      "route": "Teman Bus Koridor 2",
+      "distance": 1036.7833101798053
+    },
+    {
+      "from": 271,
+      "to": 272,
+      "route": "Teman Bus Koridor 2",
+      "distance": 333.7717268925209
+    },
+    {
+      "from": 272,
+      "to": 273,
+      "route": "Teman Bus Koridor 2",
+      "distance": 417.72988763406215
+    },
+    {
+      "from": 273,
+      "to": 274,
+      "route": "Teman Bus Koridor 2",
+      "distance": 493.6223885443004
+    },
+    {
+      "from": 274,
+      "to": 275,
+      "route": "Teman Bus Koridor 2",
+      "distance": 440.56346205974035
+    },
+    {
+      "from": 275,
+      "to": 276,
+      "route": "Teman Bus Koridor 2",
+      "distance": 476.9886283375738
+    },
+    {
+      "from": 276,
+      "to": 277,
+      "route": "Teman Bus Koridor 2",
+      "distance": 990.0946375438185
+    },
+    {
+      "from": 277,
+      "to": 278,
+      "route": "Teman Bus Koridor 2",
+      "distance": 752.3386033965514
+    },
+    {
+      "from": 278,
+      "to": 279,
+      "route": "Teman Bus Koridor 2",
+      "distance": 1497.1899840456067
+    },
+    {
+      "from": 279,
+      "to": 280,
+      "route": "Teman Bus Koridor 2",
+      "distance": 1951.53074688567
+    },
+    {
+      "from": 280,
+      "to": 281,
+      "route": "Teman Bus Koridor 2",
+      "distance": 338.7337872308834
+    },
+    {
+      "from": 281,
+      "to": 282,
+      "route": "Teman Bus Koridor 2",
+      "distance": 506.0661442521828
+    },
+    {
+      "from": 282,
+      "to": 283,
+      "route": "Teman Bus Koridor 2",
+      "distance": 426.85876092523125
+    },
+    {
+      "from": 283,
+      "to": 284,
+      "route": "Teman Bus Koridor 2",
+      "distance": 1529.5541143137677
+    },
+    {
+      "from": 284,
+      "to": 285,
+      "route": "Teman Bus Koridor 2",
+      "distance": 314.32353456532076
+    },
+    {
+      "from": 285,
+      "to": 286,
+      "route": "Teman Bus Koridor 2",
+      "distance": 761.2415166094462
+    },
+    {
+      "from": 286,
+      "to": 287,
+      "route": "Teman Bus Koridor 2",
+      "distance": 211.83547467914917
+    },
+    {
+      "from": 287,
+      "to": 288,
+      "route": "Teman Bus Koridor 2",
+      "distance": 732.4487660038507
+    },
+    {
+      "from": 288,
+      "to": 289,
+      "route": "Teman Bus Koridor 2",
+      "distance": 291.6011214162398
+    },
+    {
+      "from": 289,
+      "to": 290,
+      "route": "Teman Bus Koridor 2",
+      "distance": 326.4027083595416
+    },
+    {
+      "from": 290,
+      "to": 291,
+      "route": "Teman Bus Koridor 2",
+      "distance": 1050.8341997021046
+    },
+    {
+      "from": 292,
+      "to": 293,
+      "route": "Teman Bus Koridor 5",
+      "distance": 3.335847799308616
+    },
+    {
+      "from": 293,
+      "to": 294,
+      "route": "Teman Bus Koridor 5",
+      "distance": 112.83580913707365
+    },
+    {
+      "from": 294,
+      "to": 295,
+      "route": "Teman Bus Koridor 5",
+      "distance": 12.231441930901408
+    },
+    {
+      "from": 295,
+      "to": 296,
+      "route": "Teman Bus Koridor 5",
+      "distance": 111.06872278547083
+    },
+    {
+      "from": 296,
+      "to": 297,
+      "route": "Teman Bus Koridor 5",
+      "distance": 209.72347364753347
+    },
+    {
+      "from": 297,
+      "to": 298,
+      "route": "Teman Bus Koridor 5",
+      "distance": 24.462883861802815
+    },
+    {
+      "from": 298,
+      "to": 299,
+      "route": "Teman Bus Koridor 5",
+      "distance": 358.0476637954494
+    },
+    {
+      "from": 299,
+      "to": 300,
+      "route": "Teman Bus Koridor 5",
+      "distance": 103.41128177949544
+    },
+    {
+      "from": 300,
+      "to": 301,
+      "route": "Teman Bus Koridor 5",
+      "distance": 50.0377169900271
+    },
+    {
+      "from": 301,
+      "to": 302,
+      "route": "Teman Bus Koridor 5",
+      "distance": 3.3358477993528237
+    },
+    {
+      "from": 302,
+      "to": 303,
+      "route": "Teman Bus Koridor 5",
+      "distance": 3.335847799308616
+    },
+    {
+      "from": 303,
+      "to": 304,
+      "route": "Teman Bus Koridor 5",
+      "distance": 241.36665146249538
+    },
+    {
+      "from": 304,
+      "to": 305,
+      "route": "Teman Bus Koridor 5",
+      "distance": 357.91840802069163
+    },
+    {
+      "from": 305,
+      "to": 306,
+      "route": "Teman Bus Koridor 5",
+      "distance": 5.559746332284177
+    },
+    {
+      "from": 306,
+      "to": 307,
+      "route": "Teman Bus Koridor 5",
+      "distance": 225.28566022710947
+    },
+    {
+      "from": 307,
+      "to": 308,
+      "route": "Teman Bus Koridor 5",
+      "distance": 111.98227620356467
+    },
+    {
+      "from": 308,
+      "to": 309,
+      "route": "Teman Bus Koridor 5",
+      "distance": 241.63376210195437
+    },
+    {
+      "from": 309,
+      "to": 310,
+      "route": "Teman Bus Koridor 5",
+      "distance": 17.791188263141375
+    },
+    {
+      "from": 310,
+      "to": 311,
+      "route": "Teman Bus Koridor 5",
+      "distance": 118.42168414550535
+    },
+    {
+      "from": 311,
+      "to": 312,
+      "route": "Teman Bus Koridor 5",
+      "distance": 115.03204844375377
+    },
+    {
+      "from": 312,
+      "to": 313,
+      "route": "Teman Bus Koridor 5",
+      "distance": 111.24532807703989
+    },
+    {
+      "from": 313,
+      "to": 314,
+      "route": "Teman Bus Koridor 5",
+      "distance": 6.671695598661438
+    },
+    {
+      "from": 314,
+      "to": 315,
+      "route": "Teman Bus Koridor 5",
+      "distance": 222.63510119967657
+    },
+    {
+      "from": 315,
+      "to": 316,
+      "route": "Teman Bus Koridor 5",
+      "distance": 8.895594131548584
+    },
+    {
+      "from": 316,
+      "to": 317,
+      "route": "Teman Bus Koridor 5",
+      "distance": 4.447797065774292
+    },
+    {
+      "from": 317,
+      "to": 318,
+      "route": "Teman Bus Koridor 5",
+      "distance": 429.64053552936537
+    },
+    {
+      "from": 318,
+      "to": 319,
+      "route": "Teman Bus Koridor 5",
+      "distance": 123.69162804066033
+    },
+    {
+      "from": 319,
+      "to": 320,
+      "route": "Teman Bus Koridor 5",
+      "distance": 117.66718482877256
+    },
+    {
+      "from": 320,
+      "to": 321,
+      "route": "Teman Bus Koridor 5",
+      "distance": 10.007543398058468
+    },
+    {
+      "from": 321,
+      "to": 322,
+      "route": "Teman Bus Koridor 5",
+      "distance": 1.1119492664214694
+    },
+    {
+      "from": 322,
+      "to": 323,
+      "route": "Teman Bus Koridor 5",
+      "distance": 277.746939363577
+    },
+    {
+      "from": 323,
+      "to": 324,
+      "route": "Teman Bus Koridor 5",
+      "distance": 0.0
+    },
+    {
+      "from": 324,
+      "to": 325,
+      "route": "Teman Bus Koridor 5",
+      "distance": 301.96709262384746
+    },
+    {
+      "from": 325,
+      "to": 326,
+      "route": "Teman Bus Koridor 5",
+      "distance": 7.7836448651271155
+    },
+    {
+      "from": 326,
+      "to": 327,
+      "route": "Teman Bus Koridor 5",
+      "distance": 334.03017166105235
+    },
+    {
+      "from": 327,
+      "to": 328,
+      "route": "Teman Bus Koridor 5",
+      "distance": 1.1119492664656772
+    },
+    {
+      "from": 328,
+      "to": 329,
+      "route": "Teman Bus Koridor 5",
+      "distance": 111.04440706929873
+    },
+    {
+      "from": 329,
+      "to": 330,
+      "route": "Teman Bus Koridor 5",
+      "distance": 113.24943731136608
+    },
+    {
+      "from": 330,
+      "to": 331,
+      "route": "Teman Bus Koridor 5",
+      "distance": 234.6075159585661
+    },
+    {
+      "from": 331,
+      "to": 332,
+      "route": "Teman Bus Koridor 5",
+      "distance": 120.90081055949739
+    },
+    {
+      "from": 332,
+      "to": 333,
+      "route": "Teman Bus Koridor 5",
+      "distance": 4.4477970658184995
+    },
+    {
+      "from": 333,
+      "to": 334,
+      "route": "Teman Bus Koridor 5",
+      "distance": 117.66678776329668
+    },
+    {
+      "from": 334,
+      "to": 335,
+      "route": "Teman Bus Koridor 5",
+      "distance": 119.62083029632966
+    },
+    {
+      "from": 335,
+      "to": 336,
+      "route": "Teman Bus Koridor 5",
+      "distance": 8.895594131548584
+    },
+    {
+      "from": 336,
+      "to": 337,
+      "route": "Teman Bus Koridor 5",
+      "distance": 248.87008143893593
+    },
+    {
+      "from": 337,
+      "to": 338,
+      "route": "Teman Bus Koridor 5",
+      "distance": 655.8776474624776
+    },
+    {
+      "from": 338,
+      "to": 339,
+      "route": "Teman Bus Koridor 5",
+      "distance": 83.39619498337849
+    },
+    {
+      "from": 339,
+      "to": 340,
+      "route": "Teman Bus Koridor 5",
+      "distance": 111.1340272987613
+    },
+    {
+      "from": 340,
+      "to": 341,
+      "route": "Teman Bus Koridor 5",
+      "distance": 600.7963870419497
+    },
+    {
+      "from": 341,
+      "to": 342,
+      "route": "Teman Bus Koridor 5",
+      "distance": 10.007543397970053
+    },
+    {
+      "from": 342,
+      "to": 343,
+      "route": "Teman Bus Koridor 5",
+      "distance": 162.74752294022653
+    },
+    {
+      "from": 343,
+      "to": 344,
+      "route": "Teman Bus Koridor 5",
+      "distance": 247.57772969519002
+    },
+    {
+      "from": 344,
+      "to": 345,
+      "route": "Teman Bus Koridor 5",
+      "distance": 163.45654216749256
+    },
+    {
+      "from": 345,
+      "to": 346,
+      "route": "Teman Bus Koridor 5",
+      "distance": 30.022630194042783
+    },
+    {
+      "from": 346,
+      "to": 347,
+      "route": "Teman Bus Koridor 5",
+      "distance": 27.798731661155642
+    },
+    {
+      "from": 347,
+      "to": 348,
+      "route": "Teman Bus Koridor 5",
+      "distance": 3.3358477993528237
+    },
+    {
+      "from": 348,
+      "to": 349,
+      "route": "Teman Bus Koridor 5",
+      "distance": 5.559746332239969
+    },
+    {
+      "from": 349,
+      "to": 350,
+      "route": "Teman Bus Koridor 5",
+      "distance": 8.895594131548584
+    },
+    {
+      "from": 350,
+      "to": 351,
+      "route": "Teman Bus Koridor 5",
+      "distance": 240.07651936100095
+    },
+    {
+      "from": 351,
+      "to": 352,
+      "route": "Teman Bus Koridor 5",
+      "distance": 112.4600460485287
+    },
+    {
+      "from": 352,
+      "to": 353,
+      "route": "Teman Bus Koridor 5",
+      "distance": 6.671695598661438
+    },
+    {
+      "from": 353,
+      "to": 354,
+      "route": "Teman Bus Koridor 5",
+      "distance": 222.13225695845495
+    },
+    {
+      "from": 354,
+      "to": 355,
+      "route": "Teman Bus Koridor 5",
+      "distance": 3.3358477993528237
+    },
+    {
+      "from": 355,
+      "to": 356,
+      "route": "Teman Bus Koridor 5",
+      "distance": 1.1119492664214694
+    },
+    {
+      "from": 356,
+      "to": 357,
+      "route": "Teman Bus Koridor 5",
+      "distance": 235.70285596375226
+    },
+    {
+      "from": 357,
+      "to": 358,
+      "route": "Teman Bus Koridor 5",
+      "distance": 94.51568764790264
+    },
+    {
+      "from": 358,
+      "to": 359,
+      "route": "Teman Bus Koridor 5",
+      "distance": 161.12864175712247
+    },
+    {
+      "from": 359,
+      "to": 360,
+      "route": "Teman Bus Koridor 5",
+      "distance": 64.49305745385986
+    },
+    {
+      "from": 360,
+      "to": 361,
+      "route": "Teman Bus Koridor 5",
+      "distance": 145.66535390435124
+    },
+    {
+      "from": 361,
+      "to": 362,
+      "route": "Teman Bus Koridor 5",
+      "distance": 221.27790402269102
+    },
+    {
+      "from": 362,
+      "to": 363,
+      "route": "Teman Bus Koridor 5",
+      "distance": 246.5845780664903
+    },
+    {
+      "from": 363,
+      "to": 364,
+      "route": "Teman Bus Koridor 5",
+      "distance": 219.0540054898039
+    },
+    {
+      "from": 364,
+      "to": 365,
+      "route": "Teman Bus Koridor 5",
+      "distance": 111.6002554873432
+    },
+    {
+      "from": 365,
+      "to": 366,
+      "route": "Teman Bus Koridor 5",
+      "distance": 16.6792389966757
+    },
+    {
+      "from": 366,
+      "to": 367,
+      "route": "Teman Bus Koridor 5",
+      "distance": 43.366021391365656
+    },
+    {
+      "from": 367,
+      "to": 368,
+      "route": "Teman Bus Koridor 5",
+      "distance": 184.05047841198945
+    },
+    {
+      "from": 368,
+      "to": 369,
+      "route": "Teman Bus Koridor 5",
+      "distance": 6.671695598661438
+    },
+    {
+      "from": 369,
+      "to": 370,
+      "route": "Teman Bus Koridor 5",
+      "distance": 37.80627505912569
+    },
+    {
+      "from": 370,
+      "to": 371,
+      "route": "Teman Bus Koridor 5",
+      "distance": 113.70778660102071
+    },
+    {
+      "from": 371,
+      "to": 372,
+      "route": "Teman Bus Koridor 5",
+      "distance": 191.22002278177328
+    },
+    {
+      "from": 372,
+      "to": 373,
+      "route": "Teman Bus Koridor 5",
+      "distance": 286.66192607840406
+    },
+    {
+      "from": 373,
+      "to": 374,
+      "route": "Teman Bus Koridor 5",
+      "distance": 262.59099465859424
+    },
+    {
+      "from": 374,
+      "to": 375,
+      "route": "Teman Bus Koridor 5",
+      "distance": 43.366021391409866
+    },
+    {
+      "from": 375,
+      "to": 376,
+      "route": "Teman Bus Koridor 5",
+      "distance": 470.3052196141366
+    },
+    {
+      "from": 376,
+      "to": 377,
+      "route": "Teman Bus Koridor 5",
+      "distance": 3.3358477993528237
+    },
+    {
+      "from": 377,
+      "to": 378,
+      "route": "Teman Bus Koridor 5",
+      "distance": 111.9824038987716
+    },
+    {
+      "from": 378,
+      "to": 379,
+      "route": "Teman Bus Koridor 5",
+      "distance": 121.7984751872432
+    },
+    {
+      "from": 379,
+      "to": 380,
+      "route": "Teman Bus Koridor 5",
+      "distance": 526.7951428915795
+    },
+    {
+      "from": 380,
+      "to": 381,
+      "route": "Teman Bus Koridor 5",
+      "distance": 44.477970657831335
+    },
+    {
+      "from": 381,
+      "to": 382,
+      "route": "Teman Bus Koridor 5",
+      "distance": 368.1851991764899
+    },
+    {
+      "from": 382,
+      "to": 383,
+      "route": "Teman Bus Koridor 5",
+      "distance": 308.6615918165724
+    },
+    {
+      "from": 383,
+      "to": 384,
+      "route": "Teman Bus Koridor 5",
+      "distance": 375.07813043314843
+    },
+    {
+      "from": 384,
+      "to": 385,
+      "route": "Teman Bus Koridor 5",
+      "distance": 8.895594131548584
+    },
+    {
+      "from": 385,
+      "to": 386,
+      "route": "Teman Bus Koridor 5",
+      "distance": 4.447797065774292
+    },
+    {
+      "from": 386,
+      "to": 387,
+      "route": "Teman Bus Koridor 5",
+      "distance": 4.4477970658184995
+    },
+    {
+      "from": 387,
+      "to": 388,
+      "route": "Teman Bus Koridor 5",
+      "distance": 454.46139563121426
+    },
+    {
+      "from": 389,
+      "to": 390,
+      "route": "LRT Sumsel",
+      "distance": 1310.1106671302557
+    },
+    {
+      "from": 390,
+      "to": 391,
+      "route": "LRT Sumsel",
+      "distance": 927.5826881045521
+    },
+    {
+      "from": 391,
+      "to": 392,
+      "route": "LRT Sumsel",
+      "distance": 918.1598746765256
+    },
+    {
+      "from": 392,
+      "to": 393,
+      "route": "LRT Sumsel",
+      "distance": 8503.435978644793
+    },
+    {
+      "from": 393,
+      "to": 394,
+      "route": "LRT Sumsel",
+      "distance": 2933.2174886339076
+    },
+    {
+      "from": 394,
+      "to": 395,
+      "route": "LRT Sumsel",
+      "distance": 7362.511332139383
+    },
+    {
+      "from": 395,
+      "to": 396,
+      "route": "LRT Sumsel",
+      "distance": 500.92667878832646
+    },
+    {
+      "from": 396,
+      "to": 397,
+      "route": "LRT Sumsel",
+      "distance": 802.8058555257825
+    },
+    {
+      "from": 397,
+      "to": 398,
+      "route": "LRT Sumsel",
+      "distance": 1103.9100363879782
+    },
+    {
+      "from": 398,
+      "to": 399,
+      "route": "LRT Sumsel",
+      "distance": 2154.760895640966
+    },
+    {
+      "from": 399,
+      "to": 400,
+      "route": "LRT Sumsel",
+      "distance": 2445.0336995137463
+    },
+    {
+      "from": 400,
+      "to": 401,
+      "route": "LRT Sumsel",
+      "distance": 1119.6937403055215
+    }
+  ],
+  "routes": [
+    "Feeder Koridor 1",
+    "Feeder Koridor 2",
+    "Feeder Koridor 3",
+    "Feeder Koridor 4",
+    "Feeder Koridor 5",
+    "Feeder Koridor 6",
+    "Feeder Koridor 7",
+    "Feeder Koridor 8",
+    "Teman Bus Koridor 2",
+    "Teman Bus Koridor 5",
+    "LRT Sumsel"
+  ]
+}

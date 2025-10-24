@@ -1,0 +1,195 @@
+{
+  "route_id": 1,
+  "origin": "PTC",
+  "destination": "Universitas\u202fSriwijaya Kampus Bukit Besar",
+  "summary": {
+    "total_time_minutes": 22.126121425318438,
+    "total_cost": 56000,
+    "total_distance_km": 8.017671306879004,
+    "num_transfers": 2,
+    "departure_time": "2025-10-23 12:48:36.314852",
+    "arrival_time": "2025-10-23 13:10:43.882140"
+  },
+  "segments": [
+    {
+      "sequence": 1,
+      "mode": "WALK",
+      "route_name": "Walking",
+      "from_stop": "PTC",
+      "to_stop": "H. PTC A",
+      "duration_minutes": 1.06770749426438,
+      "cost": 0,
+      "distance_km": 0.08897562452203167
+    },
+    {
+      "sequence": 2,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. PTC A",
+      "to_stop": "H. spbu sukamto",
+      "duration_minutes": 0.6660426514960573,
+      "cost": 3500,
+      "distance_km": 0.2775177714566906
+    },
+    {
+      "sequence": 3,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. spbu sukamto",
+      "to_stop": "H.BLPT A",
+      "duration_minutes": 1.6577491431218387,
+      "cost": 3500,
+      "distance_km": 0.6907288096340995
+    },
+    {
+      "sequence": 4,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H.BLPT A",
+      "to_stop": "H. smp 9/10",
+      "duration_minutes": 0.5083383420118069,
+      "cost": 3500,
+      "distance_km": 0.21180764250491957
+    },
+    {
+      "sequence": 5,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. smp 9/10",
+      "to_stop": "H. rimba kemuning A",
+      "duration_minutes": 2.1299618766965325,
+      "cost": 3500,
+      "distance_km": 0.8874841152902218
+    },
+    {
+      "sequence": 6,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. rimba kemuning A",
+      "to_stop": "H. transit gloria polda",
+      "duration_minutes": 1.6361414841901492,
+      "cost": 3500,
+      "distance_km": 0.6817256184125622
+    },
+    {
+      "sequence": 7,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. transit gloria polda",
+      "to_stop": "H. PDAM",
+      "duration_minutes": 0.06272790931519213,
+      "cost": 3500,
+      "distance_km": 0.026136628881330053
+    },
+    {
+      "sequence": 8,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. PDAM",
+      "to_stop": "H. smkn 2",
+      "duration_minutes": 1.7604777912355163,
+      "cost": 3500,
+      "distance_km": 0.7335324130147984
+    },
+    {
+      "sequence": 9,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. smkn 2",
+      "to_stop": "H. rs siti khodija A",
+      "duration_minutes": 1.6309926468350073,
+      "cost": 3500,
+      "distance_km": 0.6795802695145864
+    },
+    {
+      "sequence": 10,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. rs siti khodija A",
+      "to_stop": "H. BCA",
+      "duration_minutes": 1.3489293776269617,
+      "cost": 3500,
+      "distance_km": 0.5620539073445674
+    },
+    {
+      "sequence": 11,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. BCA",
+      "to_stop": "H. perpustakaan daerah A",
+      "duration_minutes": 0.653719930714199,
+      "cost": 3500,
+      "distance_km": 0.2723833044642496
+    },
+    {
+      "sequence": 12,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. perpustakaan daerah A",
+      "to_stop": "H. Capil",
+      "duration_minutes": 0.7385121680196544,
+      "cost": 3500,
+      "distance_km": 0.30771340334152264
+    },
+    {
+      "sequence": 13,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. Capil",
+      "to_stop": "H. bengkel pass",
+      "duration_minutes": 1.4115158301943025,
+      "cost": 3500,
+      "distance_km": 0.5881315959142928
+    },
+    {
+      "sequence": 14,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. bengkel pass",
+      "to_stop": "H. prameswara A",
+      "duration_minutes": 1.033411670573599,
+      "cost": 3500,
+      "distance_km": 0.4305881960723329
+    },
+    {
+      "sequence": 15,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. prameswara A",
+      "to_stop": "H. simpang sma 10 A",
+      "duration_minutes": 1.1718561559603597,
+      "cost": 3500,
+      "distance_km": 0.4882733983168165
+    },
+    {
+      "sequence": 16,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. simpang sma 10 A",
+      "to_stop": "H. smkn 3",
+      "duration_minutes": 1.5076797423135238,
+      "cost": 3500,
+      "distance_km": 0.6281998926306349
+    },
+    {
+      "sequence": 17,
+      "mode": "TEMAN_BUS",
+      "route_name": "Teman Bus Koridor 2",
+      "from_stop": "H. smkn 3",
+      "to_stop": "H. Unsri A",
+      "duration_minutes": 0.6034268440027029,
+      "cost": 3500,
+      "distance_km": 0.25142785166779286
+    },
+    {
+      "sequence": 18,
+      "mode": "WALK",
+      "route_name": "Walking",
+      "from_stop": "H. Unsri A",
+      "to_stop": "Universitas\u202fSriwijaya Kampus Bukit Besar",
+      "duration_minutes": 2.5369303667466543,
+      "cost": 0,
+      "distance_km": 0.21141086389555452
+    }
+  ]
+}

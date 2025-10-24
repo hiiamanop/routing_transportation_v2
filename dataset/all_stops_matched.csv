@@ -1,0 +1,403 @@
+stop_id,stop_name,lat,lon,route
+Feeder_Koridor_1_1,Talang Kelapa ATS (Up Point),-2.94493176,104.6871163,Feeder Koridor 1
+Feeder_Koridor_1_2,Kantor Desa Tl. Kelapa,-2.94203905,104.68806441,Feeder Koridor 1
+Feeder_Koridor_1_3,Simpang Empat Perumnas Tl. Kelapa,-2.94201638,104.6881303,Feeder Koridor 1
+Feeder_Koridor_1_4,Griya Palm Tl. Kelapa,-2.93895688,104.68877294,Feeder Koridor 1
+Feeder_Koridor_1_5,Springhill Tl. Kelapa,-2.93877287,104.68907415,Feeder Koridor 1
+Feeder_Koridor_1_6,Kantor Camat Alang-Alang Lebar,-2.93616237,104.69126615,Feeder Koridor 1
+Feeder_Koridor_1_7,Griya Hero Abadi,-2.93552188,104.69202961,Feeder Koridor 1
+Feeder_Koridor_1_8,PDAM (A),-2.93386113,104.69331622,Feeder Koridor 1
+Feeder_Koridor_1_9,Alfamart (A),-2.93219738,104.69063315,Feeder Koridor 1
+Feeder_Koridor_1_10,Halte Surveyor Indonesia,-2.93387775,104.69482349,Feeder Koridor 1
+Feeder_Koridor_1_11,Halte LRT Asrama Haji (A) ,-2.93372739204,104.695015366,Feeder Koridor 1
+Feeder_Koridor_1_12,Asrama Haji (A),-2.93343495435,104.703299296,Feeder Koridor 1
+Feeder_Koridor_1_13,Asrama Haji (B),-2.93328502,104.70361686,Feeder Koridor 1
+Feeder_Koridor_1_14,Halte LRT Asrama Haji (B),-2.93098749,104.70489515,Feeder Koridor 1
+Feeder_Koridor_1_15,Kebun Bunga (A),-2.93123551348,104.704876321,Feeder Koridor 1
+Feeder_Koridor_1_16,Halte Prindustrian ,-2.92577947,104.70945839,Feeder Koridor 1
+Feeder_Koridor_1_17,Halte Trackindo ,-2.92551793,104.70990754,Feeder Koridor 1
+Feeder_Koridor_1_18,JM Sukarami (A),-2.91988414,104.71169675,Feeder Koridor 1
+Feeder_Koridor_1_19,Halte Aisyia ,-2.91938992,104.71188362,Feeder Koridor 1
+Feeder_Koridor_1_20,RSU. Ar-Rasyid ,-2.91954775,104.71187669,Feeder Koridor 1
+Feeder_Koridor_1_21,Gramedia (A),-2.91673141,104.71220843,Feeder Koridor 1
+Feeder_Koridor_1_22,Stasiun LRT Sukarela (A),-2.91670149,104.71205783,Feeder Koridor 1
+Feeder_Koridor_1_23,Halte Charitas KM.7,-2.91700706,104.71217771,Feeder Koridor 1
+Feeder_Koridor_1_24,Halte Sumeks (A),-2.9195411,104.71175651,Feeder Koridor 1
+Feeder_Koridor_1_25,Halte Charitas KM.7 (B),-2.92659192107,104.714712498,Feeder Koridor 1
+Feeder_Koridor_1_26,Stasiun LRT Sukarela (B),-2.92598478,104.71389424,Feeder Koridor 1
+Feeder_Koridor_1_27,Gramedia (B),-2.92761503,104.71534164,Feeder Koridor 1
+Feeder_Koridor_1_28,PUPR ,-2.928729,104.71615195,Feeder Koridor 1
+Feeder_Koridor_1_29,RSU. Ar-Rasyid (B),-2.92971945,104.71654636,Feeder Koridor 1
+Feeder_Koridor_1_30,Halte Aisyia (B),-2.93108133,104.71730037,Feeder Koridor 1
+Feeder_Koridor_1_31,JM Sukarami (B),-2.93301081,104.7178448,Feeder Koridor 1
+Feeder_Koridor_1_32,Daihatshu ,-2.93283719121,104.71797434,Feeder Koridor 1
+Feeder_Koridor_1_33,Damri ,-2.93587437,104.71893476,Feeder Koridor 1
+Feeder_Koridor_1_34,Kebun Bunga (B),-2.9358039,104.7190313,Feeder Koridor 1
+Feeder_Koridor_1_35,Stasiun LRT Asrama Haji (A),-2.93771013,104.72001482,Feeder Koridor 1
+Feeder_Koridor_1_36,Asrama Haji (A),-2.93774711,104.72015984,Feeder Koridor 1
+Feeder_Koridor_1_37,Asrama Haji (B),-2.94055561,104.72074143,Feeder Koridor 1
+Feeder_Koridor_1_38,Stasiun LRT Asrama Haji (B),-2.93967237,104.72248886,Feeder Koridor 1
+Feeder_Koridor_1_39,Halte Surveyor Indonesia (B),-2.93987947,104.72266748,Feeder Koridor 1
+Feeder_Koridor_1_40,Alfamart (B),-2.9402229,104.72351509,Feeder Koridor 1
+Feeder_Koridor_1_41,PDAM (B),-2.94063773,104.72394057,Feeder Koridor 1
+Feeder_Koridor_1_42,Griya Hero Abadi (B),-2.94149491,104.72589485,Feeder Koridor 1
+Feeder_Koridor_1_43,Springhill Talang Kelapa,-2.94190784,104.72642096,Feeder Koridor 1
+Feeder_Koridor_1_44,Simpang Empat Perumnas Tl. Kelapa,-2.94255547,104.72788943,Feeder Koridor 1
+Feeder_Koridor_1_45,Kantor Desa Tl. Kelapa,-2.94291005,104.72821589,Feeder Koridor 1
+Feeder_Koridor_2_1,"104° 42' 42,323"" E",-2.9195411,104.71175651,Feeder Koridor 2
+Feeder_Koridor_2_2,"104° 42' 43,408"" E",-2.91670149,104.71205783,Feeder Koridor 2
+Feeder_Koridor_2_3,"104° 42' 57,902"" E",-2.91011465013,104.716083861,Feeder Koridor 2
+Feeder_Koridor_2_4,"104° 42' 58,660"" E",-2.91031668,104.71629453,Feeder Koridor 2
+Feeder_Koridor_2_5,"104° 43' 29,396"" E",-2.90771488472,104.724832299,Feeder Koridor 2
+Feeder_Koridor_2_6,"104° 43' 29,811"" E",-2.90782902,104.72494742,Feeder Koridor 2
+Feeder_Koridor_2_7,"104° 43' 49,742"" E",-2.90477141573,104.730483794,Feeder Koridor 2
+Feeder_Koridor_2_8,"104° 43' 49,716"" E",-2.90497292,104.73047674,Feeder Koridor 2
+Feeder_Koridor_2_9,"104° 44' 17,874"" E",-2.90743138008,104.738298359,Feeder Koridor 2
+Feeder_Koridor_2_10,"104° 44' 17,151"" E",-2.90766837,104.73809742,Feeder Koridor 2
+Feeder_Koridor_2_11,"104° 44' 25,466"" E",-2.9095545581,104.740407103,Feeder Koridor 2
+Feeder_Koridor_2_12,"104° 44' 25,085"" E",-2.90974137,104.7403014,Feeder Koridor 2
+Feeder_Koridor_2_13,"104° 44' 34,488"" E",-2.91210752408,104.742913353,Feeder Koridor 2
+Feeder_Koridor_2_14,"104° 44' 33,838"" E",-2.91221228,104.74273271,Feeder Koridor 2
+Feeder_Koridor_2_15,"104° 45' 37,929"" E",-2.91805116326,104.760535901,Feeder Koridor 2
+Feeder_Koridor_2_16,"104° 45' 38,287"" E",-2.91826254,104.76063538,Feeder Koridor 2
+Feeder_Koridor_2_17,"104° 45' 58,629"" E",-2.91806385251,104.766285712,Feeder Koridor 2
+Feeder_Koridor_2_18,"104° 45' 58,804"" E",-2.91833532,104.76633447,Feeder Koridor 2
+Feeder_Koridor_2_19,"104° 46' 7,509"" E",-2.91808699047,104.768752405,Feeder Koridor 2
+Feeder_Koridor_2_20,"104° 46' 7,919"" E",-2.91835815,104.76886635,Feeder Koridor 2
+Feeder_Koridor_2_21,"104° 46' 14,228"" E",-2.92037110455,104.770618841,Feeder Koridor 2
+Feeder_Koridor_2_22,"104° 46' 13,991"" E",-2.9203847,104.77055292,Feeder Koridor 2
+Feeder_Koridor_2_23,"104° 46' 12,176"" E",-2.92349379555,104.770048924,Feeder Koridor 2
+Feeder_Koridor_2_24,"104° 46' 12,367"" E",-2.92348302541,104.770101868,Feeder Koridor 2
+Feeder_Koridor_2_25,"104° 46' 12,655"" E",-2.92668722924,104.770181845,Feeder Koridor 2
+Feeder_Koridor_2_26,"104° 46' 12,814"" E",-2.92667241,104.7702262,Feeder Koridor 2
+Feeder_Koridor_2_27,"104° 46' 12,882"" E",-2.92776128868,104.770244988,Feeder Koridor 2
+Feeder_Koridor_2_28,"104° 46' 13,155"" E",-2.92789459,104.7703208,Feeder Koridor 2
+Feeder_Koridor_2_29,"104° 46' 20,274"" E",-2.9289333,104.77229821,Feeder Koridor 2
+Feeder_Koridor_2_30,"104° 46' 20,483"" E",-2.92898231253,104.772356522,Feeder Koridor 2
+Feeder_Koridor_2_31,"104° 46' 29,263"" E",-2.9290902,104.77479526,Feeder Koridor 2
+Feeder_Koridor_2_32,"104° 46' 29,662"" E",-2.92897237,104.77490599,Feeder Koridor 2
+Feeder_Koridor_2_33,"104° 46' 36,259"" E",-2.92756053645,104.776738646,Feeder Koridor 2
+Feeder_Koridor_2_34,"104° 46' 36,490"" E",-2.92785724833,104.77680282,Feeder Koridor 2
+Feeder_Koridor_2_35,"104° 46' 50,275"" E",-2.92928383794,104.78063184,Feeder Koridor 2
+Feeder_Koridor_2_36,"104° 46' 51,347"" E",-2.92923946,104.78092981,Feeder Koridor 2
+Feeder_Koridor_2_37,"104° 46' 56,495"" E",-2.92908207413,104.782359772,Feeder Koridor 2
+Feeder_Koridor_2_38,"104° 46' 56,569"" E",-2.92926122972,104.782380182,Feeder Koridor 2
+Feeder_Koridor_2_39,"104° 47' 1,023"" E",-2.93127445,104.78361746,Feeder Koridor 2
+Feeder_Koridor_2_40,"104° 47' 1,289"" E",-2.93149893,104.78369134,Feeder Koridor 2
+Feeder_Koridor_2_41,"104° 47' 9,818"" E",-2.93316006973,104.786060445,Feeder Koridor 2
+Feeder_Koridor_2_42,"104° 47' 9,751"" E",-2.93327159,104.7860419,Feeder Koridor 2
+Feeder_Koridor_2_43,"104° 47' 14,867"" E",-2.93371215,104.78746308,Feeder Koridor 2
+Feeder_Koridor_2_44,"104° 47' 14,536"" E",-2.93381987,104.78737103,Feeder Koridor 2
+Feeder_Koridor_2_45,"104° 47' 14,892"" E",-2.92809113,104.78746996,Feeder Koridor 2
+Feeder_Koridor_2_46,"104° 47' 11,071"" E",-2.92261666,104.78640863,Feeder Koridor 2
+Feeder_Koridor_2_47,"104° 47' 1,485"" E",-2.9224854,104.78374597,Feeder Koridor 2
+Feeder_Koridor_2_48,"104° 47' 23,162"" E",-2.92208662,104.78976712,Feeder Koridor 2
+Feeder_Koridor_2_49,"104° 47' 51,092"" E",-2.92036649,104.79752559,Feeder Koridor 2
+Feeder_Koridor_2_50,"104° 48' 11,216"" E",-2.91946255,104.80311542,Feeder Koridor 2
+Feeder_Koridor_2_51,"104° 48' 27,049"" E",-2.91868376,104.80751353,Feeder Koridor 2
+Feeder_Koridor_2_52,"104° 49' 10,626"" E",-2.91638225,104.81961827,Feeder Koridor 2
+Feeder_Koridor_2_53,"104° 49' 28,712"" E",-2.92101408,104.82464216,Feeder Koridor 2
+Feeder_Koridor_2_54,"104° 49' 16,591"" E",-2.93389265,104.82127522,Feeder Koridor 2
+Feeder_Koridor_2_55,"104° 49' 13,983"" E",-2.93556708,104.82055092,Feeder Koridor 2
+Feeder_Koridor_2_56,"104° 49' 25,889"" E",-2.94330021,104.8238581,Feeder Koridor 2
+Feeder_Koridor_2_57,"104° 49' 22,316"" E",-2.94757306,104.82286567,Feeder Koridor 2
+Feeder_Koridor_2_58,"104° 49' 19,759"" E",-2.9507519,104.82215538,Feeder Koridor 2
+Feeder_Koridor_2_59,"104° 48' 53,940"" E",-2.94977253,104.81498322,Feeder Koridor 2
+Feeder_Koridor_2_60,"104° 48' 20,540"" E",-2.94798657,104.80570556,Feeder Koridor 2
+Feeder_Koridor_2_61,"104° 48' 12,813"" E",-2.94771056,104.80355927,Feeder Koridor 2
+Feeder_Koridor_2_62,"104° 48' 0,926"" E",-2.94734692,104.80025731,Feeder Koridor 2
+Feeder_Koridor_2_63,"104° 48' 2,661"" E",-2.94553623,104.80073927,Feeder Koridor 2
+Feeder_Koridor_2_64,"104° 48' 4,705"" E",-2.94314597,104.80130688,Feeder Koridor 2
+Feeder_Koridor_2_65,"104° 48' 7,941"" E",-2.93983044,104.80220579,Feeder Koridor 2
+Feeder_Koridor_2_66,"104° 47' 54,700"" E",-2.93931313,104.79852789,Feeder Koridor 2
+Feeder_Koridor_2_67,"104° 47' 41,095"" E",-2.93750616,104.79474869,Feeder Koridor 2
+Feeder_Koridor_2_68,"104° 47' 29,428"" E",-2.93320456,104.79150791,Feeder Koridor 2
+Feeder_Koridor_2_69,"104° 47' 24,299"" E",-2.93088625,104.79008312,Feeder Koridor 2
+Feeder_Koridor_2_70,"104° 44' 56,102"" E",-2.9167583,104.74891709,Feeder Koridor 2
+Feeder_Koridor_2_71,"104° 44' 57,225"" E",-2.91658736401,104.749229214,Feeder Koridor 2
+Feeder_Koridor_3_1,Koridor 3 Feeder (Asrama Haji - Talang Betutu),-2.893893,104.680344,Feeder Koridor 3
+Feeder_Koridor_3_2,Feeder Koridor 3 - Halte 2,-2.895906,104.688298,Feeder Koridor 3
+Feeder_Koridor_3_3,Feeder Koridor 3 - Halte 3,-2.898227,104.694356,Feeder Koridor 3
+Feeder_Koridor_3_4,Feeder Koridor 3 - Halte 4,-2.903703,104.699228,Feeder Koridor 3
+Feeder_Koridor_3_5,Feeder Koridor 3 - Halte 5,-2.916197,104.704615,Feeder Koridor 3
+Feeder_Koridor_3_6,Feeder Koridor 3 - Halte 6,-2.922329,104.710044,Feeder Koridor 3
+Feeder_Koridor_3_7,Feeder Koridor 3 - Halte 7,-2.919994,104.711819,Feeder Koridor 3
+Feeder_Koridor_3_8,Feeder Koridor 3 - Halte 8,-2.916219,104.712113,Feeder Koridor 3
+Feeder_Koridor_3_9,Feeder Koridor 3 - Halte 9,-2.919492,104.711711,Feeder Koridor 3
+Feeder_Koridor_3_10,Feeder Koridor 3 - Halte 10,-2.918147,104.705813,Feeder Koridor 3
+Feeder_Koridor_3_11,Feeder Koridor 3 - Halte 11,-2.901022,104.698754,Feeder Koridor 3
+Feeder_Koridor_3_12,Feeder Koridor 3 - Halte 12,-2.895949,104.688895,Feeder Koridor 3
+Feeder_Koridor_3_13,Koridor 3 Feeder (Asrama Haji - Talang Betutu),-2.893893,104.680344,Feeder Koridor 3
+Feeder_Koridor_4_1,Koridor 4 Feeder (Sta Polresta - Perum OPI),-3.005205,104.772646,Feeder Koridor 4
+Feeder_Koridor_4_2,Feeder Koridor 4 - Halte 2,-3.0129,104.774609,Feeder Koridor 4
+Feeder_Koridor_4_3,Feeder Koridor 4 - Halte 3,-3.026408,104.77495,Feeder Koridor 4
+Feeder_Koridor_4_4,Feeder Koridor 4 - Halte 4,-3.036145,104.779937,Feeder Koridor 4
+Feeder_Koridor_4_5,Feeder Koridor 4 - Halte 5,-3.044529,104.784603,Feeder Koridor 4
+Feeder_Koridor_4_6,Feeder Koridor 4 - Halte 6,-3.041752,104.782203,Feeder Koridor 4
+Feeder_Koridor_4_7,Feeder Koridor 4 - Halte 7,-3.033971,104.779183,Feeder Koridor 4
+Feeder_Koridor_4_8,Feeder Koridor 4 - Halte 8,-3.022531,104.77503,Feeder Koridor 4
+Feeder_Koridor_4_9,Koridor 4 Feeder (Sta Polresta - Perum OPI),-3.005228,104.772652,Feeder Koridor 4
+Feeder_Koridor_5_1,BS lingga motor ada,-2.99941,104.816,Feeder Koridor 5
+Feeder_Koridor_5_2,BS lorong setia ada,-3.0026,104.817,Feeder Koridor 5
+Feeder_Koridor_5_3,BS lorong aman B ada,-3.00434,104.818,Feeder Koridor 5
+Feeder_Koridor_5_4,BS SPBU 24 ada,-3.00558,104.818,Feeder Koridor 5
+Feeder_Koridor_5_5,BS pasar tegal binangun B ada,-3.00783,104.818,Feeder Koridor 5
+Feeder_Koridor_5_6,BS sma fitria abadi B ada,-3.01191,104.815,Feeder Koridor 5
+Feeder_Koridor_5_7,BS puskesmas tegal binangun B ada,-3.01442,104.813,Feeder Koridor 5
+Feeder_Koridor_5_8,BS Paud al bayyinah ada,-3.01746,104.81,Feeder Koridor 5
+Feeder_Koridor_5_9,BS GNPK ri ada,-3.0202,104.808,Feeder Koridor 5
+Feeder_Koridor_5_10,BS jl. talang peti ada,-3.02214,104.806,Feeder Koridor 5
+Feeder_Koridor_5_11,BS SDN 320 B ada,-3.02323,104.805,Feeder Koridor 5
+Feeder_Koridor_5_12,BS toko jaya ada,-3.02515,104.804,Feeder Koridor 5
+Feeder_Koridor_5_13,BS SDN 288 B ada,-3.02736,104.802,Feeder Koridor 5
+Feeder_Koridor_5_14,BS Indomaret ada,-3.02832,104.801,Feeder Koridor 5
+Feeder_Koridor_5_15,BS puskesmas ada,-3.03168,104.799,Feeder Koridor 5
+Feeder_Koridor_5_16,BS perumahan Chelsea ada,-3.03435,104.798,Feeder Koridor 5
+Feeder_Koridor_5_17,BS cluster winola B ada,-3.03685,104.797,Feeder Koridor 5
+Feeder_Koridor_5_18,BS plam springs ada,-3.03877,104.796,Feeder Koridor 5
+Feeder_Koridor_5_19,BS kios bunga ada,-3.03904,104.795,Feeder Koridor 5
+Feeder_Koridor_5_20,BS Depo djka B ada,-3.03492,104.792,Feeder Koridor 5
+Feeder_Koridor_5_21,BS stasiun lrt djka B ada,-3.03154,104.79,Feeder Koridor 5
+Feeder_Koridor_6_1,BS lingga motor ada,-2.93038,104.745,Feeder Koridor 6
+Feeder_Koridor_6_2,BS lorong setia ada,-2.92967,104.742,Feeder Koridor 6
+Feeder_Koridor_6_3,BS lorong aman B ada,-2.92927,104.741,Feeder Koridor 6
+Feeder_Koridor_6_4,BS SPBU 24 ada,-2.93096,104.738,Feeder Koridor 6
+Feeder_Koridor_6_5,BS pasar tegal binangun B ada,-2.93298,104.737,Feeder Koridor 6
+Feeder_Koridor_6_6,BS sma fitria abadi B ada,-2.93569,104.735,Feeder Koridor 6
+Feeder_Koridor_6_7,BS puskesmas tegal binangun B ada,-2.93871,104.733,Feeder Koridor 6
+Feeder_Koridor_6_8,BS Paud al bayyinah ada,-2.94034,104.732,Feeder Koridor 6
+Feeder_Koridor_6_9,BS GNPK ri ada,-2.94211,104.731,Feeder Koridor 6
+Feeder_Koridor_6_10,BS jl. talang peti ada,-2.94502,104.731,Feeder Koridor 6
+Feeder_Koridor_6_11,BS SDN 320 B ada,-2.94737,104.732,Feeder Koridor 6
+Feeder_Koridor_6_12,BS toko jaya ada,-2.94828,104.733,Feeder Koridor 6
+Feeder_Koridor_7_1,BS stadion kamboja ada,-2.97027,104.746,Feeder Koridor 7
+Feeder_Koridor_7_2,BS kantor camat ilir timur 1 ada,-2.96906,104.746,Feeder Koridor 7
+Feeder_Koridor_7_3,BS kopral umar said ada,-2.96573,104.747,Feeder Koridor 7
+Feeder_Koridor_7_4,20 Sep 2023 08.18.48,-2.97017,104.746,Feeder Koridor 7
+Feeder_Koridor_7_5,BS Univ Tridinanti A ada,-2.9711,104.746,Feeder Koridor 7
+Feeder_Koridor_7_6,BS simpang soraja A ada,-2.97265,104.744,Feeder Koridor 7
+Feeder_Koridor_7_7,BS palembang square ada,-2.97555,104.743,Feeder Koridor 7
+Feeder_Koridor_7_8,BS LRT bumi sriwijaya ada,-2.97674,104.745,Feeder Koridor 7
+Feeder_Koridor_7_9,BS Dprd sumsel ada,-2.97939,104.744,Feeder Koridor 7
+Feeder_Koridor_7_10,BS arya duta ada,-2.97785,104.741,Feeder Koridor 7
+Feeder_Koridor_7_11,BS puncak sikuning A ada,-2.97772,104.737,Feeder Koridor 7
+Feeder_Koridor_7_12,BS Family A ada,-2.97911,104.737,Feeder Koridor 7
+Feeder_Koridor_7_13,BS sdn 22 ada,-2.98355,104.738,Feeder Koridor 7
+Feeder_Koridor_7_14,BS sman 2 ada,-2.98532,104.738,Feeder Koridor 7
+Feeder_Koridor_7_15,BS riau A ada,-2.98677,104.738,Feeder Koridor 7
+Feeder_Koridor_7_16,BS emporium ada,-2.98848,104.738,Feeder Koridor 7
+Feeder_Koridor_7_17,BS kemang manis A ada,-2.98955,104.738,Feeder Koridor 7
+Feeder_Koridor_7_18,BS simpang polsek ada,-2.98979,104.735,Feeder Koridor 7
+Feeder_Koridor_7_19,BS k.camat ilir barat 1 ada,-2.99032,104.734,Feeder Koridor 7
+Feeder_Koridor_7_20,BS simpang univ plg ada,-2.99134,104.732,Feeder Koridor 7
+Feeder_Koridor_7_21,BS smpn 17 ada,-2.99029,104.73,Feeder Koridor 7
+Feeder_Koridor_7_22,Bs pasca sarjana A ada,-2.99023,104.729,Feeder Koridor 7
+Feeder_Koridor_7_23,Bs srijaya negara A ada,-2.99176,104.727,Feeder Koridor 7
+Feeder_Koridor_7_24,Bs ada,-2.99287,104.727,Feeder Koridor 7
+Feeder_Koridor_7_25,Bs ada,-2.99447,104.726,Feeder Koridor 7
+Feeder_Koridor_8_1,Stasiun LRT Asrama Haji A,-2.91935038924161,104.711404331302,Feeder Koridor 8
+Feeder_Koridor_8_2,Asrama Haji B,-2.91651417880875,104.712020112636,Feeder Koridor 8
+Feeder_Koridor_8_3,Kerajinan Karet B,-2.91075817833598,104.714536793033,Feeder Koridor 8
+Feeder_Koridor_8_4,PDK,-2.90727174615211,104.725187690695,Feeder Koridor 8
+Feeder_Koridor_8_5,Simpang Bandara A,-2.90295760181717,104.727297415991,Feeder Koridor 8
+Feeder_Koridor_8_6,Simpang Talang Jambe,-2.89565880265001,104.726002273989,Feeder Koridor 8
+Feeder_Koridor_8_7,YAPIS Hikmatul Furqon A,-2.89601508476471,104.722742598362,Feeder Koridor 8
+Feeder_Koridor_8_8,Perum Graha Utama Bandara,-2.89573909935291,104.719088671088,Feeder Koridor 8
+Feeder_Koridor_8_9,Simpang Karantina A,-2.89623394890395,104.716342841057,Feeder Koridor 8
+Feeder_Koridor_8_10,Stasiun LRT Asrama Haji A,-2.91935038924161,104.711404331302,Feeder Koridor 8
+Feeder_Koridor_8_11,Asrama Haji B,-2.91651417880875,104.712020112636,Feeder Koridor 8
+Feeder_Koridor_8_12,Kerajinan Karet B,-2.91075817833598,104.714536793033,Feeder Koridor 8
+Feeder_Koridor_8_13,PDK,-2.90727174615211,104.725187690695,Feeder Koridor 8
+Feeder_Koridor_8_14,Simpang Bandara A,-2.90295760181717,104.727297415991,Feeder Koridor 8
+Feeder_Koridor_8_15,Simpang Talang Jambe,-2.89565880265001,104.726002273989,Feeder Koridor 8
+Feeder_Koridor_8_16,YAPIS Hikmatul Furqon A,-2.89601508476471,104.722742598362,Feeder Koridor 8
+Feeder_Koridor_8_17,Perum Graha Utama Bandara,-2.89573909935291,104.719088671088,Feeder Koridor 8
+Feeder_Koridor_8_18,Simpang Karantina A,-2.89623394890395,104.716342841057,Feeder Koridor 8
+Feeder_Koridor_8_19,Simpang Karantina B,-2.8961638131922,104.716343276861,Feeder Koridor 8
+Feeder_Koridor_8_20,Perum Graha Utama Bandara B,-2.89567352168743,104.718959644092,Feeder Koridor 8
+Feeder_Koridor_8_21,YAPIS Hikmatul Furqon B,-2.89500452115879,104.724583911283,Feeder Koridor 8
+Feeder_Koridor_8_22,Lorong Bambu Kuning,-2.89663804481032,104.72572746987,Feeder Koridor 8
+Feeder_Koridor_8_23,PDK B,-2.90784879763623,104.724864621922,Feeder Koridor 8
+Feeder_Koridor_8_24,Palembang Asrama Haji,-2.90966723705134,104.71835103394,Feeder Koridor 8
+Feeder_Koridor_8_25,BCA,-2.91031157017995,104.716134028208,Feeder Koridor 8
+Feeder_Koridor_8_26,Asrama Haji A,-2.91704081891895,104.712210293682,Feeder Koridor 8
+Feeder_Koridor_8_27,LRT Asrama Haji,-2.91955842267099,104.711913739659,Feeder Koridor 8
+Feeder_Koridor_8_28,Simpang Karantina B,-2.8961638131922,104.716343276861,Feeder Koridor 8
+Feeder_Koridor_8_29,Perum Graha Utama Bandara B,-2.89567352168743,104.718959644092,Feeder Koridor 8
+Feeder_Koridor_8_30,YAPIS Hikmatul Furqon B,-2.89500452115879,104.724583911283,Feeder Koridor 8
+Feeder_Koridor_8_31,Lorong Bambu Kuning,-2.89663804481032,104.72572746987,Feeder Koridor 8
+Feeder_Koridor_8_32,PDK B,-2.90784879763623,104.724864621922,Feeder Koridor 8
+Feeder_Koridor_8_33,Palembang Asrama Haji,-2.90966723705134,104.71835103394,Feeder Koridor 8
+Feeder_Koridor_8_34,BCA,-2.91031157017995,104.716134028208,Feeder Koridor 8
+Feeder_Koridor_8_35,Asrama Haji A,-2.91704081891895,104.712210293682,Feeder Koridor 8
+Feeder_Koridor_8_36,LRT Asrama Haji,-2.91955842267099,104.711913739659,Feeder Koridor 8
+Teman_Bus_Koridor_2_1,Terminal sako,-2.931505699999946,104.7903950700001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_2,H.simpang bombat,-2.934411429999955,104.7864796300001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_3,H.lorong manalagi A,-2.936946529999943,104.78316641,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_4,H. sapta marga,-2.94080914999995,104.7834042300001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_5,H.spbu cilentang,-2.94328693999995,104.7844734600001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_6,H.Grand garden,-2.94719189999995,104.7855403300001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_7,H.Simpang celentang A,-2.949698699999942,104.7854903000001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_8,H. BHL,-2.950334729999952,104.7833798900001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_9,H. kusuma bangsa B,-2.949140389999968,104.77724398,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_10,H. tunas bangsa,-2.949453109999979,104.77284574,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_11,H. PTC A,-2.951879189999943,104.7612299300001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_12,H. spbu sukamto,-2.952192999999966,104.75875067,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_13,H.BLPT A,-2.953506119999929,104.7526711,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_14,H. smp 9/10,-2.954187629999979,104.7508899900001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_15,H. rimba kemuning A,-2.957028359999924,104.7434213700001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_16,H. transit gloria polda,-2.962608629999977,104.7408785700001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_17,H. PDAM,-2.962707569999964,104.74066507,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_18,H. smkn 2,-2.966208399999971,104.73506632,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_19,H. rs siti khodija A,-2.970936649999942,104.73118872,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_20,H. BCA,-2.974222669999961,104.72734274,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_21,H. perpustakaan daerah A,-2.976122439999926,104.7257942300001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_22,H. Capil,-2.978650949999974,104.7246680900001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_23,H. bengkel pass,-2.983935419999966,104.7244442800001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_24,H. prameswara A,-2.987684319999971,104.7254156600001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_25,H. simpang sma 10 A,-2.99189526999993,104.7266623800001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_26,H. smkn 3,-2.987392229999955,104.7300787600001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_27,H. Unsri A,-2.987073259999932,104.7323203400001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_28,H. padang selasa,-2.988838299999941,104.7338621600001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_29,H. PHB A,-2.987270619999947,104.74230636,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_30,H. jasarahaja,-2.986743839999974,104.74409961,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_31,H. PDPDE,-2.983273849999932,104.74459132,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_32,H. bank mandiri,-2.981669579999959,104.7452239,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_33,H. Simpang PI,-2.977004399999957,104.7446109700001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_34,H. PI,-2.978619549999966,104.7464062000001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_35,H. Kantor Pos,-2.98151831999996,104.7454532800001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_36,H. Kantor Camat Bukit Kecil,-2.983657639999953,104.7446750200001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_37,H. Gajah Mada,-2.985556699999949,104.74437707,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_38,H. PHB,-2.98748221999997,104.7418254000001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_39,H. Kemang Manis,-2.98917351999997,104.7383137000001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_40,H. Pasca Sarjana,-2.990337549999939,104.7290500200001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_41,H. Simpang SMA 10,-2.992099119999984,104.7266162800001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_42,H. Parameswara,-2.988501749999978,104.7255322200001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_43,H. PMK,-2.984213029999982,104.72438443,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_44,H. Kancil Putih,-2.980254319999975,104.72422077,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_45,H. Perpustakaan Daerah,-2.976196629999948,104.72561418,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_46,H. RS Siti Khadijah,-2.970041249999959,104.7320567400001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_47,H. Griya Agung,-2.974471639999954,104.7269361800001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_48,H. LRT Demang,-2.964321549999969,104.7357951000001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_49,H. Sersan Sani,-2.954229399999978,104.75017289,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_50,H. BLPTB,-2.953209299999967,104.75304714,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_51,H. R. Sukamto,-2.952100319999948,104.7574669900001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_52,H. PTC,-2.951715289999955,104.7612915400001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_53,H. Komplek Kedamaian,-2.949168849999982,104.7748273400001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_54, H. Kumbang,-2.949017349999993,104.7776538000001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_55, H. PLN Celentang,-2.950404679999959,104.7843666600001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_56,H. The Basilica,-2.948831059999997,104.7854418900001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_57,H. Azzahra,-2.94239789999995,104.7840244100001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_58,H. Lrg Pancasila,-2.939994559999954,104.7829736900001,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_59,H. Lrg. Manalagi,-2.937059149999928,104.78297301,Teman Bus Koridor 2
+Teman_Bus_Koridor_2_60,Terminal Sako,-2.931202319999961,104.79039943,Teman Bus Koridor 2
+Teman_Bus_Koridor_5_1,Teman Bus Koridor 5 - Halte 1,-2.96126,104.68,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_2,Teman Bus Koridor 5 - Halte 2,-2.96123,104.68,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_3,Teman Bus Koridor 5 - Halte 3,-2.96105,104.681,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_4,Teman Bus Koridor 5 - Halte 4,-2.96116,104.681,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_5,Teman Bus Koridor 5 - Halte 5,-2.96118,104.682,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_6,Teman Bus Koridor 5 - Halte 6,-2.96278,104.683,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_7,Teman Bus Koridor 5 - Halte 7,-2.963,104.683,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_8,Teman Bus Koridor 5 - Halte 8,-2.96622,104.683,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_9,Teman Bus Koridor 5 - Halte 9,-2.96715,104.683,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_10,Teman Bus Koridor 5 - Halte 10,-2.9676,104.683,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_11,Teman Bus Koridor 5 - Halte 11,-2.96763,104.683,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_12,Teman Bus Koridor 5 - Halte 12,-2.96766,104.683,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_13,Teman Bus Koridor 5 - Halte 13,-2.96851,104.685,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_14,Teman Bus Koridor 5 - Halte 14,-2.97157,104.686,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_15,Teman Bus Koridor 5 - Halte 15,-2.97162,104.686,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_16,Teman Bus Koridor 5 - Halte 16,-2.97196,104.688,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_17,Teman Bus Koridor 5 - Halte 17,-2.97209,104.689,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_18,Teman Bus Koridor 5 - Halte 18,-2.97402,104.69,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_19,Teman Bus Koridor 5 - Halte 19,-2.97418,104.69,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_20,Teman Bus Koridor 5 - Halte 20,-2.97455,104.691,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_21,Teman Bus Koridor 5 - Halte 21,-2.97482,104.692,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_22,Teman Bus Koridor 5 - Halte 22,-2.97476,104.693,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_23,Teman Bus Koridor 5 - Halte 23,-2.9747,104.693,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_24,Teman Bus Koridor 5 - Halte 24,-2.97484,104.695,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_25,Teman Bus Koridor 5 - Halte 25,-2.97492,104.695,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_26,Teman Bus Koridor 5 - Halte 26,-2.97496,104.695,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_27,Teman Bus Koridor 5 - Halte 27,-2.9774,104.698,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_28,Teman Bus Koridor 5 - Halte 28,-2.97789,104.699,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_29,Teman Bus Koridor 5 - Halte 29,-2.97824,104.7,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_30,Teman Bus Koridor 5 - Halte 30,-2.97833,104.7,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_31,Teman Bus Koridor 5 - Halte 31,-2.97834,104.7,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_32,Teman Bus Koridor 5 - Halte 32,-2.97984,104.702,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_33,Teman Bus Koridor 5 - Halte 33,-2.97984,104.702,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_34,Teman Bus Koridor 5 - Halte 34,-2.98168,104.704,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_35,Teman Bus Koridor 5 - Halte 35,-2.98175,104.704,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_36,Teman Bus Koridor 5 - Halte 36,-2.98153,104.707,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_37,Teman Bus Koridor 5 - Halte 37,-2.98154,104.707,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_38,Teman Bus Koridor 5 - Halte 38,-2.98154,104.708,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_39,Teman Bus Koridor 5 - Halte 39,-2.98134,104.709,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_40,Teman Bus Koridor 5 - Halte 40,-2.98202,104.711,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_41,Teman Bus Koridor 5 - Halte 41,-2.98245,104.712,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_42,Teman Bus Koridor 5 - Halte 42,-2.98241,104.712,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_43,Teman Bus Koridor 5 - Halte 43,-2.98206,104.713,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_44,Teman Bus Koridor 5 - Halte 44,-2.98166,104.714,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_45,Teman Bus Koridor 5 - Halte 45,-2.98158,104.714,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_46,Teman Bus Koridor 5 - Halte 46,-2.98057,104.716,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_47,Teman Bus Koridor 5 - Halte 47,-2.97502,104.714,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_48,Teman Bus Koridor 5 - Halte 48,-2.97577,104.714,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_49,Teman Bus Koridor 5 - Halte 49,-2.97581,104.715,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_50,Teman Bus Koridor 5 - Halte 50,-2.98112,104.716,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_51,Teman Bus Koridor 5 - Halte 51,-2.98121,104.716,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_52,Teman Bus Koridor 5 - Halte 52,-2.98228,104.717,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_53,Teman Bus Koridor 5 - Halte 53,-2.98427,104.718,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_54,Teman Bus Koridor 5 - Halte 54,-2.98574,104.718,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_55,Teman Bus Koridor 5 - Halte 55,-2.98601,104.718,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_56,Teman Bus Koridor 5 - Halte 56,-2.98626,104.718,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_57,Teman Bus Koridor 5 - Halte 57,-2.98623,104.718,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_58,Teman Bus Koridor 5 - Halte 58,-2.98628,104.718,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_59,Teman Bus Koridor 5 - Halte 59,-2.98636,104.718,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_60,Teman Bus Koridor 5 - Halte 60,-2.98718,104.72,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_61,Teman Bus Koridor 5 - Halte 61,-2.98702,104.721,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_62,Teman Bus Koridor 5 - Halte 62,-2.98696,104.721,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_63,Teman Bus Koridor 5 - Halte 63,-2.98692,104.723,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_64,Teman Bus Koridor 5 - Halte 64,-2.98695,104.723,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_65,Teman Bus Koridor 5 - Halte 65,-2.98696,104.723,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_66,Teman Bus Koridor 5 - Halte 66,-2.98625,104.725,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_67,Teman Bus Koridor 5 - Halte 67,-2.9854,104.725,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_68,Teman Bus Koridor 5 - Halte 68,-2.98435,104.724,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_69,Teman Bus Koridor 5 - Halte 69,-2.98377,104.724,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_70,Teman Bus Koridor 5 - Halte 70,-2.98246,104.724,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_71,Teman Bus Koridor 5 - Halte 71,-2.98047,104.724,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_72,Teman Bus Koridor 5 - Halte 72,-2.97849,104.725,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_73,Teman Bus Koridor 5 - Halte 73,-2.97652,104.725,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_74,Teman Bus Koridor 5 - Halte 74,-2.97642,104.726,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_75,Teman Bus Koridor 5 - Halte 75,-2.97627,104.726,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_76,Teman Bus Koridor 5 - Halte 76,-2.97588,104.726,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_77,Teman Bus Koridor 5 - Halte 77,-2.97456,104.727,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_78,Teman Bus Koridor 5 - Halte 78,-2.9745,104.727,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_79,Teman Bus Koridor 5 - Halte 79,-2.97416,104.727,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_80,Teman Bus Koridor 5 - Halte 80,-2.97394,104.728,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_81,Teman Bus Koridor 5 - Halte 81,-2.97254,104.729,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_82,Teman Bus Koridor 5 - Halte 82,-2.97091,104.731,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_83,Teman Bus Koridor 5 - Halte 83,-2.96965,104.733,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_84,Teman Bus Koridor 5 - Halte 84,-2.96926,104.733,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_85,Teman Bus Koridor 5 - Halte 85,-2.97065,104.737,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_86,Teman Bus Koridor 5 - Halte 86,-2.97068,104.737,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_87,Teman Bus Koridor 5 - Halte 87,-2.97081,104.738,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_88,Teman Bus Koridor 5 - Halte 88,-2.97126,104.739,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_89,Teman Bus Koridor 5 - Halte 89,-2.97493,104.742,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_90,Teman Bus Koridor 5 - Halte 90,-2.97533,104.742,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_91,Teman Bus Koridor 5 - Halte 91,-2.97674,104.745,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_92,Teman Bus Koridor 5 - Halte 92,-2.97933,104.744,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_93,Teman Bus Koridor 5 - Halte 93,-2.97778,104.741,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_94,Teman Bus Koridor 5 - Halte 94,-2.9777,104.741,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_95,Teman Bus Koridor 5 - Halte 95,-2.97766,104.741,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_96,Teman Bus Koridor 5 - Halte 96,-2.97762,104.741,Teman Bus Koridor 5
+Teman_Bus_Koridor_5_97,Teman Bus Koridor 5 - Halte 97,-2.97484,104.738,Teman Bus Koridor 5
+LRT_Sumsel_1,Stasiun LRT Punti Kayu,-2.940535,104.72382,LRT Sumsel
+LRT_Sumsel_2,Stasiun LRT RSDU Prov Sumsel,-2.948308,104.732686,LRT Sumsel
+LRT_Sumsel_3,Stasiun LRT Garuda Dempo,-2.956055,104.735784,LRT Sumsel
+LRT_Sumsel_4,Stasiun LRT Demang,-2.964308,104.736048,LRT Sumsel
+LRT_Sumsel_5,Stasiun LRT Bandara SMB 2,-2.894114,104.705661,LRT Sumsel
+LRT_Sumsel_6,Stasiun LRT Asrama Haji,-2.919806,104.71165,LRT Sumsel
+LRT_Sumsel_7,Stasiun LRT Bumi Sriwijaya,-2.977152,104.744793,LRT Sumsel
+LRT_Sumsel_8,Stasiun LRT Dishub,-2.978429,104.749119,LRT Sumsel
+LRT_Sumsel_9,Stasiun LRT Pasar Cinde,-2.980622,104.756007,LRT Sumsel
+LRT_Sumsel_10,Stasiun LRT Pasar 16 Ilir,-2.988717,104.761762,LRT Sumsel
+LRT_Sumsel_11,Stasiun LRT Polresta,-3.004957,104.772349,LRT Sumsel
+LRT_Sumsel_12,Stasiun LRT Jakabaring,-3.023214,104.784621,LRT Sumsel
+LRT_Sumsel_13,Stasiun LRT DJKA,-3.031568,104.790251,LRT Sumsel

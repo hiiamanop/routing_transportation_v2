@@ -1,0 +1,79 @@
+{
+  "route_id": 1,
+  "summary": {
+    "total_time_minutes": 13.14,
+    "total_cost": 25000,
+    "total_distance_km": 8.76,
+    "num_transfers": 0,
+    "departure_time": "2025-06-15T07:00:00",
+    "arrival_time": "2025-06-15T07:13:08.491888",
+    "optimization_score": 25000
+  },
+  "segments": [
+    {
+      "sequence": 1,
+      "mode": "LRT",
+      "route_name": "LRT Sumsel",
+      "from_stop": "Stasiun LRT Bandara SMB 2",
+      "to_stop": "Stasiun LRT Asrama Haji",
+      "departure_time": "2025-06-15T07:00:00",
+      "arrival_time": "2025-06-15T07:04:23.989574",
+      "duration_minutes": 4.4,
+      "cost": 5000,
+      "distance_km": 2.93,
+      "traffic_condition": null
+    },
+    {
+      "sequence": 2,
+      "mode": "LRT",
+      "route_name": "LRT Sumsel",
+      "from_stop": "Stasiun LRT Asrama Haji",
+      "to_stop": "Stasiun LRT Punti Kayu",
+      "departure_time": "2025-06-15T07:04:23.989574",
+      "arrival_time": "2025-06-15T07:08:24.465097",
+      "duration_minutes": 4.01,
+      "cost": 5000,
+      "distance_km": 2.67,
+      "traffic_condition": null
+    },
+    {
+      "sequence": 3,
+      "mode": "LRT",
+      "route_name": "LRT Sumsel",
+      "from_stop": "Stasiun LRT Punti Kayu",
+      "to_stop": "Stasiun LRT RSDU Prov Sumsel",
+      "departure_time": "2025-06-15T07:08:24.465097",
+      "arrival_time": "2025-06-15T07:10:22.375057",
+      "duration_minutes": 1.97,
+      "cost": 5000,
+      "distance_km": 1.31,
+      "traffic_condition": null
+    },
+    {
+      "sequence": 4,
+      "mode": "LRT",
+      "route_name": "LRT Sumsel",
+      "from_stop": "Stasiun LRT RSDU Prov Sumsel",
+      "to_stop": "Stasiun LRT Garuda Dempo",
+      "departure_time": "2025-06-15T07:10:22.375057",
+      "arrival_time": "2025-06-15T07:11:45.857499",
+      "duration_minutes": 1.39,
+      "cost": 5000,
+      "distance_km": 0.93,
+      "traffic_condition": null
+    },
+    {
+      "sequence": 5,
+      "mode": "LRT",
+      "route_name": "LRT Sumsel",
+      "from_stop": "Stasiun LRT Garuda Dempo",
+      "to_stop": "Stasiun LRT Demang",
+      "departure_time": "2025-06-15T07:11:45.857499",
+      "arrival_time": "2025-06-15T07:13:08.491888",
+      "duration_minutes": 1.38,
+      "cost": 5000,
+      "distance_km": 0.92,
+      "traffic_condition": null
+    }
+  ]
+}

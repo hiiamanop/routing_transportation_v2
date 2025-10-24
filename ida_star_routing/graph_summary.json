@@ -1,0 +1,117 @@
+{
+  "statistics": {
+    "total_stops": 116,
+    "total_edges": 111,
+    "total_transfer_points": 0
+  },
+  "modes": {
+    "FEEDER_ANGKOT": {
+      "routes": [
+        "Feeder Koridor 1",
+        "Feeder Koridor 5",
+        "Feeder Koridor 6",
+        "Feeder Koridor 7"
+      ],
+      "stops": 103
+    },
+    "LRT": {
+      "routes": [
+        "LRT Sumsel"
+      ],
+      "stops": 13
+    }
+  },
+  "sample_stops": [
+    {
+      "id": 0,
+      "stop_id": "Feeder_Koridor_1_1",
+      "name": "Talang Kelapa ATS (Up Point)",
+      "lat": -2.94493176,
+      "lon": 104.6871163,
+      "route": "Feeder Koridor 1",
+      "mode": "FEEDER_ANGKOT"
+    },
+    {
+      "id": 1,
+      "stop_id": "Feeder_Koridor_1_2",
+      "name": "Kantor Desa Tl. Kelapa",
+      "lat": -2.94203905,
+      "lon": 104.68806441,
+      "route": "Feeder Koridor 1",
+      "mode": "FEEDER_ANGKOT"
+    },
+    {
+      "id": 2,
+      "stop_id": "Feeder_Koridor_1_3",
+      "name": "Simpang Empat Perumnas Tl. Kelapa",
+      "lat": -2.94201638,
+      "lon": 104.6881303,
+      "route": "Feeder Koridor 1",
+      "mode": "FEEDER_ANGKOT"
+    },
+    {
+      "id": 3,
+      "stop_id": "Feeder_Koridor_1_4",
+      "name": "Griya Palm Tl. Kelapa",
+      "lat": -2.93895688,
+      "lon": 104.68877294,
+      "route": "Feeder Koridor 1",
+      "mode": "FEEDER_ANGKOT"
+    },
+    {
+      "id": 4,
+      "stop_id": "Feeder_Koridor_1_5",
+      "name": "Springhill Tl. Kelapa",
+      "lat": -2.93877287,
+      "lon": 104.68907415,
+      "route": "Feeder Koridor 1",
+      "mode": "FEEDER_ANGKOT"
+    },
+    {
+      "id": 5,
+      "stop_id": "Feeder_Koridor_1_6",
+      "name": "Kantor Camat Alang-Alang Lebar",
+      "lat": -2.93616237,
+      "lon": 104.69126615,
+      "route": "Feeder Koridor 1",
+      "mode": "FEEDER_ANGKOT"
+    },
+    {
+      "id": 6,
+      "stop_id": "Feeder_Koridor_1_7",
+      "name": "Griya Hero Abadi",
+      "lat": -2.93552188,
+      "lon": 104.69202961,
+      "route": "Feeder Koridor 1",
+      "mode": "FEEDER_ANGKOT"
+    },
+    {
+      "id": 7,
+      "stop_id": "Feeder_Koridor_1_8",
+      "name": "PDAM (A)",
+      "lat": -2.93386113,
+      "lon": 104.69331622,
+      "route": "Feeder Koridor 1",
+      "mode": "FEEDER_ANGKOT"
+    },
+    {
+      "id": 8,
+      "stop_id": "Feeder_Koridor_1_9",
+      "name": "Halte Surveyor Indonesia",
+      "lat": -2.93387775,
+      "lon": 104.69482349,
+      "route": "Feeder Koridor 1",
+      "mode": "FEEDER_ANGKOT"
+    },
+    {
+      "id": 9,
+      "stop_id": "Feeder_Koridor_1_10",
+      "name": "Halte LRT Asrama Haji (A) ",
+      "lat": -2.93372739204,
+      "lon": 104.695015366,
+      "route": "Feeder Koridor 1",
+      "mode": "FEEDER_ANGKOT"
+    }
+  ],
+  "transfer_points": []
+}

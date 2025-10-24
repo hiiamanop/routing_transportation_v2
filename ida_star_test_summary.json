@@ -1,0 +1,53 @@
+{
+  "test_date": "2025-10-23T10:49:29.971258",
+  "network_stats": {
+    "total_stops": 116,
+    "total_edges": 111,
+    "lrt_stops": 13,
+    "feeder_stops": 103,
+    "teman_bus_stops": 0
+  },
+  "test_results": {
+    "time": {
+      "time_minutes": 13.141531459192382,
+      "cost_idr": 25000,
+      "distance_km": 8.761020972794922,
+      "segments": 5,
+      "transfers": 0,
+      "optimization_score": 13.141531459192382
+    },
+    "cost": {
+      "time_minutes": 13.141531459192382,
+      "cost_idr": 25000,
+      "distance_km": 8.761020972794922,
+      "segments": 5,
+      "transfers": 0,
+      "optimization_score": 25000
+    },
+    "transfers": {
+      "time_minutes": 13.141531459192382,
+      "cost_idr": 25000,
+      "distance_km": 8.761020972794922,
+      "segments": 5,
+      "transfers": 0,
+      "optimization_score": 13.141531459192382
+    },
+    "balanced": {
+      "time_minutes": 13.141531459192382,
+      "cost_idr": 25000,
+      "distance_km": 8.761020972794922,
+      "segments": 5,
+      "transfers": 0,
+      "optimization_score": 0.8376102097279492
+    }
+  },
+  "algorithm_stats": {
+    "algorithm": "IDA* (Iterative Deepening A*)",
+    "characteristics": [
+      "Memory efficient (DFS-like)",
+      "Optimal path finding",
+      "Admissible heuristics",
+      "Iterative deepening with cost bounds"
+    ]
+  }
+}
