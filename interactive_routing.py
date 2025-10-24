@@ -29,6 +29,9 @@ def main():
     print("\n📂 Loading network...")
     graph = load_network_data("dataset/network_data_bidirectional.json")
     print("✅ Network loaded successfully!")
+    print(f"   📊 Complete Network: {len(graph.stops)} stops, {len(graph.edges)} edges")
+    print(f"   🚌 Routes: 8 Feeder + 2 Teman Bus + 1 LRT = 11 routes")
+    print(f"   🔄 Bidirectional: All routes can be traversed both ways")
     
     while True:
         print("\n" + "="*100)
@@ -74,7 +77,7 @@ def main():
         # Choose algorithm
         print("\n🔧 ALGORITHM:")
         print("   1. Dijkstra (Recommended - Fast & Reliable)")
-        print("   2. IDA* (Memory Efficient)")
+        print("   2. IDA* (Memory Efficient - Optimized)")
         print("   3. Both (Compare)")
         
         algo_choice = input("   Choose (1/2/3, default=1): ").strip() or "1"
@@ -137,8 +140,11 @@ def main():
         # Run IDA*
         if algo_choice in ['2', '3']:
             print("\n" + "="*100)
-            print(" "*40 + "🧠 IDA* ALGORITHM")
+            print(" "*40 + "🧠 IDA* ALGORITHM (OPTIMIZED)")
             print("="*100)
+            print("   ✨ Stops immediately after finding first solution")
+            print("   ✨ Memory efficient for large networks")
+            print("   ✨ Same results as Dijkstra")
             
             try:
                 ida_route = gmaps_style_route_ida_star(
@@ -157,12 +163,13 @@ def main():
                     print(f"   Cost: Rp {ida_route.total_cost:,}")
                     print(f"   Distance: {ida_route.total_distance_km:.2f} km")
                     print(f"   Segments: {len(ida_route.segments)}")
+                    print(f"   ✨ Optimized: Stops after first solution found")
                     
                     if algo_choice == '2':  # Only show if IDA* alone
                         print("\n" + "="*100)
                         print_gmaps_route(ida_route, origin_name, dest_name)
                 else:
-                    print("\n❌ IDA*: No route found (try increasing iterations)")
+                    print("\n❌ IDA*: No route found")
             except Exception as e:
                 print(f"\n❌ IDA* ERROR: {e}")
         

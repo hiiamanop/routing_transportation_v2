@@ -82,12 +82,12 @@ class IDAStarMultiModalRouter:
         
         return transfer_map
     
-    def search(self,
-               start: Stop,
+    def search(self, 
+               start: Stop, 
                goal: Stop,
                departure_time: Optional[datetime] = None,
-               max_iterations: int = 100,
-               timeout_seconds: float = 60.0) -> Optional[Route]:
+               max_iterations: int = 1000,
+               timeout_seconds: float = 120.0) -> Optional[Route]:
         """
         Find optimal route using IDA* with multi-modal support
         
@@ -145,13 +145,14 @@ class IDAStarMultiModalRouter:
             )
             
             if isinstance(result, Route):
-                # Solution found!
+                # Solution found! Stop immediately
                 elapsed = time_module.time() - start_time
                 print(f"\n✅ Solution found!")
                 print(f"   Iterations: {self.iterations}")
                 print(f"   Nodes explored: {self.nodes_explored}")
                 print(f"   Max depth: {self.max_depth_reached}")
                 print(f"   Time: {elapsed:.4f}s")
+                print(f"   Bound: {bound:.2f}")
                 return result
             
             if result == float('inf'):
@@ -375,9 +376,9 @@ def gmaps_style_route_ida_star(
     for origin_stop, origin_dist in origin_stops[:5]:
         for dest_stop, dest_dist in dest_stops[:5]:
             # Find transit route with IDA*
-            # Increased from 200 to 1000 for complex multi-modal routes
-            # Increased timeout from 60s to 180s for complex routes
-            transit_route = router.search(origin_stop, dest_stop, departure_time, max_iterations=1000, timeout_seconds=180.0)
+            # Network size: 402 stops - optimized for 1000 iterations
+            # User requested: timeout at 1000 iterations
+            transit_route = router.search(origin_stop, dest_stop, departure_time, max_iterations=1000, timeout_seconds=120.0)
             
             if transit_route:
                 # Calculate total score
