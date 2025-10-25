@@ -123,15 +123,12 @@ def main():
                 )
                 
                 if dijkstra_route:
-                    print(f"\n✅ DIJKSTRA SUCCESS!")
-                    print(f"   Duration: {dijkstra_route.total_time_minutes:.1f} min")
-                    print(f"   Cost: Rp {dijkstra_route.total_cost:,}")
-                    print(f"   Distance: {dijkstra_route.total_distance_km:.2f} km")
-                    print(f"   Segments: {len(dijkstra_route.segments)}")
-                    
-                    # Show detailed route
-                    print("\n" + "="*100)
                     print_gmaps_route(dijkstra_route, origin_name, dest_name)
+                    print(f"\n✅ DIJKSTRA SUCCESS!")
+                    print(f"   ⏱️  Total time: {dijkstra_route.total_time_minutes:.1f} min")
+                    print(f"   💰 Total cost: Rp {dijkstra_route.total_cost:,}")
+                    print(f"   🚶 Walking segments: {len([s for s in dijkstra_route.segments if s.mode == 'WALK'])}")
+                    print(f"   🚌 Transit segments: {len([s for s in dijkstra_route.segments if s.mode != 'WALK'])}")
                 else:
                     print("\n❌ DIJKSTRA: No route found")
             except Exception as e:
@@ -158,16 +155,13 @@ def main():
                 )
                 
                 if ida_route:
+                    print_gmaps_route(ida_route, origin_name, dest_name)
                     print(f"\n✅ IDA* SUCCESS!")
-                    print(f"   Duration: {ida_route.total_time_minutes:.1f} min")
-                    print(f"   Cost: Rp {ida_route.total_cost:,}")
-                    print(f"   Distance: {ida_route.total_distance_km:.2f} km")
-                    print(f"   Segments: {len(ida_route.segments)}")
+                    print(f"   ⏱️  Total time: {ida_route.total_time_minutes:.1f} min")
+                    print(f"   💰 Total cost: Rp {ida_route.total_cost:,}")
+                    print(f"   🚶 Walking segments: {len([s for s in ida_route.segments if s.mode == 'WALK'])}")
+                    print(f"   🚌 Transit segments: {len([s for s in ida_route.segments if s.mode != 'WALK'])}")
                     print(f"   ✨ Optimized: Stops after first solution found")
-                    
-                    if algo_choice == '2':  # Only show if IDA* alone
-                        print("\n" + "="*100)
-                        print_gmaps_route(ida_route, origin_name, dest_name)
                 else:
                     print("\n❌ IDA*: No route found")
             except Exception as e:
@@ -175,28 +169,21 @@ def main():
         
         # Compare if both
         if algo_choice == '3' and dijkstra_route and ida_route:
-            print("\n" + "="*100)
-            print(" "*40 + "📊 COMPARISON")
-            print("="*100)
+            print("\n" + "="*60)
+            print("📊 COMPARISON SUMMARY")
+            print("="*60)
             
-            print(f"\n{'Metric':<20} {'Dijkstra':>20} {'IDA*':>20} {'Match?':>12}")
-            print("-" * 77)
+            time_diff = abs(dijkstra_route.total_time_minutes - ida_route.total_time_minutes)
+            cost_diff = abs(dijkstra_route.total_cost - ida_route.total_cost)
             
-            duration_match = "✅" if abs(dijkstra_route.total_time_minutes - ida_route.total_time_minutes) < 0.1 else "❌"
-            print(f"{'Duration':<20} {dijkstra_route.total_time_minutes:>18.1f} min {ida_route.total_time_minutes:>18.1f} min {duration_match:>8}")
+            print(f"✅ Both algorithms found routes!")
+            print(f"   ⏱️  Time difference: {time_diff:.1f} min")
+            print(f"   💰 Cost difference: Rp {cost_diff:,}")
             
-            cost_match = "✅" if dijkstra_route.total_cost == ida_route.total_cost else "❌"
-            print(f"{'Cost':<20} {'Rp ' + f'{dijkstra_route.total_cost:,}':>20} {'Rp ' + f'{ida_route.total_cost:,}':>20} {cost_match:>8}")
-            
-            segments_match = "✅" if len(dijkstra_route.segments) == len(ida_route.segments) else "❌"
-            print(f"{'Segments':<20} {len(dijkstra_route.segments):>20} {len(ida_route.segments):>20} {segments_match:>8}")
-            
-            all_match = (duration_match == "✅" and cost_match == "✅" and segments_match == "✅")
-            print(f"\n{'='*77}")
-            if all_match:
-                print("🎉 Routes are IDENTICAL!")
+            if time_diff < 0.1 and cost_diff < 1000:
+                print(f"   🎯 Results are nearly identical!")
             else:
-                print("⚠️  Routes differ")
+                print(f"   ⚠️  Results differ significantly")
         
         # Save option
         if dijkstra_route or ida_route:

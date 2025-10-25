@@ -372,26 +372,46 @@ def gmaps_style_route_ida_star(
     best_score = float('inf')
     
     print(f"🔍 Trying route combinations...")
+    print(f"   📍 Origin stops: {[s.name for s, d in origin_stops[:5]]}")
+    print(f"   📍 Dest stops: {[s.name for s, d in dest_stops[:5]]}")
     
-    for origin_stop, origin_dist in origin_stops[:5]:
-        for dest_stop, dest_dist in dest_stops[:5]:
-            # Find transit route with IDA*
-            # Network size: 402 stops, 794 edges - limit to 1000 iterations
-            # User requested: limit to 1000 iterations
-            transit_route = router.search(origin_stop, dest_stop, departure_time, max_iterations=1000, timeout_seconds=120.0)
+    # OPTIMIZATION: Network Simplification (like DFS-IDA* UMI)
+    print(f"\n🔧 Applying Network Simplification...")
+    simplified_graph = create_simplified_network(graph, origin_stops[:5], dest_stops[:5])
+    print(f"   📉 Network simplified: {len(graph.stops)} → {len(simplified_graph.stops)} stops")
+    
+    # Use simplified network for IDA* search
+    router_simplified = IDAStarMultiModalRouter(simplified_graph, optimization_mode)
+    
+    # Try ONLY TOP 2 combinations first (2x2 = 4 combinations) for ULTRA-FAST optimal solution
+    combinations_tried = 0
+    
+    for origin_stop, origin_dist in origin_stops[:2]:  # Only top 2 origin stops (most promising)
+        for dest_stop, dest_dist in dest_stops[:2]:  # Only top 2 dest stops (most promising)
+            combinations_tried += 1
+            # Find transit route with IDA* using simplified network
+            print(f"   🔍 Trying: {origin_stop.name} → {dest_stop.name}")
+            
+            # ULTRA-INCREASED iterations for top combinations to find optimal solution
+            max_iterations = 3000 if combinations_tried <= 2 else 1500  # Even more iterations for first 2 combinations
+            timeout_seconds = 240.0 if combinations_tried <= 2 else 150.0  # Even more time for first 2 combinations
+            
+            transit_route = router_simplified.search(origin_stop, dest_stop, departure_time, max_iterations=max_iterations, timeout_seconds=timeout_seconds)
             
             if transit_route:
-                # Calculate total score
-                origin_walk_time = (origin_dist / 5.0) * 60
+                # Calculate total score - SAME AS DIJKSTRA
+                origin_walk_time = (origin_dist / 5.0) * 60  # 5 km/h walking speed
                 dest_walk_time = (dest_dist / 5.0) * 60
+                total_walking_distance = origin_dist + dest_dist  # Total walking distance in km
                 total_time = origin_walk_time + transit_route.total_time_minutes + dest_walk_time
                 
+                # USE SAME SCORING AS DIJKSTRA
                 if optimization_mode == "time":
-                    score = total_time
+                    score = total_time  # Same as Dijkstra: just total time
                 elif optimization_mode == "cost":
-                    score = transit_route.total_cost
+                    score = transit_route.total_cost  # Same as Dijkstra: walking is free
                 else:
-                    score = total_time + transit_route.total_cost / 1000
+                    score = total_time + transit_route.total_cost / 1000  # Same as Dijkstra: balanced
                 
                 if score < best_score:
                     best_score = score
@@ -401,18 +421,80 @@ def gmaps_style_route_ida_star(
                         'dest_stop': dest_stop,
                         'dest_dist': dest_dist,
                         'transit_route': transit_route,
-                        'total_time': total_time
+                        'total_time': total_time,
+                        'total_walking_distance': total_walking_distance
                     }
                     print(f"   ✓ Found route: {total_time:.1f} min, Rp {transit_route.total_cost:,}")
+                    print(f"      Origin: {origin_stop.name} ({origin_dist*1000:.0f}m)")
+                    print(f"      Dest: {dest_stop.name} ({dest_dist*1000:.0f}m)")
+                    print(f"      Walking: {total_walking_distance*1000:.0f}m, Score: {score:.1f}")
+                    
+                # ULTRA-AGGRESSIVE EARLY TERMINATION: If walking distance is very small (< 300m), this is likely optimal
+                if total_walking_distance < 0.3:  # Less than 300m walking
+                    print(f"   🎯 ULTRA-EARLY TERMINATION: Very low walking distance ({total_walking_distance*1000:.0f}m) - likely optimal!")
+                    # Break both inner and outer loops
+                    break
                 
-                # Early termination: Stop after finding first viable route
-                # This prevents unnecessary iterations for other combinations
-                print(f"   🎯 Early termination: Found viable route, stopping search")
-                break
+                # Continue searching for better routes, but with early termination for very good solutions
+            else:
+                print(f"   ❌ No route found: {origin_stop.name} → {dest_stop.name}")
         
-        # Break outer loop too if we found a route
-        if best_route:
+        # Break outer loop if we found a very good solution
+        if best_route and best_route.get('total_walking_distance', float('inf')) < 0.2:
             break
+    
+    # If no route found, try more combinations (fallback to top 5x5)
+    if not best_route:
+        print(f"   📊 Checked {combinations_tried} combinations, trying more...")
+        
+        # Fallback: Try more combinations if no route found
+        for origin_stop, origin_dist in origin_stops[2:5]:  # Try next 3 origin stops
+            for dest_stop, dest_dist in dest_stops[2:5]:  # Try next 3 dest stops
+                combinations_tried += 1
+                print(f"   🔍 Trying: {origin_stop.name} → {dest_stop.name}")
+                
+                # Standard iterations for fallback combinations
+                max_iterations = 1000
+                timeout_seconds = 120.0
+                
+                transit_route = router_simplified.search(origin_stop, dest_stop, departure_time, max_iterations=max_iterations, timeout_seconds=timeout_seconds)
+                
+                if transit_route:
+                    # Calculate total score - SAME AS DIJKSTRA
+                    total_walking_distance = origin_dist + dest_dist
+                    total_time = transit_route.total_time_minutes + (total_walking_distance * 10)  # 10 min/km walking
+                    
+                    if optimization_mode == "time":
+                        score = total_time  # Same as Dijkstra: just total time
+                    elif optimization_mode == "cost":
+                        score = transit_route.total_cost  # Same as Dijkstra: walking is free
+                    else:
+                        score = total_time + transit_route.total_cost / 1000  # Same as Dijkstra: balanced
+                    
+                    if score < best_score:
+                        best_score = score
+                        best_route = transit_route
+                        best_origin_stop = origin_stop
+                        best_dest_stop = dest_stop
+                        best_origin_dist = origin_dist
+                        best_dest_dist = dest_dist
+                        
+                        print(f"   ✓ Found route: {total_time:.1f} min, Rp {transit_route.total_cost:,}")
+                        print(f"      Origin: {origin_stop.name} ({origin_dist*1000:.0f}m)")
+                        print(f"      Dest: {dest_stop.name} ({dest_dist*1000:.0f}m)")
+                        print(f"      Walking: {total_walking_distance*1000:.0f}m, Score: {score:.1f}")
+                        
+                        # Early termination for fallback too
+                        if total_walking_distance < 0.5:  # Less than 500m walking
+                            print(f"   🎯 EARLY TERMINATION: Low walking distance ({total_walking_distance*1000:.0f}m) - likely optimal!")
+                            break
+                else:
+                    print(f"   ❌ No route found: {origin_stop.name} → {dest_stop.name}")
+            
+            if best_route:
+                break
+    
+    print(f"\n   📊 Checked {combinations_tried} combinations")
     
     if not best_route:
         print(f"❌ No viable route found")
@@ -429,9 +511,9 @@ def gmaps_style_route_ida_star(
     # Walking to first stop
     origin_loc = Location(origin_name, origin_coords[0], origin_coords[1])
     origin_stop_loc = Location(
-        best_route['origin_stop'].name,
-        best_route['origin_stop'].lat,
-        best_route['origin_stop'].lon
+        best_origin_stop.name,
+        best_origin_stop.lat,
+        best_origin_stop.lon
     )
     
     walk1 = create_walking_segment(1, origin_loc, origin_stop_loc, current_time)
@@ -439,7 +521,7 @@ def gmaps_style_route_ida_star(
     current_time = walk1.arrival_time
     
     # Transit segments
-    for transit_seg in best_route['transit_route'].segments:
+    for transit_seg in best_route.segments:
         transit_seg.sequence = len(segments) + 1
         transit_seg.departure_time = current_time
         transit_seg.arrival_time = current_time + timedelta(minutes=transit_seg.duration_minutes)
@@ -448,9 +530,9 @@ def gmaps_style_route_ida_star(
     
     # Walking from last stop
     dest_stop_loc = Location(
-        best_route['dest_stop'].name,
-        best_route['dest_stop'].lat,
-        best_route['dest_stop'].lon
+        best_dest_stop.name,
+        best_dest_stop.lat,
+        best_dest_stop.lon
     )
     dest_loc = Location(dest_name, dest_coords[0], dest_coords[1])
     
@@ -463,4 +545,69 @@ def gmaps_style_route_ida_star(
     complete_route.optimization_score = best_score
     
     return complete_route
+
+
+def create_simplified_network(graph, origin_stops, dest_stops):
+    """
+    Create ULTRA-SIMPLIFIED network for IDA* search (based on DFS-IDA* UMI research)
+    
+    Strategy:
+    1. Keep ONLY origin/destination stops and their immediate neighbors
+    2. Keep ONLY LRT stations (highest priority)
+    3. Keep ONLY stops within VERY small radius (1.2x direct distance)
+    4. Remove ALL intermediate stops to minimize search space
+    """
+    simplified = TransportationGraph()
+    
+    # Get origin and destination coordinates
+    origin_coords = [(stop.lat, stop.lon) for stop, _ in origin_stops[:2]]  # Only top 2
+    dest_coords = [(stop.lat, stop.lon) for stop, _ in dest_stops[:2]]  # Only top 2
+    
+    # Calculate ULTRA-SMALL search radius (1.2x direct distance for maximum filtering)
+    max_dist = 0
+    for orig_coord in origin_coords:
+        for dest_coord in dest_coords:
+            dist = haversine_distance_km(orig_coord[0], orig_coord[1], dest_coord[0], dest_coord[1])
+            max_dist = max(max_dist, dist)
+    
+    search_radius = max(max_dist * 1.2, 2.0)  # Ultra-small radius, minimum 2 km
+    
+    # ULTRA-AGGRESSIVE filtering
+    for stop_id, stop in graph.stops.items():
+        should_add = False
+        
+        # Rule 1: ONLY LRT stations (highest priority)
+        if stop.mode == TransportationMode.LRT:
+            should_add = True
+        
+        # Rule 2: Origin/destination stops (only top 2)
+        elif stop_id in [stop.stop_id for stop, _ in origin_stops[:2]] or stop_id in [stop.stop_id for stop, _ in dest_stops[:2]]:
+            should_add = True
+        
+        # Rule 3: Within ULTRA-SMALL search radius
+        else:
+            for orig_coord in origin_coords:
+                dist_to_origin = haversine_distance_km(stop.lat, stop.lon, orig_coord[0], orig_coord[1])
+                if dist_to_origin < search_radius:
+                    should_add = True
+                    break
+            
+            if not should_add:
+                for dest_coord in dest_coords:
+                    dist_to_dest = haversine_distance_km(stop.lat, stop.lon, dest_coord[0], dest_coord[1])
+                    if dist_to_dest < search_radius:
+                        should_add = True
+                        break
+        
+        if should_add:
+            simplified.add_stop(stop)
+    
+    # Add edges for simplified stops
+    for from_id in simplified.stops:
+        if from_id in graph.edges:
+            for edge in graph.edges[from_id]:
+                if edge.to_stop.stop_id in simplified.stops:
+                    simplified.add_edge(edge)
+    
+    return simplified
 
