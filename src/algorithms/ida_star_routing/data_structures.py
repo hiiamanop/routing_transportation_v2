@@ -10,6 +10,26 @@ from typing import List, Dict, Optional, Tuple
 import json
 
 
+import math
+
+
+def haversine_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate distance in kilometers"""
+    R = 6371.0
+    lat1_rad = math.radians(lat1)
+    lon1_rad = math.radians(lon1)
+    lat2_rad = math.radians(lat2)
+    lon2_rad = math.radians(lon2)
+    
+    dlat = lat2_rad - lat1_rad
+    dlon = lon2_rad - lon1_rad
+    
+    a = math.sin(dlat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    
+    return R * c
+
+
 class TransportationMode(Enum):
     """Transportation modes available in Palembang"""
     LRT = "LRT"
@@ -25,6 +45,17 @@ class TrafficCondition(Enum):
     MODERATE = "Moderate"
     HEAVY = "Heavy"
     SEVERE = "Severe"
+
+
+@dataclass
+class Location:
+    """Represents a geographical location"""
+    name: str
+    lat: float
+    lon: float
+    
+    def __str__(self):
+        return f"{self.name} ({self.lat:.6f}, {self.lon:.6f})"
 
 
 @dataclass
@@ -130,13 +161,106 @@ class Route:
         self.segments.append(segment)
         self.calculate_metrics()
     
+    def calculate_lrt_cost(self, from_stop: Stop, to_stop: Stop) -> int:
+        """
+        Calculate LRT cost based on distance
+        
+        Rules:
+        - Antar stasiun: Rp 5,000
+        - Ujung ke ujung: Rp 10,000
+        - Tidak ada penambahan nilai berdasarkan jarak
+        """
+        # Get LRT station names
+        from_name = from_stop.name.lower()
+        to_name = to_stop.name.lower()
+        
+        # Define LRT stations (assuming these are the end stations)
+        lrt_end_stations = ['smb', 'bumi sriwijaya', 'asrama haji']
+        
+        # Check if it's end-to-end journey
+        is_from_end = any(end_station in from_name for end_station in lrt_end_stations)
+        is_to_end = any(end_station in to_name for end_station in lrt_end_stations)
+        
+        # If both are end stations, it's end-to-end journey
+        if is_from_end and is_to_end and from_name != to_name:
+            return 10000  # Rp 10,000 for end-to-end
+        else:
+            return 5000   # Rp 5,000 for regular inter-station
+    
+    def calculate_transfer_cost(self, current_mode: TransportationMode, 
+                               next_mode: TransportationMode,
+                               from_stop: Stop = None,
+                               to_stop: Stop = None) -> int:
+        """
+        Calculate cost for transfer between modes
+        
+        Rules:
+        - Angkot Feeder: FREE (Rp 0)
+        - Teman Bus: Rp 5,000 per trip
+        - LRT: Rp 5,000 (antar stasiun) atau Rp 10,000 (ujung ke ujung)
+        - No additional cost if staying in same mode/corridor
+        """
+        # If staying in same mode, no additional cost
+        if current_mode == next_mode:
+            return 0
+        
+        # If walking or transfer, no cost
+        if next_mode in [TransportationMode.WALK, TransportationMode.TRANSFER]:
+            return 0
+        
+        # Calculate cost for new mode
+        if next_mode == TransportationMode.LRT:
+            # For LRT, we need to calculate based on stations
+            if from_stop and to_stop:
+                return self.calculate_lrt_cost(from_stop, to_stop)
+            else:
+                return 5000  # Default LRT cost
+        else:
+            return DEFAULT_COSTS.get(next_mode, 0)
+    
+    def calculate_route_cost(self, segments: List[RouteSegment]) -> int:
+        """
+        Calculate total cost for a route with proper transfer logic
+        
+        Rules:
+        - Only charge when entering a new mode/corridor
+        - Angkot Feeder: FREE
+        - Teman Bus: Rp 5,000 per trip
+        - LRT: Rp 5,000 (antar stasiun) atau Rp 10,000 (ujung ke ujung)
+        """
+        if not segments:
+            return 0
+        
+        total_cost = 0
+        current_mode = None
+        
+        for segment in segments:
+            # Skip walking and transfer segments
+            if segment.mode in [TransportationMode.WALK, TransportationMode.TRANSFER]:
+                continue
+            
+            # If mode changed, add cost for new mode
+            if current_mode != segment.mode:
+                if segment.mode == TransportationMode.LRT:
+                    # For LRT, calculate based on stations
+                    if hasattr(segment, 'from_stop') and hasattr(segment, 'to_stop'):
+                        total_cost += self.calculate_lrt_cost(segment.from_stop, segment.to_stop)
+                    else:
+                        total_cost += 5000  # Default LRT cost
+                else:
+                    total_cost += DEFAULT_COSTS.get(segment.mode, 0)
+                current_mode = segment.mode
+        
+        return total_cost
+    
     def calculate_metrics(self):
         """Calculate total time, cost, distance, and transfers"""
         if not self.segments:
             return
         
         self.total_time_minutes = sum(s.duration_minutes for s in self.segments)
-        self.total_cost = sum(s.cost for s in self.segments)
+        # Use proper transfer cost calculation instead of sum of segment costs
+        self.total_cost = self.calculate_route_cost(self.segments)
         self.total_distance_km = sum(s.distance_km for s in self.segments)
         
         # Count transfers (mode changes)
@@ -308,8 +432,8 @@ class TransportationGraph:
 # Constants
 DEFAULT_COSTS = {
     TransportationMode.LRT: 5000,  # IDR per trip
-    TransportationMode.TEMAN_BUS: 3500,
-    TransportationMode.FEEDER_ANGKOT: 3000,
+    TransportationMode.TEMAN_BUS: 5000,  # IDR per trip (updated)
+    TransportationMode.FEEDER_ANGKOT: 0,  # FREE (updated)
     TransportationMode.TRANSFER: 0,
     TransportationMode.WALK: 0
 }

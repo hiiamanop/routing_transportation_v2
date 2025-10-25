@@ -3,12 +3,15 @@ Interactive Dynamic Route Planning System
 Input koordinat origin & destination secara dinamis
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 from datetime import datetime
 from algorithms.ida_star_routing.data_loader import load_network_data
-from algorithms.ida_star_routing.ida_star_multimodal import gmaps_style_route_ida_star
 from core.gmaps_style_routing import gmaps_style_route, print_gmaps_route
+from optimized_dfs_test import gmaps_style_route_optimized_dfs
 import json
-import sys
 
 def get_float_input(prompt):
     """Get float input with validation"""
@@ -27,7 +30,7 @@ def main():
     
     # Load network once
     print("\n📂 Loading network...")
-    graph = load_network_data("dataset/network_data_correct_bidirectional.json")
+    graph = load_network_data("../dataset/network_data_correct_bidirectional.json")
     print("✅ Network loaded successfully!")
     print(f"   📊 Complete Network: {len(graph.stops)} stops, {len(graph.edges)} edges")
     print(f"   🚌 Routes: 8 Feeder + 2 Teman Bus + 1 LRT = 11 routes")
@@ -77,8 +80,8 @@ def main():
         # Choose algorithm
         print("\n🔧 ALGORITHM:")
         print("   1. Dijkstra (Recommended - Fast & Reliable)")
-        print("   2. IDA* (Memory Efficient - Optimized)")
-        print("   3. Both (Compare)")
+        print("   2. Optimized DFS (Research - Heuristic + Iterative Deepening)")
+        print("   3. Both (Compare Dijkstra vs Optimized DFS)")
         
         algo_choice = input("   Choose (1/2/3, default=1): ").strip() or "1"
         
@@ -91,7 +94,7 @@ def main():
         print(f"   🔴 To: {dest_name}")
         print(f"      📌 Lat: {dest_lat}, Lon: {dest_lon}")
         print(f"   🕐 Departure: {departure_time}")
-        print(f"   🔧 Algorithm: {['Dijkstra', 'IDA*', 'Both'][int(algo_choice)-1]}")
+        print(f"   🔧 Algorithm: {['Dijkstra', 'Optimized DFS', 'Both'][int(algo_choice)-1]}")
         
         confirm = input("\n   Proceed? (Y/n): ").strip().lower()
         if confirm in ['n', 'no']:
@@ -103,7 +106,7 @@ def main():
         dest_coords = (dest_lat, dest_lon)
         
         dijkstra_route = None
-        ida_route = None
+        dfs_route = None
         
         # Run Dijkstra
         if algo_choice in ['1', '3']:
@@ -134,63 +137,137 @@ def main():
             except Exception as e:
                 print(f"\n❌ DIJKSTRA ERROR: {e}")
         
-        # Run IDA*
+        # Run Optimized DFS
         if algo_choice in ['2', '3']:
             print("\n" + "="*100)
-            print(" "*40 + "🧠 IDA* ALGORITHM (OPTIMIZED)")
+            print(" "*35 + "🔍 OPTIMIZED DFS ALGORITHM")
             print("="*100)
-            print("   ✨ Stops immediately after finding first solution")
-            print("   ✨ Memory efficient for large networks")
-            print("   ✨ Same results as Dijkstra")
+            print("   🧠 DFS with Heuristic (A* style)")
+            print("   🔄 Iterative Deepening DFS")
+            print("   ✂️  Best-First Ordering")
+            print("   ✂️  Cost-based Pruning")
+            print("   📚 Research: PERANCANGAN SISTEM INFORMASI INTEGRASI OPERASIONAL")
+            print("   📚 ANTAR MODA ANGKUTAN UMUM MENGGUNAKAN ALGORITMA DFS")
             
             try:
-                ida_route = gmaps_style_route_ida_star(
-                    graph=graph,
-                    origin_name=origin_name,
-                    origin_coords=origin_coords,
-                    dest_name=dest_name,
-                    dest_coords=dest_coords,
-                    optimization_mode="time",
-                    departure_time=departure_time
+                dfs_result = gmaps_style_route_optimized_dfs(
+                    origin_lat=origin_lat,
+                    origin_lon=origin_lon,
+                    dest_lat=dest_lat,
+                    dest_lon=dest_lon,
+                    departure_time=departure_time,
+                    optimization_mode="time"
                 )
                 
-                if ida_route:
-                    print_gmaps_route(ida_route, origin_name, dest_name)
-                    print(f"\n✅ IDA* SUCCESS!")
-                    print(f"   ⏱️  Total time: {ida_route.total_time_minutes:.1f} min")
-                    print(f"   💰 Total cost: Rp {ida_route.total_cost:,}")
-                    print(f"   🚶 Walking segments: {len([s for s in ida_route.segments if s.mode == 'WALK'])}")
-                    print(f"   🚌 Transit segments: {len([s for s in ida_route.segments if s.mode != 'WALK'])}")
-                    print(f"   ✨ Optimized: Stops after first solution found")
+                if dfs_result:
+                    dfs_route = dfs_result['route']
+                    # Add missing attributes for compatibility
+                    dfs_route.num_transfers = len([s for s in dfs_route.segments if s.mode != 'WALKING']) - 1
+                    dfs_route.departure_time = dfs_route.segments[0].departure_time
+                    dfs_route.arrival_time = dfs_route.segments[-1].arrival_time
+                    
+                    # Add missing attributes for compatibility
+                    for seg in dfs_route.segments:
+                        if not hasattr(seg, 'route_name'):
+                            seg.route_name = getattr(seg, 'mode', 'Unknown')
+                        if not hasattr(seg, 'from_stop'):
+                            # Try to get from from_location
+                            if hasattr(seg, 'from_location') and seg.from_location:
+                                seg.from_stop = type('Location', (), {'name': seg.from_location.name})()
+                            else:
+                                seg.from_stop = type('Location', (), {'name': 'Unknown'})()
+                        if not hasattr(seg, 'to_stop'):
+                            # Try to get from to_location
+                            if hasattr(seg, 'to_location') and seg.to_location:
+                                seg.to_stop = type('Location', (), {'name': seg.to_location.name})()
+                            else:
+                                seg.to_stop = type('Location', (), {'name': 'Unknown'})()
+                    
+                    print_gmaps_route(dfs_route, origin_name, dest_name)
+                    print(f"\n✅ OPTIMIZED DFS SUCCESS!")
+                    print(f"   ⏱️  Total time: {dfs_route.total_time_minutes:.1f} min")
+                    print(f"   💰 Total cost: Rp {dfs_route.total_cost:,}")
+                    print(f"   🚶 Walking segments: {len([s for s in dfs_route.segments if s.mode == 'WALKING'])}")
+                    print(f"   🚌 Transit segments: {len([s for s in dfs_route.segments if s.mode != 'WALKING'])}")
+                    print(f"   🔍 Algorithm: {dfs_result['algorithm']}")
+                    print(f"   🔄 Iterations: {dfs_result['iterations']}")
+                    print(f"   📏 Max depth: {dfs_result['max_depth']}")
+                    if 'pruned_paths' in dfs_result:
+                        print(f"   ✂️  Pruned paths: {dfs_result['pruned_paths']}")
                 else:
-                    print("\n❌ IDA*: No route found")
+                    print("\n❌ OPTIMIZED DFS: No route found")
             except Exception as e:
-                print(f"\n❌ IDA* ERROR: {e}")
+                print(f"\n❌ OPTIMIZED DFS ERROR: {e}")
         
-        # Compare if both
-        if algo_choice == '3' and dijkstra_route and ida_route:
-            print("\n" + "="*60)
-            print("📊 COMPARISON SUMMARY")
-            print("="*60)
+        # Compare if both algorithms
+        successful_routes = []
+        if dijkstra_route:
+            successful_routes.append(("Dijkstra", dijkstra_route))
+        if dfs_route:
+            successful_routes.append(("Optimized DFS", dfs_route))
+        
+        if len(successful_routes) > 1:
+            print("\n" + "="*80)
+            print("📊 ALGORITHM COMPARISON SUMMARY")
+            print("="*80)
             
-            time_diff = abs(dijkstra_route.total_time_minutes - ida_route.total_time_minutes)
-            cost_diff = abs(dijkstra_route.total_cost - ida_route.total_cost)
+            print(f"✅ {len(successful_routes)} algorithms found routes!")
+            print()
             
-            print(f"✅ Both algorithms found routes!")
-            print(f"   ⏱️  Time difference: {time_diff:.1f} min")
-            print(f"   💰 Cost difference: Rp {cost_diff:,}")
+            # Create comparison table
+            print(f"{'Algorithm':<15} {'Time (min)':<12} {'Cost (Rp)':<15} {'Segments':<10}")
+            print("-" * 60)
             
-            if time_diff < 0.1 and cost_diff < 1000:
-                print(f"   🎯 Results are nearly identical!")
+            for name, route in successful_routes:
+                segments = len(route.segments)
+                print(f"{name:<15} {route.total_time_minutes:<12.1f} {route.total_cost:<15,.0f} {segments:<10}")
+            
+            # Find best route
+            best_time = min(successful_routes, key=lambda x: x[1].total_time_minutes)
+            best_cost = min(successful_routes, key=lambda x: x[1].total_cost)
+            
+            print()
+            print(f"🏆 Fastest: {best_time[0]} ({best_time[1].total_time_minutes:.1f} min)")
+            print(f"💰 Cheapest: {best_cost[0]} (Rp {best_cost[1].total_cost:,.0f})")
+            
+            # Check if results are similar
+            times = [route.total_time_minutes for _, route in successful_routes]
+            costs = [route.total_cost for _, route in successful_routes]
+            
+            time_range = max(times) - min(times)
+            cost_range = max(costs) - min(costs)
+            
+            if time_range < 1.0 and cost_range < 1000:
+                print(f"   🎯 All results are nearly identical!")
+            elif time_range < 5.0 and cost_range < 5000:
+                print(f"   ✅ Results are reasonably similar")
             else:
                 print(f"   ⚠️  Results differ significantly")
         
         # Save option
-        if dijkstra_route or ida_route:
+        if successful_routes:
             save = input("\n💾 Save route to JSON? (y/N): ").strip().lower()
             if save in ['y', 'yes']:
-                route_to_save = dijkstra_route if dijkstra_route else ida_route
-                algo_name = "dijkstra" if dijkstra_route else "ida"
+                # If multiple routes, let user choose which one to save
+                if len(successful_routes) > 1:
+                    print("\nWhich route to save?")
+                    for i, (name, _) in enumerate(successful_routes, 1):
+                        print(f"   {i}. {name}")
+                    
+                    choice = input("Choose (1-{}): ".format(len(successful_routes))).strip()
+                    try:
+                        route_idx = int(choice) - 1
+                        if 0 <= route_idx < len(successful_routes):
+                            selected_route = successful_routes[route_idx]
+                        else:
+                            selected_route = successful_routes[0]  # Default to first
+                    except ValueError:
+                        selected_route = successful_routes[0]  # Default to first
+                else:
+                    selected_route = successful_routes[0]
+                
+                route_to_save = selected_route[1]
+                algo_name = selected_route[0].lower().replace(' ', '_').replace('*', 'star')
                 
                 filename = f"route_{origin_name.replace(' ', '_').lower()}_{dest_name.replace(' ', '_').lower()}_{algo_name}.json"
                 
