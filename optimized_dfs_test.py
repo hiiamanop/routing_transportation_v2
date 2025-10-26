@@ -72,6 +72,7 @@ class RouteSegment:
 @dataclass
 class Route:
     """Represents a complete route"""
+    route_id: int
     segments: List[RouteSegment]
     total_cost: float
     total_time_minutes: float
@@ -212,7 +213,7 @@ class TransportationGraph:
 def load_network_data():
     """Load network data from JSON file"""
     try:
-        with open('../dataset/network_data_complete.json', 'r') as f:
+        with open('dataset/network_data_correct_bidirectional.json', 'r') as f:
             data = json.load(f)
         
         graph = TransportationGraph()
@@ -248,13 +249,26 @@ def load_network_data():
         print(f"Error loading network data: {e}")
         return None
 
-def find_nearest_stops(graph: TransportationGraph, lat: float, lon: float, max_stops: int = 5):
-    """Find nearest stops to given coordinates"""
+def find_nearest_stops(graph: TransportationGraph, lat: float, lon: float, max_stops: int = 5, max_distance_km: float = 2.0):
+    """Find nearest stops to given coordinates with distance limit
+    
+    Args:
+        graph: Transportation network
+        lat: Latitude
+        lon: Longitude
+        max_stops: Maximum number of stops to return
+        max_distance_km: Maximum distance in km (default 2km - reasonable walking distance)
+    
+    Returns:
+        List of (stop, distance) tuples sorted by distance
+    """
     distances = []
     
     for stop_id, stop in graph.stops.items():
         dist = haversine_distance_km(lat, lon, stop.lat, stop.lon)
-        distances.append((stop, dist))
+        # Only include stops within walking distance
+        if dist <= max_distance_km:
+            distances.append((stop, dist))
     
     # Sort by distance
     distances.sort(key=lambda x: x[1])
@@ -282,6 +296,7 @@ class OptimizedDFSRouter:
         self.iterations = 0
         self.max_depth_reached = 0
         self.pruned_paths = 0
+        self.max_iterations = 50000  # Limit iterations to prevent infinite loops
         
     def heuristic_cost(self, current: str, goal: str) -> float:
         """
@@ -358,10 +373,13 @@ class OptimizedDFSRouter:
             return False
         
         # Pruning: If current cost + heuristic > best cost, prune this path
-        heuristic_cost = self.heuristic_cost(current, goal)
-        if current_cost + heuristic_cost >= self.best_cost:
-            self.pruned_paths += 1
-            return False
+        # But only if we have a valid best_cost (not infinity)
+        if self.best_cost != float('inf'):
+            heuristic_cost = self.heuristic_cost(current, goal)
+            # Use a more lenient bound: allow 20% overhead
+            if current_cost + heuristic_cost > self.best_cost * 1.2:
+                self.pruned_paths += 1
+                return False
         
         # Check if goal reached
         if current == goal:
@@ -387,6 +405,79 @@ class OptimizedDFSRouter:
                 if self._dfs_heuristic_recursive(neighbor, goal, depth + 1, max_depth, new_cost):
                     found_goal = True
                     # Don't return immediately - continue exploring for better paths
+        
+        # Backtrack
+        self.path.pop()
+        self.visited.remove(current)
+        
+        return found_goal
+    
+    def pure_dfs(self, start: str, goal: str, max_depth: int = 200) -> DFSResult:
+        """
+        Pure DFS without heuristic or pruning (guaranteed to find ANY path if exists)
+        """
+        self.visited.clear()
+        self.path.clear()
+        self.best_path = None
+        self.best_cost = float('inf')
+        self.iterations = 0
+        self.max_depth_reached = 0
+        self.pruned_paths = 0
+        
+        print(f"🔍 Starting Pure DFS search: {start} → {goal}")
+        print(f"   Max depth: {max_depth}")
+        
+        # Start Pure DFS search
+        found = self._pure_dfs_recursive(start, goal, 0, max_depth, 0)
+        
+        return DFSResult(
+            found=found,
+            path=self.best_path if self.best_path else [],
+            total_cost=self.best_cost if self.best_cost != float('inf') else 0,
+            iterations=self.iterations,
+            max_depth_reached=self.max_depth_reached,
+            algorithm="Pure DFS"
+        )
+    
+    def _pure_dfs_recursive(self, current: str, goal: str, depth: int, max_depth: int, current_cost: float) -> bool:
+        """Pure DFS recursive search without pruning"""
+        self.iterations += 1
+        
+        # Stop if too many iterations
+        if self.iterations > self.max_iterations:
+            return self.best_path is not None
+        
+        # Update max depth reached
+        self.max_depth_reached = max(self.max_depth_reached, depth)
+        
+        # Check depth limit
+        if depth > max_depth:
+            return False
+        
+        # Check if goal reached
+        if current == goal:
+            if current_cost < self.best_cost:
+                self.best_cost = current_cost
+                self.best_path = self.path + [current].copy()
+                print(f"   ✅ Found path at depth {depth}, cost: {current_cost:.2f}")
+            return True
+        
+        # Mark current as visited
+        self.visited.add(current)
+        self.path.append(current)
+        
+        # Explore neighbors (no sorting, no pruning)
+        found_goal = False
+        if current in self.graph.edges:
+            neighbors = self.graph.edges[current]
+            for edge in neighbors:
+                neighbor = edge.to_stop.stop_id
+                
+                if neighbor not in self.visited:
+                    new_cost = current_cost + edge.cost
+                    if self._pure_dfs_recursive(neighbor, goal, depth + 1, max_depth, new_cost):
+                        found_goal = True
+                        # Continue exploring for better paths
         
         # Backtrack
         self.path.pop()
@@ -493,7 +584,8 @@ def gmaps_style_route_optimized_dfs(
     dest_lat: float, 
     dest_lon: float,
     departure_time: datetime = None,
-    optimization_mode: str = "time"
+    optimization_mode: str = "time",
+    max_walking_km: float = 2.0
 ) -> Optional[Dict]:
     """
     Google Maps style routing using Optimized DFS
@@ -505,6 +597,7 @@ def gmaps_style_route_optimized_dfs(
         dest_lon: Destination longitude
         departure_time: Departure time
         optimization_mode: "time", "cost", or "balanced"
+        max_walking_km: Maximum walking distance in km (default 2km - reasonable walking distance)
         
     Returns:
         Route information or None if no route found
@@ -524,17 +617,18 @@ def gmaps_style_route_optimized_dfs(
         print("❌ Failed to load transportation network")
         return None
     
-    # Find nearest stops
-    origin_stops = find_nearest_stops(graph, origin_lat, origin_lon, max_stops=5)
-    dest_stops = find_nearest_stops(graph, dest_lat, dest_lon, max_stops=5)
+    # Find nearest stops - increase coverage for more robust routing
+    # Use max_walking_km to limit to reasonable walking distance
+    origin_stops = find_nearest_stops(graph, origin_lat, origin_lon, max_stops=10, max_distance_km=max_walking_km)
+    dest_stops = find_nearest_stops(graph, dest_lat, dest_lon, max_stops=10, max_distance_km=max_walking_km)
     
     if not origin_stops or not dest_stops:
         print("❌ No stops found near origin or destination")
         return None
     
     print(f"\n📍 Nearest stops:")
-    print(f"   Origin: {[f'{stop.name} ({dist:.0f}m)' for stop, dist in origin_stops[:3]]}")
-    print(f"   Destination: {[f'{stop.name} ({dist:.0f}m)' for stop, dist in dest_stops[:3]]}")
+    print(f"   Origin: {[f'{stop.name} ({dist:.0f}m)' for stop, dist in origin_stops[:5]]}")
+    print(f"   Destination: {[f'{stop.name} ({dist:.0f}m)' for stop, dist in dest_stops[:5]]}")
     
     # Try different DFS optimizations
     best_route = None
@@ -543,8 +637,9 @@ def gmaps_style_route_optimized_dfs(
     
     print(f"\n🔍 Trying Optimized DFS combinations...")
     
-    for origin_stop, origin_dist in origin_stops[:3]:  # Try top 3 origin stops
-        for dest_stop, dest_dist in dest_stops[:3]:  # Try top 3 dest stops
+    # Limit combinations to prevent timeout (try ONLY closest stops for speed)
+    for origin_stop, origin_dist in origin_stops[:1]:  # Only closest origin
+        for dest_stop, dest_dist in dest_stops[:1]:   # Only closest destination
             combinations_tried += 1
             
             print(f"\n   🔄 Combination {combinations_tried}: {origin_stop.name} → {dest_stop.name}")
@@ -552,11 +647,14 @@ def gmaps_style_route_optimized_dfs(
             # Create optimized DFS router
             dfs_router = OptimizedDFSRouter(graph)
             
-            # Try different optimization strategies
+            # Try different optimization strategies with reasonable depth limits
+            # Focus on most promising strategies to avoid timeout
             strategies = [
-                ("Heuristic DFS", lambda: dfs_router.dfs_with_heuristic(origin_stop.stop_id, dest_stop.stop_id, 25)),
-                ("Iterative Deepening", lambda: dfs_router.iterative_deepening_dfs(origin_stop.stop_id, dest_stop.stop_id, 30))
+                ("Pure DFS (Depth 100)", lambda: dfs_router.pure_dfs(origin_stop.stop_id, dest_stop.stop_id, 100))
             ]
+            
+            # Only try first strategy to save time
+            # If it works, we have a route; if not, move to next combination
             
             for strategy_name, strategy_func in strategies:
                 print(f"      🧠 Trying {strategy_name}")
@@ -570,6 +668,12 @@ def gmaps_style_route_optimized_dfs(
                     # Calculate total walking distance
                     total_walking_distance = origin_dist + dest_dist
                     
+                    # Create route with walking distance penalty
+                    # Since user mentioned transport cost is flat and only increases on mode change,
+                    # we need to heavily weight walking distance in our selection
+                    # Weight walking distance at 1000x to prioritize closer stops
+                    total_score = result.total_cost + (total_walking_distance * 1000)
+                    
                     # Create route
                     route_info = {
                         'origin_stop': origin_stop,
@@ -577,37 +681,36 @@ def gmaps_style_route_optimized_dfs(
                         'path': result.path,
                         'total_cost': result.total_cost,
                         'total_walking_distance': total_walking_distance,
+                        'total_score': total_score,  # Combined score with walking penalty
                         'iterations': result.iterations,
                         'max_depth': result.max_depth_reached,
                         'algorithm': result.algorithm,
                         'pruned_paths': dfs_router.pruned_paths
                     }
                     
-                    # Check if this is better
-                    if result.total_cost < best_cost:
-                        best_cost = result.total_cost
+                    # Check if this is better (considering total score which includes walking penalty)
+                    if not best_route or total_score < best_route.get('total_score', float('inf')):
+                        best_cost = total_score  # Update best cost to use total_score
                         best_route = route_info
-                        print(f"      🎯 New best route found!")
+                        print(f"      🎯 New best route found! (Walking: {total_walking_distance*1000:.0f}m)")
                     
-                    # Early termination if we found a good route
-                    if result.total_cost < 1000:  # Very low cost
-                        print(f"      🎯 Early termination: Very low cost route found!")
-                        break
+                    # Stop after first valid route to save time
+                    # We already have a route, no need to explore more
+                    print(f"      ✅ Route found, stopping search for this combination")
+                    break
                 else:
                     print(f"      ❌ {strategy_name} failed")
             
-            # Early termination if we found a very good route
-            if best_route and best_route['total_cost'] < 1000:
-                break
-        
-        # Early termination if we found a very good route
-        if best_route and best_route['total_cost'] < 1000:
-            break
+            # Stop after finding first valid route to avoid infinite search
+            if best_route:
+                print(f"      ✅ Found valid route, continuing search...")
+                break  # Stop exploring this combination once we have a route
     
     print(f"\n   📊 Checked {combinations_tried} combinations")
     
     if not best_route:
         print(f"❌ No viable route found with Optimized DFS")
+        print(f"💡 Consider using Dijkstra algorithm for complex routes")
         return None
     
     # Build complete route
@@ -713,6 +816,7 @@ def gmaps_style_route_optimized_dfs(
     
     # Create complete route
     complete_route = Route(
+        route_id=1,
         segments=segments,
         total_cost=proper_total_cost,  # Use proper transfer cost calculation
         total_time_minutes=sum(seg.duration_minutes for seg in segments),

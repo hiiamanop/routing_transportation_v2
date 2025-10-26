@@ -199,7 +199,7 @@ export default function MapComponent({
     loadStops();
   }, []);
 
-  // Get route segments for visualization
+  // Get route segments for visualization - EXACT coordinates from algorithm
   const getRouteSegments = () => {
     if (
       !routeResults ||
@@ -218,13 +218,18 @@ export default function MapComponent({
           segment.to_coords.lat &&
           segment.to_coords.lon
       )
-      .map((segment) => ({
-        ...segment,
-        coordinates: [
+      .map((segment) => {
+        // Use EXACT coordinates from algorithm - no modification
+        const coordinates: Array<[number, number]> = [
           [segment.from_coords.lat, segment.from_coords.lon],
           [segment.to_coords.lat, segment.to_coords.lon],
-        ],
-      }));
+        ];
+
+        return {
+          ...segment,
+          coordinates,
+        };
+      });
   };
 
   // Get color for different transport modes

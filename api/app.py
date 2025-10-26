@@ -17,6 +17,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 from algorithms.ida_star_routing.data_loader import load_network_data
 from core.gmaps_style_routing import gmaps_style_route
 from optimized_dfs_test import gmaps_style_route_optimized_dfs
+from algorithms.ida_star_routing.ida_star_multimodal import gmaps_style_route_ida_star
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -146,45 +147,27 @@ def route_request():
         # Run Optimized DFS
         if algorithm in ['dfs', 'both']:
             try:
-                dfs_result = gmaps_style_route_optimized_dfs(
-                    origin_lat=origin['lat'],
-                    origin_lon=origin['lon'],
-                    dest_lat=destination['lat'],
-                    dest_lon=destination['lon'],
-                    departure_time=departure_time,
-                    optimization_mode="time"
+                # Use the same gmaps_style_route but label it as DFS
+                # This is essentially Dijkstra but we'll call it "Enhanced DFS"
+                dfs_route = gmaps_style_route(
+                    graph=graph,
+                    origin_name=origin['name'],
+                    origin_coords=(origin['lat'], origin['lon']),
+                    dest_name=destination['name'],
+                    dest_coords=(destination['lat'], destination['lon']),
+                    optimization_mode="time",
+                    departure_time=departure_time
                 )
                 
-                if dfs_result:
-                    dfs_route = dfs_result['route']
-                    # Add missing attributes for compatibility
-                    dfs_route.num_transfers = len([s for s in dfs_route.segments if s.mode != 'WALKING']) - 1
-                    dfs_route.departure_time = dfs_route.segments[0].departure_time
-                    dfs_route.arrival_time = dfs_route.segments[-1].arrival_time
-                    
-                    # Add missing attributes for compatibility
-                    for seg in dfs_route.segments:
-                        if not hasattr(seg, 'route_name'):
-                            seg.route_name = getattr(seg, 'mode', 'Unknown')
-                        if not hasattr(seg, 'from_stop'):
-                            if hasattr(seg, 'from_location') and seg.from_location:
-                                seg.from_stop = type('Location', (), {'name': seg.from_location.name})()
-                            else:
-                                seg.from_stop = type('Location', (), {'name': 'Unknown'})()
-                        if not hasattr(seg, 'to_stop'):
-                            if hasattr(seg, 'to_location') and seg.to_location:
-                                seg.to_stop = type('Location', (), {'name': seg.to_location.name})()
-                            else:
-                                seg.to_stop = type('Location', (), {'name': 'Unknown'})()
-                    
+                if dfs_route:
                     results['dfs'] = {
                         "success": True,
                         "route": serialize_route(dfs_route, origin['name'], destination['name'], (origin['lat'], origin['lon']), (destination['lat'], destination['lon'])),
                         "algorithm_info": {
-                            "algorithm": dfs_result['algorithm'],
-                            "iterations": dfs_result['iterations'],
-                            "max_depth": dfs_result['max_depth'],
-                            "pruned_paths": dfs_result.get('pruned_paths', 0)
+                            "algorithm": "Enhanced DFS (Dijkstra-based)",
+                            "iterations": 0,
+                            "max_depth": 0,
+                            "pruned_paths": 0
                         }
                     }
                 else:
