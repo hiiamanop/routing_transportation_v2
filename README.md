@@ -1,140 +1,214 @@
 # Palembang Public Transport Routing System
 
-A comprehensive multi-modal public transport routing system for Palembang, Indonesia, supporting Angkot Feeder, Teman Bus, and LRT Sumsel.
+Sistem routing transportasi umum Palembang menggunakan algoritma Dijkstra dan Optimized DFS dengan visualisasi peta interaktif.
 
-## 🚌 Features
+## 🚀 Features
 
-- **Multi-modal Routing**: Seamless integration of Angkot Feeder, Teman Bus, and LRT
-- **Google Maps Style**: Door-to-door routing with walking segments
-- **Smart Network**: Circuit routes (one-way) vs Linear routes (bidirectional)
-- **Multiple Algorithms**: Dijkstra and IDA\* pathfinding algorithms
-- **Real-time Optimization**: Time, cost, and transfer optimization modes
-- **REST API**: JSON-based backend API for integration
+- **Multi-modal Routing**: Mendukung Angkot Feeder, Teman Bus, dan LRT
+- **Dual Algorithms**: Dijkstra dan Optimized DFS untuk perbandingan
+- **Interactive Map**: Visualisasi rute dengan Leaflet.js
+- **Real-time Comparison**: Perbandingan performa algoritma
+- **Google Maps Style Output**: Format output yang mudah dipahami
 
 ## 📁 Project Structure
 
 ```
-├── src/                          # Main source code
-│   ├── core/                     # Core routing functionality
-│   │   └── gmaps_style_routing.py
-│   ├── algorithms/               # Advanced routing algorithms
-│   │   └── ida_star_routing/     # IDA* implementation
-│   ├── utils/                    # Utility functions
-│   ├── app.py                    # Flask REST API
-│   └── interactive_routing.py    # Interactive CLI
-├── scripts/                      # Data processing scripts
-│   ├── create_correct_bidirectional.py
-│   ├── create_visualization.py
-│   ├── extract_kmz_improved.py
-│   └── smart_bidirectional_analyzer.py
-├── dataset/                      # Network data and CSV files
-│   ├── network_data_correct_bidirectional.json
-│   ├── Angkot Feeder/
-│   ├── Bis Teman Bus/
-│   └── kmz_file/
-└── docs/                         # Documentation
+DFS_final/
+├── api/                    # Flask API Backend
+│   ├── app.py             # Main API server
+│   └── requirements.txt   # Python dependencies
+├── frontend/              # Next.js Frontend
+│   ├── src/
+│   │   └── app/
+│   │       ├── page.tsx   # Main application
+│   │       └── components/
+│   │           └── MapComponent.tsx
+│   └── package.json
+├── src/                   # Core routing algorithms
+├── dataset/               # Network data
+└── optimized_dfs_test.py  # Optimized DFS implementation
 ```
 
-## 🚀 Quick Start
+## 🛠️ Setup Instructions
 
-### Interactive Routing
+### 1. Backend API Setup
 
 ```bash
-python src/interactive_routing.py
+# Install Python dependencies
+cd api
+pip install -r requirements.txt
+
+# Run the API server
+python app.py
 ```
 
-### REST API
+API akan berjalan di `http://localhost:5000`
+
+### 2. Frontend Setup
 
 ```bash
-python src/app.py
+# Install dependencies
+cd frontend
+npm install
+
+# Run the development server
+npm run dev
 ```
 
-### Test Route
+Frontend akan berjalan di `http://localhost:3000`
 
-```python
-from src.core.gmaps_style_routing import gmaps_style_route
-from src.algorithms.ida_star_routing.data_loader import load_network_data
+## 📡 API Endpoints
 
-# Load network
-graph = load_network_data("dataset/network_data_correct_bidirectional.json")
+### Health Check
 
-# Find route
-route = gmaps_style_route(
-    graph=graph,
-    origin_name="Universitas Sriwijaya",
-    origin_coords=(-2.985256, 104.732880),
-    dest_name="PTC Mall",
-    dest_coords=(-2.95115, 104.76090),
-    optimization_mode="time"
-)
+```
+GET /api/health
 ```
 
-## 🛠️ Network Configuration
+### Network Information
 
-- **8 Angkot Feeder Routes**: Circuit routes (one-way)
-- **2 Teman Bus Routes**: Circuit routes (one-way)
-- **1 LRT Route**: Linear route (bidirectional)
-- **402 Stops**: Complete coverage of Palembang
-- **423 Edges**: Optimized connectivity
+```
+GET /api/network/info
+```
 
-## 📊 Supported Routes
+### Route Planning
 
-### Angkot Feeder (8 routes)
+```
+POST /api/route
+Content-Type: application/json
 
-- Koridor 1: Talang Kelapa - Talang Buruk
-- Koridor 2: Asrama Haji - Sematang Borang
-- Koridor 3: Asrama Haji - Talang Betutu
-- Koridor 4: Polresta - Perum OPI
-- Koridor 5: DJKA - Terminal Plaju (Linear)
-- Koridor 6: RSUD - Sukawinatan
-- Koridor 7: Kamboja - Bukit Siguntang
-- Koridor 8: Asrama Haji - Talang Jambe
-
-### Teman Bus (2 routes)
-
-- Koridor 2: Circuit route
-- Koridor 5: Circuit route
-
-### LRT Sumsel (1 route)
-
-- Linear route (bidirectional)
-
-## 🔧 API Endpoints
-
-### POST /route
-
-```json
 {
-  "origin_name": "Universitas Sriwijaya",
-  "origin_lat": -2.985256,
-  "origin_lon": 104.73288,
-  "dest_name": "PTC Mall",
-  "dest_lat": -2.95115,
-  "dest_lon": 104.7609,
-  "algorithm": "1",
-  "optimization_mode": "time",
-  "max_walking_km": 2.0
+  "origin": {
+    "name": "Universitas Sriwijaya",
+    "lat": -2.985256,
+    "lon": 104.732880
+  },
+  "destination": {
+    "name": "PTC Mall",
+    "lat": -2.95115,
+    "lon": 104.76090
+  },
+  "algorithm": "both",
+  "departure_time": "2025-01-01T10:00:00"
 }
 ```
 
-## 📈 Performance
+### Get All Stops
 
-- **Dijkstra**: Fast, reliable, optimal solutions
-- **IDA\***: Memory-efficient, same results as Dijkstra
-- **Average Response Time**: < 1 second
-- **Network Coverage**: 100% of Palembang public transport
+```
+GET /api/stops
+```
 
-## 🎯 Optimization Modes
+## 🗺️ Map Visualization
 
-- **Time**: Minimize total journey time
-- **Cost**: Minimize total cost
-- **Transfers**: Minimize number of transfers
-- **Balanced**: Balance time, cost, and transfers
+- **Origin Marker**: 🟢 Green marker untuk titik asal
+- **Destination Marker**: 🔴 Red marker untuk tujuan
+- **Route Lines**: Garis berwarna sesuai mode transportasi
+  - 🟢 Green: Walking
+  - 🔵 Blue: Teman Bus
+  - 🟠 Orange: Feeder Angkot
+  - 🟣 Purple: LRT
+- **Stop Markers**: Marker kecil untuk semua halte
 
-## 📝 License
+## 🔧 Algorithms
 
-This project is part of the DFS (Data Structures and Algorithms) course work for Palembang public transport optimization.
+### Dijkstra Algorithm
 
-## 🤝 Contributing
+- **Type**: Shortest path algorithm
+- **Use Case**: Optimal route finding
+- **Performance**: Fast and reliable
 
-This is an academic project. For questions or improvements, please contact the development team.
+### Optimized DFS Algorithm
+
+- **Type**: Depth-First Search with heuristics
+- **Features**:
+  - A\* style heuristics
+  - Iterative deepening
+  - Best-first ordering
+  - Cost-based pruning
+- **Use Case**: Research comparison
+
+## 💰 Fare System
+
+- **Angkot Feeder**: FREE (Rp 0)
+- **Teman Bus**: Rp 5,000 per trip
+- **LRT**:
+  - Rp 5,000 (inter-station)
+  - Rp 10,000 (end-to-end)
+- **No additional cost** for same mode/corridor transfers
+
+## 🎯 Usage Example
+
+1. **Open Frontend**: Navigate to `http://localhost:3000`
+2. **Enter Origin**: Input name and coordinates
+3. **Enter Destination**: Input name and coordinates
+4. **Select Algorithm**: Choose Dijkstra, DFS, or Both
+5. **Find Route**: Click "Find Route" button
+6. **View Results**:
+   - Route summary in sidebar
+   - Interactive map visualization
+   - Algorithm comparison (if both selected)
+
+## 🔍 Research Context
+
+Sistem ini dikembangkan untuk penelitian:
+**"PERANCANGAN SISTEM INFORMASI INTEGRASI OPERASIONAL ANTAR MODA ANGKUTAN UMUM MENGGUNAKAN ALGORITMA DEPTH FIRST SEARCH (DFS) DI KOTA PALEMBANG"**
+
+## 📊 Network Data
+
+- **Total Stops**: 402 halte
+- **Total Edges**: 423 koneksi
+- **Transport Modes**:
+  - 8 Feeder Angkot routes
+  - 2 Teman Bus routes
+  - 1 LRT route
+- **Smart Bidirectional**: Circuit routes one-way, Linear routes bidirectional
+
+## 🚀 Quick Start
+
+```bash
+# Terminal 1 - Start API
+cd api && python app.py
+
+# Terminal 2 - Start Frontend
+cd frontend && npm run dev
+
+# Open browser
+open http://localhost:3000
+```
+
+## 🎨 Features
+
+- ✅ Real-time route planning
+- ✅ Interactive map visualization
+- ✅ Algorithm performance comparison
+- ✅ Multi-modal transport support
+- ✅ Responsive design
+- ✅ Google Maps style output
+- ✅ Current location detection
+- ✅ Route optimization
+- ✅ Cost calculation
+- ✅ Time estimation
+
+## 🔧 Development
+
+### Adding New Transport Modes
+
+1. Update network data in `dataset/`
+2. Modify fare calculation in `api/app.py`
+3. Add color mapping in `frontend/src/app/components/MapComponent.tsx`
+
+### Customizing Algorithms
+
+1. Modify `optimized_dfs_test.py` for DFS improvements
+2. Update `src/core/gmaps_style_routing.py` for Dijkstra changes
+3. Test with `src/interactive_routing.py`
+
+## 📝 Notes
+
+- API runs on port 5000
+- Frontend runs on port 3000
+- Map uses OpenStreetMap tiles
+- All coordinates in decimal degrees
+- Time format: ISO 8601
+- Cost in Indonesian Rupiah (IDR)
