@@ -2,6 +2,8 @@
 
 Sistem routing transportasi umum Palembang menggunakan algoritma Dijkstra dan Optimized DFS dengan visualisasi peta interaktif.
 
+**Repository**: https://github.com/hiiamanop/routing_transportation_v2.git
+
 ## 🚀 Features
 
 - **Multi-modal Routing**: Mendukung Angkot Feeder, Teman Bus, dan LRT
@@ -29,7 +31,18 @@ DFS_final/
 └── optimized_dfs_test.py  # Optimized DFS implementation
 ```
 
-## 🛠️ Setup Instructions
+## 🚀 Quick Deployment
+
+Untuk deployment ke server, lihat [DEPLOYMENT.md](DEPLOYMENT.md) untuk panduan lengkap.
+
+**Deployment via Git (Recommended):**
+
+```bash
+chmod +x deploy_git.sh
+./deploy_git.sh
+```
+
+## 🛠️ Local Development Setup
 
 ### 1. Backend API Setup
 
