@@ -347,8 +347,8 @@ export default function Home() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                   >
                     <option value="both">Both (Compare Dijkstra vs DFS)</option>
-                    <option value="dijkstra">Dijkstra Only</option>
-                    <option value="dfs">Optimized DFS Only</option>
+                    <option value="dijkstra">Dijkstra</option>
+                    <option value="dfs">DFS</option>
                   </select>
                 </div>
 
@@ -387,250 +387,6 @@ export default function Home() {
                 </div>
               )}
             </div>
-
-            {/* Route Results */}
-            {routeResults && (
-              <div className="mt-6 space-y-4">
-                {/* Algorithm Selection */}
-                {routeResults.results.dijkstra?.success &&
-                  routeResults.results.dfs?.success && (
-                    <div className="bg-white rounded-lg shadow-sm p-4">
-                      <h3 className="font-semibold text-black mb-3">
-                        Choose Route to Display:
-                      </h3>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => setSelectedRoute("dijkstra")}
-                          className={`px-3 py-1 rounded text-sm ${
-                            selectedRoute === "dijkstra"
-                              ? "bg-blue-600 text-white"
-                              : "bg-gray-200 text-black hover:bg-gray-300"
-                          }`}
-                        >
-                          Dijkstra
-                        </button>
-                        <button
-                          onClick={() => setSelectedRoute("dfs")}
-                          className={`px-3 py-1 rounded text-sm ${
-                            selectedRoute === "dfs"
-                              ? "bg-blue-600 text-white"
-                              : "bg-gray-200 text-black hover:bg-gray-300"
-                          }`}
-                        >
-                          Optimized DFS
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                {/* Route Summary */}
-                {selectedRoute &&
-                  routeResults.results[selectedRoute]?.success && (
-                    <div className="bg-white rounded-lg shadow-sm p-4">
-                      <h3 className="font-semibold text-black mb-3">
-                        📊 Route Summary (
-                        {selectedRoute === "dijkstra"
-                          ? "Dijkstra"
-                          : "Optimized DFS"}
-                        )
-                      </h3>
-                      {routeResults.results[selectedRoute]?.route && (
-                        <div className="space-y-2 text-sm text-black">
-                          <div className="flex justify-between">
-                            <span>⏱️ Total Time:</span>
-                            <span className="font-medium">
-                              {formatTime(
-                                routeResults.results[selectedRoute]!.route!
-                                  .summary.total_time_minutes
-                              )}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>💰 Total Cost:</span>
-                            <span className="font-medium">
-                              {formatCost(
-                                routeResults.results[selectedRoute]!.route!
-                                  .summary.total_cost
-                              )}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>📏 Distance:</span>
-                            <span className="font-medium">
-                              {routeResults.results[
-                                selectedRoute
-                              ]!.route!.summary.total_distance_km.toFixed(
-                                2
-                              )}{" "}
-                              km
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>🔄 Transfers:</span>
-                            <span className="font-medium">
-                              {
-                                routeResults.results[selectedRoute]!.route!
-                                  .summary.num_transfers
-                              }
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>🚌 Segments:</span>
-                            <span className="font-medium">
-                              {
-                                routeResults.results[selectedRoute]!.route!
-                                  .segments.length
-                              }
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                {/* Route Details */}
-                {selectedRoute &&
-                  routeResults.results[selectedRoute]?.success && (
-                    <div className="bg-white rounded-lg shadow-sm p-4">
-                      <h3 className="font-semibold text-black mb-3">
-                        🚌 Route Details (
-                        {selectedRoute === "dijkstra"
-                          ? "Dijkstra"
-                          : "Optimized DFS"}
-                        )
-                      </h3>
-                      {routeResults.results[selectedRoute]?.route && (
-                        <div className="space-y-3">
-                          {routeResults.results[
-                            selectedRoute
-                          ]!.route!.segments.map((segment, index) => (
-                            <div
-                              key={index}
-                              className="border-l-4 border-blue-500 pl-3 py-2"
-                            >
-                              <div className="flex items-center space-x-2 mb-1">
-                                <span className="text-sm font-medium text-blue-600">
-                                  {segment.sequence}.
-                                </span>
-                                <span className="text-sm font-medium text-black">
-                                  {segment.mode === "WALK"
-                                    ? "🚶 Walk"
-                                    : segment.mode === "FEEDER_ANGKOT"
-                                    ? "🚐 Feeder Angkot"
-                                    : segment.mode === "TEMAN_BUS"
-                                    ? "🚌 Teman Bus"
-                                    : segment.mode === "LRT"
-                                    ? "🚇 LRT"
-                                    : "🚌 Transit"}
-                                </span>
-                                {segment.route_name &&
-                                  segment.route_name !== "Unknown" && (
-                                    <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                                      {segment.route_name}
-                                    </span>
-                                  )}
-                              </div>
-                              <div className="text-sm text-black">
-                                <div className="font-medium">
-                                  {segment.from_stop} → {segment.to_stop}
-                                </div>
-                                <div className="text-xs text-gray-600 mt-1">
-                                  ⏱️ {Math.round(segment.duration_minutes)} min
-                                  {segment.distance_km > 0 && (
-                                    <>
-                                      {" "}
-                                      • 📏 {segment.distance_km.toFixed(2)} km
-                                    </>
-                                  )}
-                                  {segment.cost > 0 && (
-                                    <> • 💰 {formatCost(segment.cost)}</>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                {/* Algorithm Info for DFS */}
-                {selectedRoute === "dfs" &&
-                  routeResults.results.dfs?.algorithm_info && (
-                    <div className="bg-white rounded-lg shadow-sm p-4">
-                      <h3 className="font-semibold text-black mb-3">
-                        🔍 DFS Algorithm Info
-                      </h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span>Algorithm:</span>
-                          <span className="font-medium">
-                            {routeResults.results.dfs.algorithm_info.algorithm}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Iterations:</span>
-                          <span className="font-medium">
-                            {routeResults.results.dfs.algorithm_info.iterations}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Max Depth:</span>
-                          <span className="font-medium">
-                            {routeResults.results.dfs.algorithm_info.max_depth}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Pruned Paths:</span>
-                          <span className="font-medium">
-                            {
-                              routeResults.results.dfs.algorithm_info
-                                .pruned_paths
-                            }
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                {/* Comparison */}
-                {routeResults.results.comparison && (
-                  <div className="bg-white rounded-lg shadow-sm p-4">
-                    <h3 className="font-semibold text-black mb-3">
-                      📊 Algorithm Comparison
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>🏆 Fastest:</span>
-                        <span className="font-medium">
-                          {routeResults.results.comparison.fastest}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>💰 Cheapest:</span>
-                        <span className="font-medium">
-                          {routeResults.results.comparison.cheapest}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>⏱️ Dijkstra Time:</span>
-                        <span className="font-medium">
-                          {formatTime(
-                            routeResults.results.comparison.dijkstra_time
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>⏱️ DFS Time:</span>
-                        <span className="font-medium">
-                          {formatTime(routeResults.results.comparison.dfs_time)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           {/* Map */}
@@ -644,6 +400,234 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Route Results */}
+        {routeResults && (
+          <div className="mt-6 space-y-4">
+            {/* Algorithm Selection */}
+            {routeResults.results.dijkstra?.success &&
+              routeResults.results.dfs?.success && (
+                <div className="bg-white rounded-lg shadow-sm p-4">
+                  <h3 className="font-semibold text-black mb-3">
+                    Choose Route to Display:
+                  </h3>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => setSelectedRoute("dijkstra")}
+                      className={`px-3 py-1 rounded text-sm ${
+                        selectedRoute === "dijkstra"
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-200 text-black hover:bg-gray-300"
+                      }`}
+                    >
+                      Dijkstra
+                    </button>
+                    <button
+                      onClick={() => setSelectedRoute("dfs")}
+                      className={`px-3 py-1 rounded text-sm ${
+                        selectedRoute === "dfs"
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-200 text-black hover:bg-gray-300"
+                      }`}
+                    >
+                      Optimized DFS
+                    </button>
+                  </div>
+                </div>
+              )}
+
+            {/* Route Summary */}
+            {selectedRoute && routeResults.results[selectedRoute]?.success && (
+              <div className="bg-white rounded-lg shadow-sm p-4">
+                <h3 className="font-semibold text-black mb-3">
+                  📊 Route Summary (
+                  {selectedRoute === "dijkstra" ? "Dijkstra" : "Optimized DFS"})
+                </h3>
+                {routeResults.results[selectedRoute]?.route && (
+                  <div className="space-y-2 text-sm text-black">
+                    <div className="flex justify-between">
+                      <span>⏱️ Total Time:</span>
+                      <span className="font-medium">
+                        {formatTime(
+                          routeResults.results[selectedRoute]!.route!.summary
+                            .total_time_minutes
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>💰 Total Cost:</span>
+                      <span className="font-medium">
+                        {formatCost(
+                          routeResults.results[selectedRoute]!.route!.summary
+                            .total_cost
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>📏 Distance:</span>
+                      <span className="font-medium">
+                        {routeResults.results[
+                          selectedRoute
+                        ]!.route!.summary.total_distance_km.toFixed(2)}{" "}
+                        km
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>🔄 Transfers:</span>
+                      <span className="font-medium">
+                        {
+                          routeResults.results[selectedRoute]!.route!.summary
+                            .num_transfers
+                        }
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>🚌 Segments:</span>
+                      <span className="font-medium">
+                        {
+                          routeResults.results[selectedRoute]!.route!.segments
+                            .length
+                        }
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Route Details */}
+            {selectedRoute && routeResults.results[selectedRoute]?.success && (
+              <div className="bg-white rounded-lg shadow-sm p-4">
+                <h3 className="font-semibold text-black mb-3">
+                  🚌 Route Details (
+                  {selectedRoute === "dijkstra" ? "Dijkstra" : "Optimized DFS"})
+                </h3>
+                {routeResults.results[selectedRoute]?.route && (
+                  <div className="space-y-3">
+                    {routeResults.results[selectedRoute]!.route!.segments.map(
+                      (segment, index) => (
+                        <div
+                          key={index}
+                          className="border-l-4 border-blue-500 pl-3 py-2"
+                        >
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="text-sm font-medium text-blue-600">
+                              {segment.sequence}.
+                            </span>
+                            <span className="text-sm font-medium text-black">
+                              {segment.mode === "WALK"
+                                ? "🚶 Walk"
+                                : segment.mode === "FEEDER_ANGKOT"
+                                ? "🚐 Feeder Angkot"
+                                : segment.mode === "TEMAN_BUS"
+                                ? "🚌 Teman Bus"
+                                : segment.mode === "LRT"
+                                ? "🚇 LRT"
+                                : "🚌 Transit"}
+                            </span>
+                            {segment.route_name &&
+                              segment.route_name !== "Unknown" && (
+                                <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                                  {segment.route_name}
+                                </span>
+                              )}
+                          </div>
+                          <div className="text-sm text-black">
+                            <div className="font-medium">
+                              {segment.from_stop} → {segment.to_stop}
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                              ⏱️ {Math.round(segment.duration_minutes)} min
+                              {segment.distance_km > 0 && (
+                                <> • 📏 {segment.distance_km.toFixed(2)} km</>
+                              )}
+                              {segment.cost > 0 && (
+                                <> • 💰 {formatCost(segment.cost)}</>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Algorithm Info for DFS */}
+            {selectedRoute === "dfs" &&
+              routeResults.results.dfs?.algorithm_info && (
+                <div className="bg-white rounded-lg shadow-sm p-4">
+                  <h3 className="font-semibold text-black mb-3">
+                    🔍 DFS Algorithm Info
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Algorithm:</span>
+                      <span className="font-medium">
+                        {routeResults.results.dfs.algorithm_info.algorithm}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Iterations:</span>
+                      <span className="font-medium">
+                        {routeResults.results.dfs.algorithm_info.iterations}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Max Depth:</span>
+                      <span className="font-medium">
+                        {routeResults.results.dfs.algorithm_info.max_depth}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Pruned Paths:</span>
+                      <span className="font-medium">
+                        {routeResults.results.dfs.algorithm_info.pruned_paths}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            {/* Comparison */}
+            {routeResults.results.comparison && (
+              <div className="bg-white rounded-lg shadow-sm p-4">
+                <h3 className="font-semibold text-black mb-3">
+                  📊 Algorithm Comparison
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>🏆 Fastest:</span>
+                    <span className="font-medium">
+                      {routeResults.results.comparison.fastest}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>💰 Cheapest:</span>
+                    <span className="font-medium">
+                      {routeResults.results.comparison.cheapest}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>⏱️ Dijkstra Time:</span>
+                    <span className="font-medium">
+                      {formatTime(
+                        routeResults.results.comparison.dijkstra_time
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>⏱️ DFS Time:</span>
+                    <span className="font-medium">
+                      {formatTime(routeResults.results.comparison.dfs_time)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

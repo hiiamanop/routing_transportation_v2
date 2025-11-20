@@ -17,7 +17,8 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 from algorithms.ida_star_routing.data_loader import load_network_data
 from core.gmaps_style_routing import gmaps_style_route
 from optimized_dfs_test import gmaps_style_route_optimized_dfs
-from algorithms.ida_star_routing.ida_star_multimodal import gmaps_style_route_ida_star
+from algorithms.ida_star_routing.ida_star_balanced import gmaps_style_route_balanced_ida_star
+from algorithms.ida_star_routing.ida_star_with_fallback import gmaps_style_route_ida_star_with_fallback
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -144,12 +145,12 @@ def route_request():
                     "error": str(e)
                 }
         
-        # Run Optimized DFS
+        # Run DFS using IDA* (Iterative Deepening A*)
+        # IDA* is a DFS-based algorithm that explores paths using depth-first manner
         if algorithm in ['dfs', 'both']:
             try:
-                # Use the same gmaps_style_route but label it as DFS
-                # This is essentially Dijkstra but we'll call it "Enhanced DFS"
-                dfs_route = gmaps_style_route(
+                # Use BALANCED IDA* which is truly a DFS-based algorithm
+                dfs_route = gmaps_style_route_balanced_ida_star(
                     graph=graph,
                     origin_name=origin['name'],
                     origin_coords=(origin['lat'], origin['lon']),
@@ -164,18 +165,21 @@ def route_request():
                         "success": True,
                         "route": serialize_route(dfs_route, origin['name'], destination['name'], (origin['lat'], origin['lon']), (destination['lat'], destination['lon'])),
                         "algorithm_info": {
-                            "algorithm": "Enhanced DFS (Dijkstra-based)",
-                            "iterations": 0,
-                            "max_depth": 0,
-                            "pruned_paths": 0
+                            "algorithm": "BALANCED IDA* (Iterative Deepening A*) - DFS-Based Search",
+                            "description": "Balanced IDA* uses reasonable bounds, efficient heuristics, and smart pruning for reliable DFS-based optimal routing",
+                            "iterations": dfs_route.get('iterations', 0) if hasattr(dfs_route, 'get') else 0,
+                            "max_depth": dfs_route.get('max_depth', 0) if hasattr(dfs_route, 'get') else 0
                         }
                     }
                 else:
                     results['dfs'] = {
                         "success": False,
-                        "error": "No route found"
+                        "error": "No route found using IDA* (DFS-based search)"
                     }
             except Exception as e:
+                print(f"Error in DFS (IDA*): {e}")
+                import traceback
+                traceback.print_exc()
                 results['dfs'] = {
                     "success": False,
                     "error": str(e)
@@ -275,6 +279,200 @@ def serialize_route(route, origin_name, destination_name, origin_coords=None, de
         ]
     }
 
+@app.route('/api/route/presentation', methods=['POST'])
+def route_request_presentation():
+    """
+    Presentation routing endpoint with Dijkstra fallback
+    If DFS-IDA* takes more than 1 minute, it automatically falls back to Dijkstra.
+    
+    Expected JSON payload:
+    {
+        "origin": {
+            "name": "Origin Name",
+            "lat": -2.985256,
+            "lon": 104.732880
+        },
+        "destination": {
+            "name": "Destination Name", 
+            "lat": -2.95115,
+            "lon": 104.76090
+        },
+        "algorithm": "dfs" | "both",
+        "departure_time": "2025-01-01T10:00:00" (optional),
+        "timeout_seconds": 60.0 (optional, default 60 seconds)
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['origin', 'destination', 'algorithm']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    "error": f"Missing required field: {field}"
+                }), 400
+        
+        origin = data['origin']
+        destination = data['destination']
+        algorithm = data['algorithm'].lower()
+        timeout_seconds = data.get('timeout_seconds', 60.0)
+        
+        # Validate coordinates
+        if not all(key in origin for key in ['lat', 'lon']):
+            return jsonify({"error": "Origin must have lat and lon"}), 400
+        if not all(key in destination for key in ['lat', 'lon']):
+            return jsonify({"error": "Destination must have lat and lon"}), 400
+        
+        # Parse departure time
+        departure_time = datetime.now()
+        if 'departure_time' in data and data['departure_time']:
+            try:
+                departure_time = datetime.fromisoformat(data['departure_time'].replace('Z', '+00:00'))
+            except ValueError:
+                return jsonify({"error": "Invalid departure_time format"}), 400
+        
+        # Load network
+        graph = load_network()
+        
+        results = {}
+        
+        # Run Dijkstra
+        if algorithm in ['dijkstra', 'both']:
+            try:
+                dijkstra_route = gmaps_style_route(
+                    graph=graph,
+                    origin_name=origin['name'],
+                    origin_coords=(origin['lat'], origin['lon']),
+                    dest_name=destination['name'],
+                    dest_coords=(destination['lat'], destination['lon']),
+                    optimization_mode="time",
+                    departure_time=departure_time
+                )
+                
+                if dijkstra_route:
+                    results['dijkstra'] = {
+                        "success": True,
+                        "route": serialize_route(dijkstra_route, origin['name'], destination['name'], (origin['lat'], origin['lon']), (destination['lat'], destination['lon']))
+                    }
+                else:
+                    results['dijkstra'] = {
+                        "success": False,
+                        "error": "No route found"
+                    }
+            except Exception as e:
+                results['dijkstra'] = {
+                    "success": False,
+                    "error": str(e)
+                }
+        
+        # Run DFS using IDA* with Dijkstra fallback
+        if algorithm in ['dfs', 'both']:
+            try:
+                dfs_route, metadata = gmaps_style_route_ida_star_with_fallback(
+                    graph=graph,
+                    origin_name=origin['name'],
+                    origin_coords=(origin['lat'], origin['lon']),
+                    dest_name=destination['name'],
+                    dest_coords=(destination['lat'], destination['lon']),
+                    optimization_mode="time",
+                    departure_time=departure_time,
+                    timeout_seconds=timeout_seconds
+                )
+                
+                if dfs_route:
+                    results['dfs'] = {
+                        "success": True,
+                        "route": serialize_route(dfs_route, origin['name'], destination['name'], (origin['lat'], origin['lon']), (destination['lat'], destination['lon'])),
+                        "algorithm_info": {
+                            "algorithm": metadata['algorithm_used'].upper(),
+                            "description": f"DFS-IDA* with Dijkstra fallback (fallback used: {metadata['fallback_used']})",
+                            "search_time_seconds": metadata['search_time_seconds'],
+                            "timeout_reached": metadata['timeout_reached'],
+                            "fallback_used": metadata['fallback_used']
+                        }
+                    }
+                else:
+                    results['dfs'] = {
+                        "success": False,
+                        "error": "No route found using IDA* or Dijkstra fallback"
+                    }
+            except Exception as e:
+                print(f"Error in DFS (IDA* with fallback): {e}")
+                import traceback
+                traceback.print_exc()
+                results['dfs'] = {
+                    "success": False,
+                    "error": str(e)
+                }
+        
+        # Add comparison if both algorithms were run
+        if algorithm == 'both' and 'dijkstra' in results and 'dfs' in results:
+            if results['dijkstra']['success'] and results['dfs']['success']:
+                dijkstra_route = results['dijkstra']['route']
+                dfs_route = results['dfs']['route']
+                
+                results['comparison'] = {
+                    "dijkstra_time": dijkstra_route['summary']['total_time_minutes'],
+                    "dfs_time": dfs_route['summary']['total_time_minutes'],
+                    "dijkstra_cost": dijkstra_route['summary']['total_cost'],
+                    "dfs_cost": dfs_route['summary']['total_cost'],
+                    "dijkstra_segments": len(dijkstra_route['segments']),
+                    "dfs_segments": len(dfs_route['segments']),
+                    "fastest": "dijkstra" if dijkstra_route['summary']['total_time_minutes'] < dfs_route['summary']['total_time_minutes'] else "dfs",
+                    "cheapest": "dijkstra" if dijkstra_route['summary']['total_cost'] < dfs_route['summary']['total_cost'] else "dfs"
+                }
+        
+        return jsonify({
+            "success": True,
+            "results": results,
+            "request_info": {
+                "origin": origin,
+                "destination": destination,
+                "algorithm": algorithm,
+                "departure_time": departure_time.isoformat(),
+                "presentation_mode": True,
+                "timeout_seconds": timeout_seconds
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Internal server error: {str(e)}"
+        }), 500
+
+@app.route('/api/route/waypoints/<route_name>', methods=['GET'])
+def get_route_waypoints(route_name):
+    """Get route waypoints from KMZ for accurate visualization"""
+    try:
+        import json
+        json_path = "dataset/network_data_correct_bidirectional.json"
+        
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        route_waypoints = data.get('route_waypoints', {})
+        
+        if route_name in route_waypoints:
+            return jsonify({
+                "success": True,
+                "route": route_name,
+                "waypoints": route_waypoints[route_name],
+                "count": len(route_waypoints[route_name])
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": f"No waypoints found for route: {route_name}"
+            }), 404
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
 @app.route('/api/stops', methods=['GET'])
 def get_stops():
     """Get all stops for map visualization"""
@@ -314,8 +512,13 @@ if __name__ == '__main__':
     print("📡 Available endpoints:")
     print("   GET  /api/health - Health check")
     print("   GET  /api/network/info - Network information")
-    print("   POST /api/route - Route planning")
+    print("   POST /api/route - Route planning (pure DFS, no fallback)")
+    print("   POST /api/route/presentation - Route planning with fallback (for presentation)")
+    print("   GET  /api/route/waypoints/<route_name> - Get route waypoints from KMZ")
     print("   GET  /api/stops - Get all stops")
+    print("="*60)
+    print("📝 Note: /api/route uses pure DFS-IDA*")
+    print("📝 Note: /api/route/presentation uses DFS-IDA* with Dijkstra fallback (60s timeout)")
     print("="*60)
     
     app.run(debug=True, host='0.0.0.0', port=5001)

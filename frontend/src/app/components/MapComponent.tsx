@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -180,26 +180,48 @@ export default function MapComponent({
   selectedRoute: "dijkstra" | "dfs" | null;
   routeRequest: RouteRequest;
 }) {
-  const [stops, setStops] = useState<any[]>([]);
+  // State for route waypoints (from KMZ)
+  const [routeWaypoints, setRouteWaypoints] = React.useState<Record<string, Array<[number, number]>>>({});
 
-  // Load stops for visualization
-  useEffect(() => {
-    const loadStops = async () => {
+  // Fetch waypoints for routes used in segments
+  React.useEffect(() => {
+    if (!routeResults || !selectedRoute || !routeResults.results[selectedRoute]?.success) {
+      return;
+    }
+
+    const route = routeResults.results[selectedRoute]!.route!;
+    const uniqueRoutes = new Set(
+      route.segments
+        .filter((seg) => seg.route_name && seg.mode !== "walking")
+        .map((seg) => seg.route_name)
+    );
+
+    // Fetch waypoints for each route
+    uniqueRoutes.forEach(async (routeName) => {
+      if (routeWaypoints[routeName]) return; // Already loaded
+
       try {
-        const response = await fetch("http://localhost:5001/api/stops");
-        const data = await response.json();
-        if (data.success) {
-          setStops(data.stops);
+        const response = await fetch(
+          `http://localhost:5001/api/route/waypoints/${encodeURIComponent(routeName)}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.waypoints) {
+            setRouteWaypoints((prev) => ({
+              ...prev,
+              [routeName]: data.waypoints,
+            }));
+          }
         }
       } catch (error) {
-        console.error("Failed to load stops:", error);
+        // Silently fail - will use straight line instead
+        console.log(`No waypoints for route: ${routeName}`);
       }
-    };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeResults, selectedRoute]);
 
-    loadStops();
-  }, []);
-
-  // Get route segments for visualization - EXACT coordinates from algorithm
+  // Get route segments for visualization - with waypoints if available
   const getRouteSegments = () => {
     if (
       !routeResults ||
@@ -219,11 +241,71 @@ export default function MapComponent({
           segment.to_coords.lon
       )
       .map((segment) => {
-        // Use EXACT coordinates from algorithm - no modification
-        const coordinates: Array<[number, number]> = [
-          [segment.from_coords.lat, segment.from_coords.lon],
-          [segment.to_coords.lat, segment.to_coords.lon],
-        ];
+        let coordinates: Array<[number, number]> = [];
+
+        // If route has waypoints, use subset between from and to
+        if (
+          segment.route_name &&
+          routeWaypoints[segment.route_name] &&
+          segment.mode !== "walking"
+        ) {
+          const waypoints = routeWaypoints[segment.route_name];
+          const fromLat = segment.from_coords.lat;
+          const fromLon = segment.from_coords.lon;
+          const toLat = segment.to_coords.lat;
+          const toLon = segment.to_coords.lon;
+
+          // Find closest waypoint to from and to
+          let fromIdx = 0;
+          let toIdx = waypoints.length - 1;
+          let minFromDist = Infinity;
+          let minToDist = Infinity;
+
+          for (let i = 0; i < waypoints.length; i++) {
+            const wp = waypoints[i];
+            const distFrom = Math.sqrt(
+              Math.pow(wp[0] - fromLat, 2) + Math.pow(wp[1] - fromLon, 2)
+            );
+            const distTo = Math.sqrt(
+              Math.pow(wp[0] - toLat, 2) + Math.pow(wp[1] - toLon, 2)
+            );
+
+            if (distFrom < minFromDist) {
+              minFromDist = distFrom;
+              fromIdx = i;
+            }
+            if (distTo < minToDist) {
+              minToDist = distTo;
+              toIdx = i;
+            }
+          }
+
+          // Extract waypoints between from and to
+          if (fromIdx < toIdx) {
+            coordinates = waypoints.slice(fromIdx, toIdx + 1);
+          } else if (fromIdx > toIdx) {
+            // Reverse route
+            coordinates = waypoints.slice(toIdx, fromIdx + 1).reverse();
+          } else {
+            // Same point, use direct line
+            coordinates = [
+              [fromLat, fromLon],
+              [toLat, toLon],
+            ];
+          }
+
+          // Ensure start and end match exactly
+          if (coordinates.length > 0) {
+            coordinates[0] = [fromLat, fromLon];
+            coordinates[coordinates.length - 1] = [toLat, toLon];
+          }
+        } else {
+          // No waypoints available - use straight line
+          coordinates = [
+            [segment.from_coords.lat, segment.from_coords.lon],
+            [segment.to_coords.lat, segment.to_coords.lon],
+          ];
+        }
 
         return {
           ...segment,
@@ -251,7 +333,7 @@ export default function MapComponent({
   const routeSegments = getRouteSegments();
 
   return (
-    <div className="h-96 w-full">
+    <div className="h-[600px] w-full">
       <MapContainer
         center={[-2.9911, 104.7574]} // Palembang center
         zoom={12}
@@ -317,18 +399,7 @@ export default function MapComponent({
           />
         ))}
 
-        {/* Stop Markers (smaller, less prominent) */}
-        {stops.slice(0, 100).map((stop) => (
-          <Marker key={stop.id} position={[stop.lat, stop.lon]} opacity={0.6}>
-            <Popup>
-              <div className="text-center">
-                <div className="font-semibold">{stop.name}</div>
-                <div className="text-sm text-black">{stop.mode}</div>
-                <div className="text-xs text-black">{stop.route}</div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        {/* Stop Markers - REMOVED per user request */}
       </MapContainer>
 
       {/* Legend */}

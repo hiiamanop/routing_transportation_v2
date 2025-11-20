@@ -441,8 +441,8 @@ def gmaps_style_route_ida_star(
         
         # Break outer loop if we found a very good solution
         if best_route and best_route.get('total_walking_distance', float('inf')) < 0.2:
-            break
-    
+                break
+        
     # If no route found, try more combinations (fallback to top 5x5)
     if not best_route:
         print(f"   📊 Checked {combinations_tried} combinations, trying more...")
@@ -473,11 +473,15 @@ def gmaps_style_route_ida_star(
                     
                     if score < best_score:
                         best_score = score
-                        best_route = transit_route
-                        best_origin_stop = origin_stop
-                        best_dest_stop = dest_stop
-                        best_origin_dist = origin_dist
-                        best_dest_dist = dest_dist
+                        best_route = {
+                            'origin_stop': origin_stop,
+                            'origin_dist': origin_dist,
+                            'dest_stop': dest_stop,
+                            'dest_dist': dest_dist,
+                            'transit_route': transit_route,
+                            'total_time': total_time,
+                            'total_walking_distance': total_walking_distance
+                        }
                         
                         print(f"   ✓ Found route: {total_time:.1f} min, Rp {transit_route.total_cost:,}")
                         print(f"      Origin: {origin_stop.name} ({origin_dist*1000:.0f}m)")
@@ -491,8 +495,8 @@ def gmaps_style_route_ida_star(
                 else:
                     print(f"   ❌ No route found: {origin_stop.name} → {dest_stop.name}")
             
-            if best_route:
-                break
+        if best_route:
+            break
     
     print(f"\n   📊 Checked {combinations_tried} combinations")
     
@@ -511,9 +515,9 @@ def gmaps_style_route_ida_star(
     # Walking to first stop
     origin_loc = Location(origin_name, origin_coords[0], origin_coords[1])
     origin_stop_loc = Location(
-        best_origin_stop.name,
-        best_origin_stop.lat,
-        best_origin_stop.lon
+        best_route['origin_stop'].name,
+        best_route['origin_stop'].lat,
+        best_route['origin_stop'].lon
     )
     
     walk1 = create_walking_segment(1, origin_loc, origin_stop_loc, current_time)
@@ -521,7 +525,7 @@ def gmaps_style_route_ida_star(
     current_time = walk1.arrival_time
     
     # Transit segments
-    for transit_seg in best_route.segments:
+    for transit_seg in best_route['transit_route'].segments:
         transit_seg.sequence = len(segments) + 1
         transit_seg.departure_time = current_time
         transit_seg.arrival_time = current_time + timedelta(minutes=transit_seg.duration_minutes)
@@ -530,9 +534,9 @@ def gmaps_style_route_ida_star(
     
     # Walking from last stop
     dest_stop_loc = Location(
-        best_dest_stop.name,
-        best_dest_stop.lat,
-        best_dest_stop.lon
+        best_route['dest_stop'].name,
+        best_route['dest_stop'].lat,
+        best_route['dest_stop'].lon
     )
     dest_loc = Location(dest_name, dest_coords[0], dest_coords[1])
     
