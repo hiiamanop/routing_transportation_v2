@@ -117,7 +117,7 @@ export default function Home() {
     null
   );
 
-  const API_BASE_URL = "http://localhost:5001/api";
+  const API_BASE_URL = "/api";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

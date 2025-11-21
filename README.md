@@ -219,8 +219,13 @@ open http://localhost:3000
 
 ## 📝 Notes
 
-- API runs on port 5000
-- Frontend runs on port 3000
+- **Local Development**:
+  - API runs on port 5000
+  - Frontend runs on port 3000
+- **Production Server**:
+  - API runs on port 5001
+  - Frontend runs on port 3000
+  - Nginx reverse proxy on port 80
 - Map uses OpenStreetMap tiles
 - All coordinates in decimal degrees
 - Time format: ISO 8601

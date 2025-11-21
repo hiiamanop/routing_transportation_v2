@@ -13,7 +13,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 // Fix for default markers in react-leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as { _getIconUrl?: () => string })._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
@@ -181,11 +181,17 @@ export default function MapComponent({
   routeRequest: RouteRequest;
 }) {
   // State for route waypoints (from KMZ)
-  const [routeWaypoints, setRouteWaypoints] = React.useState<Record<string, Array<[number, number]>>>({});
+  const [routeWaypoints, setRouteWaypoints] = React.useState<
+    Record<string, Array<[number, number]>>
+  >({});
 
   // Fetch waypoints for routes used in segments
   React.useEffect(() => {
-    if (!routeResults || !selectedRoute || !routeResults.results[selectedRoute]?.success) {
+    if (
+      !routeResults ||
+      !selectedRoute ||
+      !routeResults.results[selectedRoute]?.success
+    ) {
       return;
     }
 
@@ -202,7 +208,7 @@ export default function MapComponent({
 
       try {
         const response = await fetch(
-          `http://localhost:5001/api/route/waypoints/${encodeURIComponent(routeName)}`
+          `/api/route/waypoints/${encodeURIComponent(routeName)}`
         );
         if (response.ok) {
           const data = await response.json();
