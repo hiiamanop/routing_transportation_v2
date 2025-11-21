@@ -36,6 +36,14 @@ interface OSMPlace {
   lon: string;
 }
 
+interface NominatimResponse {
+  place_id: number;
+  display_name: string;
+  lat: string;
+  lon: string;
+  [key: string]: unknown; // Allow other properties from Nominatim
+}
+
 // Palembang bounding box (south, west, north, east)
 const PALEMBANG_BOUNDS = "-3.2,104.5,-2.8,105.0";
 
@@ -129,9 +137,12 @@ export default function Home() {
 
   // OSM Places API states
   const [originSuggestions, setOriginSuggestions] = useState<OSMPlace[]>([]);
-  const [destinationSuggestions, setDestinationSuggestions] = useState<OSMPlace[]>([]);
+  const [destinationSuggestions, setDestinationSuggestions] = useState<
+    OSMPlace[]
+  >([]);
   const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
-  const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
+  const [showDestinationSuggestions, setShowDestinationSuggestions] =
+    useState(false);
   const originInputRef = useRef<HTMLInputElement>(null);
   const destinationInputRef = useRef<HTMLInputElement>(null);
 
@@ -144,20 +155,22 @@ export default function Home() {
     }
 
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&bounded=1&viewbox=${PALEMBANG_BOUNDS}&limit=5&countrycodes=id`;
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        query
+      )}&bounded=1&viewbox=${PALEMBANG_BOUNDS}&limit=5&countrycodes=id`;
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'PalembangTransportRouting/1.0'
-        }
+          "User-Agent": "PalembangTransportRouting/1.0",
+        },
       });
-      const data = await response.json();
-      return data.map((place: any) => ({
+      const data = (await response.json()) as NominatimResponse[];
+      return data.map((place: NominatimResponse) => ({
         place_id: place.place_id,
         display_name: place.display_name,
         lat: place.lat,
         lon: place.lon,
       }));
-    } catch (err) {
+    } catch {
       return [];
     }
   };
@@ -348,7 +361,8 @@ export default function Home() {
                       </div>
                     )}
                     <div className="text-xs text-gray-500">
-                      Coordinates: {routeRequest.origin.lat.toFixed(6)}, {routeRequest.origin.lon.toFixed(6)}
+                      Coordinates: {routeRequest.origin.lat.toFixed(6)},{" "}
+                      {routeRequest.origin.lon.toFixed(6)}
                     </div>
                   </div>
                 </div>
@@ -372,26 +386,28 @@ export default function Home() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       required
                     />
-                    {showDestinationSuggestions && destinationSuggestions.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                        {destinationSuggestions.map((place) => (
-                          <div
-                            key={place.place_id}
-                            onClick={() => selectDestinationPlace(place)}
-                            className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                          >
-                            <div className="text-sm font-medium text-black">
-                              {place.display_name.split(",")[0]}
+                    {showDestinationSuggestions &&
+                      destinationSuggestions.length > 0 && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                          {destinationSuggestions.map((place) => (
+                            <div
+                              key={place.place_id}
+                              onClick={() => selectDestinationPlace(place)}
+                              className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            >
+                              <div className="text-sm font-medium text-black">
+                                {place.display_name.split(",")[0]}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {place.display_name}
+                              </div>
                             </div>
-                            <div className="text-xs text-gray-500">
-                              {place.display_name}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          ))}
+                        </div>
+                      )}
                     <div className="text-xs text-gray-500">
-                      Coordinates: {routeRequest.destination.lat.toFixed(6)}, {routeRequest.destination.lon.toFixed(6)}
+                      Coordinates: {routeRequest.destination.lat.toFixed(6)},{" "}
+                      {routeRequest.destination.lon.toFixed(6)}
                     </div>
                   </div>
                 </div>
@@ -462,121 +478,123 @@ export default function Home() {
         </div>
 
         {/* Route Results */}
-        {routeResults && selectedRoute && routeResults.results[selectedRoute]?.success && (
-          <div className="mt-6 space-y-4">
-            {/* Route Summary */}
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <h3 className="font-semibold text-black mb-3">
-                📊 Route Summary (Enhanced DFS)
-              </h3>
-              {routeResults.results[selectedRoute]?.route && (
-                <div className="space-y-2 text-sm text-black">
-                  <div className="flex justify-between">
-                    <span>⏱️ Total Time:</span>
-                    <span className="font-medium">
-                      {formatTime(
-                        routeResults.results[selectedRoute]!.route!.summary
-                          .total_time_minutes
-                      )}
-                    </span>
+        {routeResults &&
+          selectedRoute &&
+          routeResults.results[selectedRoute]?.success && (
+            <div className="mt-6 space-y-4">
+              {/* Route Summary */}
+              <div className="bg-white rounded-lg shadow-sm p-4">
+                <h3 className="font-semibold text-black mb-3">
+                  📊 Route Summary (Enhanced DFS)
+                </h3>
+                {routeResults.results[selectedRoute]?.route && (
+                  <div className="space-y-2 text-sm text-black">
+                    <div className="flex justify-between">
+                      <span>⏱️ Total Time:</span>
+                      <span className="font-medium">
+                        {formatTime(
+                          routeResults.results[selectedRoute]!.route!.summary
+                            .total_time_minutes
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>💰 Total Cost:</span>
+                      <span className="font-medium">
+                        {formatCost(
+                          routeResults.results[selectedRoute]!.route!.summary
+                            .total_cost
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>📏 Distance:</span>
+                      <span className="font-medium">
+                        {routeResults.results[
+                          selectedRoute
+                        ]!.route!.summary.total_distance_km.toFixed(2)}{" "}
+                        km
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>🔄 Transfers:</span>
+                      <span className="font-medium">
+                        {
+                          routeResults.results[selectedRoute]!.route!.summary
+                            .num_transfers
+                        }
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>🚌 Segments:</span>
+                      <span className="font-medium">
+                        {
+                          routeResults.results[selectedRoute]!.route!.segments
+                            .length
+                        }
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span>💰 Total Cost:</span>
-                    <span className="font-medium">
-                      {formatCost(
-                        routeResults.results[selectedRoute]!.route!.summary
-                          .total_cost
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>📏 Distance:</span>
-                    <span className="font-medium">
-                      {routeResults.results[
-                        selectedRoute
-                      ]!.route!.summary.total_distance_km.toFixed(2)}{" "}
-                      km
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>🔄 Transfers:</span>
-                    <span className="font-medium">
-                      {
-                        routeResults.results[selectedRoute]!.route!.summary
-                          .num_transfers
-                      }
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>🚌 Segments:</span>
-                    <span className="font-medium">
-                      {
-                        routeResults.results[selectedRoute]!.route!.segments
-                          .length
-                      }
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            {/* Route Details */}
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <h3 className="font-semibold text-black mb-3">
-                🚌 Route Details
-              </h3>
-              {routeResults.results[selectedRoute]?.route && (
-                <div className="space-y-3">
-                  {routeResults.results[selectedRoute]!.route!.segments.map(
-                    (segment, index) => (
-                      <div
-                        key={index}
-                        className="border-l-4 border-blue-500 pl-3 py-2"
-                      >
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="text-sm font-medium text-blue-600">
-                            {segment.sequence}.
-                          </span>
-                          <span className="text-sm font-medium text-black">
-                            {segment.mode === "WALK"
-                              ? "🚶 Walk"
-                              : segment.mode === "FEEDER_ANGKOT"
-                              ? "🚐 Feeder Angkot"
-                              : segment.mode === "TEMAN_BUS"
-                              ? "🚌 Teman Bus"
-                              : segment.mode === "LRT"
-                              ? "🚇 LRT"
-                              : "🚌 Transit"}
-                          </span>
-                          {segment.route_name &&
-                            segment.route_name !== "Unknown" && (
-                              <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                                {segment.route_name}
-                              </span>
-                            )}
-                        </div>
-                        <div className="text-sm text-black">
-                          <div className="font-medium">
-                            {segment.from_stop} → {segment.to_stop}
+              {/* Route Details */}
+              <div className="bg-white rounded-lg shadow-sm p-4">
+                <h3 className="font-semibold text-black mb-3">
+                  🚌 Route Details
+                </h3>
+                {routeResults.results[selectedRoute]?.route && (
+                  <div className="space-y-3">
+                    {routeResults.results[selectedRoute]!.route!.segments.map(
+                      (segment, index) => (
+                        <div
+                          key={index}
+                          className="border-l-4 border-blue-500 pl-3 py-2"
+                        >
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="text-sm font-medium text-blue-600">
+                              {segment.sequence}.
+                            </span>
+                            <span className="text-sm font-medium text-black">
+                              {segment.mode === "WALK"
+                                ? "🚶 Walk"
+                                : segment.mode === "FEEDER_ANGKOT"
+                                ? "🚐 Feeder Angkot"
+                                : segment.mode === "TEMAN_BUS"
+                                ? "🚌 Teman Bus"
+                                : segment.mode === "LRT"
+                                ? "🚇 LRT"
+                                : "🚌 Transit"}
+                            </span>
+                            {segment.route_name &&
+                              segment.route_name !== "Unknown" && (
+                                <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                                  {segment.route_name}
+                                </span>
+                              )}
                           </div>
-                          <div className="text-xs text-gray-600 mt-1">
-                            ⏱️ {Math.round(segment.duration_minutes)} min
-                            {segment.distance_km > 0 && (
-                              <> • 📏 {segment.distance_km.toFixed(2)} km</>
-                            )}
-                            {segment.cost > 0 && (
-                              <> • 💰 {formatCost(segment.cost)}</>
-                            )}
+                          <div className="text-sm text-black">
+                            <div className="font-medium">
+                              {segment.from_stop} → {segment.to_stop}
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                              ⏱️ {Math.round(segment.duration_minutes)} min
+                              {segment.distance_km > 0 && (
+                                <> • 📏 {segment.distance_km.toFixed(2)} km</>
+                              )}
+                              {segment.cost > 0 && (
+                                <> • 💰 {formatCost(segment.cost)}</>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                  )}
-                </div>
-              )}
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </div>
   );
