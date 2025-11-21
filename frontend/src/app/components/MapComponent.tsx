@@ -107,7 +107,7 @@ interface RouteRequest {
     lat: number;
     lon: number;
   };
-  algorithm: "dijkstra" | "dfs" | "both";
+  algorithm: "dijkstra";
   departure_time?: string;
 }
 
@@ -219,9 +219,8 @@ export default function MapComponent({
             }));
           }
         }
-      } catch (error) {
+      } catch {
         // Silently fail - will use straight line instead
-        console.log(`No waypoints for route: ${routeName}`);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -437,8 +436,7 @@ export default function MapComponent({
       {routeSegments.length > 0 && (
         <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-3 z-[1000] max-w-xs">
           <div className="text-sm font-semibold mb-2 text-black">
-            🗺️ Route (
-            {selectedRoute === "dijkstra" ? "Dijkstra" : "Optimized DFS"})
+            🗺️ Route (Enhanced DFS)
           </div>
           <div className="space-y-1 text-xs text-black">
             {routeSegments.map((segment, index) => (
