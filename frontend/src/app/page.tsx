@@ -155,7 +155,7 @@ export default function Home() {
   // Flask API backend (routing)
   const ROUTE_API_BASE_URL =
     typeof window !== "undefined"
-      ? `http://${window.location.hostname}:5001/api`
+      ? `http://${window.location.hostname}:5000/api`
       : "/api";
 
   // Debounce delay (500ms)
