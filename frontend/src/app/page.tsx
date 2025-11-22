@@ -34,6 +34,13 @@ interface OSMPlace {
   display_name: string;
   lat: string;
   lon: string;
+  google_place_id?: string; // Google Places API place_id
+}
+
+interface PlaceDetails {
+  lat: number;
+  lng: number;
+  name: string;
 }
 
 interface RouteSegment {
@@ -132,20 +139,27 @@ export default function Home() {
   const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
   const [showDestinationSuggestions, setShowDestinationSuggestions] =
     useState(false);
+  const [originSearching, setOriginSearching] = useState(false);
+  const [destinationSearching, setDestinationSearching] = useState(false);
   const originInputRef = useRef<HTMLInputElement>(null);
   const destinationInputRef = useRef<HTMLInputElement>(null);
+  const originSearchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const destinationSearchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const API_BASE_URL = "/api";
 
-  // Search OSM Places API via Next.js API route (to avoid CORS)
+  // Debounce delay (500ms)
+  const DEBOUNCE_DELAY = 500;
+
+  // Search Google Places API via Next.js API route
   const searchOSMPlaces = async (query: string): Promise<OSMPlace[]> => {
-    if (!query || query.length < 3) {
+    if (!query || query.trim().length < 3) {
       return [];
     }
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/search-places?q=${encodeURIComponent(query)}`
+        `${API_BASE_URL}/search-places?q=${encodeURIComponent(query.trim())}`
       );
 
       if (!response.ok) {
@@ -153,71 +167,236 @@ export default function Home() {
       }
 
       const data = (await response.json()) as OSMPlace[];
-      return data;
+
+      // Validate data structure
+      if (Array.isArray(data)) {
+        return data;
+      }
+
+      return [];
     } catch {
+      // Silent fail - return empty array
       return [];
     }
   };
 
-  // Handle origin input change
-  const handleOriginChange = async (value: string) => {
+  // Fetch place details (lat, lng) from Google Places API
+  const fetchPlaceDetails = async (
+    googlePlaceId: string
+  ): Promise<PlaceDetails | null> => {
+    if (!googlePlaceId) {
+      return null;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/search-places`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ place_id: googlePlaceId }),
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = (await response.json()) as PlaceDetails;
+      return data;
+    } catch {
+      return null;
+    }
+  };
+
+  // Handle origin input change with debouncing
+  const handleOriginChange = (value: string) => {
     setRouteRequest((prev) => ({
       ...prev,
       origin: { ...prev.origin, name: value },
     }));
 
-    if (value.length >= 3) {
-      const suggestions = await searchOSMPlaces(value);
-      setOriginSuggestions(suggestions);
-      setShowOriginSuggestions(true);
-    } else {
+    // Clear existing timeout
+    if (originSearchTimeoutRef.current) {
+      clearTimeout(originSearchTimeoutRef.current);
+    }
+
+    if (value.trim().length < 3) {
       setOriginSuggestions([]);
       setShowOriginSuggestions(false);
+      setOriginSearching(false);
+      return;
     }
+
+    // Show loading state
+    setOriginSearching(true);
+
+    // Debounce search
+    originSearchTimeoutRef.current = setTimeout(async () => {
+      const suggestions = await searchOSMPlaces(value);
+      setOriginSuggestions(suggestions);
+      setShowOriginSuggestions(suggestions.length > 0);
+      setOriginSearching(false);
+    }, DEBOUNCE_DELAY);
   };
 
-  // Handle destination input change
-  const handleDestinationChange = async (value: string) => {
+  // Handle destination input change with debouncing
+  const handleDestinationChange = (value: string) => {
     setRouteRequest((prev) => ({
       ...prev,
       destination: { ...prev.destination, name: value },
     }));
 
-    if (value.length >= 3) {
-      const suggestions = await searchOSMPlaces(value);
-      setDestinationSuggestions(suggestions);
-      setShowDestinationSuggestions(true);
-    } else {
+    // Clear existing timeout
+    if (destinationSearchTimeoutRef.current) {
+      clearTimeout(destinationSearchTimeoutRef.current);
+    }
+
+    if (value.trim().length < 3) {
       setDestinationSuggestions([]);
       setShowDestinationSuggestions(false);
+      setDestinationSearching(false);
+      return;
     }
+
+    // Show loading state
+    setDestinationSearching(true);
+
+    // Debounce search
+    destinationSearchTimeoutRef.current = setTimeout(async () => {
+      const suggestions = await searchOSMPlaces(value);
+      setDestinationSuggestions(suggestions);
+      setShowDestinationSuggestions(suggestions.length > 0);
+      setDestinationSearching(false);
+    }, DEBOUNCE_DELAY);
   };
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (originSearchTimeoutRef.current) {
+        clearTimeout(originSearchTimeoutRef.current);
+      }
+      if (destinationSearchTimeoutRef.current) {
+        clearTimeout(destinationSearchTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Select origin place
-  const selectOriginPlace = (place: OSMPlace) => {
-    setRouteRequest((prev) => ({
-      ...prev,
-      origin: {
-        name: place.display_name,
-        lat: parseFloat(place.lat),
-        lon: parseFloat(place.lon),
-      },
-    }));
+  const selectOriginPlace = async (place: OSMPlace) => {
     setShowOriginSuggestions(false);
+
+    // If we have coordinates from Text Search API, use them directly
+    if (place.lat && place.lon && place.lat !== "0" && place.lon !== "0") {
+      setRouteRequest((prev) => ({
+        ...prev,
+        origin: {
+          name: place.display_name,
+          lat: parseFloat(place.lat),
+          lon: parseFloat(place.lon),
+        },
+      }));
+      setOriginSuggestions([]);
+      return;
+    }
+
+    // Otherwise, fetch place details from Google Places API
+    if (place.google_place_id) {
+      setOriginSearching(true);
+      const details = await fetchPlaceDetails(place.google_place_id);
+      setOriginSearching(false);
+
+      if (details) {
+        setRouteRequest((prev) => ({
+          ...prev,
+          origin: {
+            name: place.display_name,
+            lat: details.lat,
+            lon: details.lng,
+          },
+        }));
+      } else {
+        // Fallback: use display name only
+        setRouteRequest((prev) => ({
+          ...prev,
+          origin: {
+            name: place.display_name,
+            lat: 0,
+            lon: 0,
+          },
+        }));
+      }
+    } else {
+      // No Google place ID, use display name only
+      setRouteRequest((prev) => ({
+        ...prev,
+        origin: {
+          name: place.display_name,
+          lat: 0,
+          lon: 0,
+        },
+      }));
+    }
+
     setOriginSuggestions([]);
   };
 
   // Select destination place
-  const selectDestinationPlace = (place: OSMPlace) => {
-    setRouteRequest((prev) => ({
-      ...prev,
-      destination: {
-        name: place.display_name,
-        lat: parseFloat(place.lat),
-        lon: parseFloat(place.lon),
-      },
-    }));
+  const selectDestinationPlace = async (place: OSMPlace) => {
     setShowDestinationSuggestions(false);
+
+    // If we have coordinates from Text Search API, use them directly
+    if (place.lat && place.lon && place.lat !== "0" && place.lon !== "0") {
+      setRouteRequest((prev) => ({
+        ...prev,
+        destination: {
+          name: place.display_name,
+          lat: parseFloat(place.lat),
+          lon: parseFloat(place.lon),
+        },
+      }));
+      setDestinationSuggestions([]);
+      return;
+    }
+
+    // Otherwise, fetch place details from Google Places API
+    if (place.google_place_id) {
+      setDestinationSearching(true);
+      const details = await fetchPlaceDetails(place.google_place_id);
+      setDestinationSearching(false);
+
+      if (details) {
+        setRouteRequest((prev) => ({
+          ...prev,
+          destination: {
+            name: place.display_name,
+            lat: details.lat,
+            lon: details.lng,
+          },
+        }));
+      } else {
+        // Fallback: use display name only
+        setRouteRequest((prev) => ({
+          ...prev,
+          destination: {
+            name: place.display_name,
+            lat: 0,
+            lon: 0,
+          },
+        }));
+      }
+    } else {
+      // No Google place ID, use display name only
+      setRouteRequest((prev) => ({
+        ...prev,
+        destination: {
+          name: place.display_name,
+          lat: 0,
+          lon: 0,
+        },
+      }));
+    }
+
     setDestinationSuggestions([]);
   };
 
@@ -326,24 +505,33 @@ export default function Home() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       required
                     />
-                    {showOriginSuggestions && originSuggestions.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                        {originSuggestions.map((place) => (
-                          <div
-                            key={place.place_id}
-                            onClick={() => selectOriginPlace(place)}
-                            className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                          >
-                            <div className="text-sm font-medium text-black">
-                              {place.display_name.split(",")[0]}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {place.display_name}
-                            </div>
-                          </div>
-                        ))}
+                    {originSearching && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                        <div className="text-sm text-gray-500 text-center">
+                          🔍 Searching...
+                        </div>
                       </div>
                     )}
+                    {!originSearching &&
+                      showOriginSuggestions &&
+                      originSuggestions.length > 0 && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                          {originSuggestions.map((place) => (
+                            <div
+                              key={place.place_id}
+                              onClick={() => selectOriginPlace(place)}
+                              className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            >
+                              <div className="text-sm font-medium text-black">
+                                {place.display_name.split(",")[0]}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {place.display_name}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     <div className="text-xs text-gray-500">
                       Coordinates: {routeRequest.origin.lat.toFixed(6)},{" "}
                       {routeRequest.origin.lon.toFixed(6)}
@@ -370,7 +558,15 @@ export default function Home() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       required
                     />
-                    {showDestinationSuggestions &&
+                    {destinationSearching && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                        <div className="text-sm text-gray-500 text-center">
+                          🔍 Searching...
+                        </div>
+                      </div>
+                    )}
+                    {!destinationSearching &&
+                      showDestinationSuggestions &&
                       destinationSuggestions.length > 0 && (
                         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                           {destinationSuggestions.map((place) => (
