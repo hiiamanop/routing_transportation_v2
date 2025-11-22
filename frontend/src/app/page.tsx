@@ -146,7 +146,11 @@ export default function Home() {
   const originSearchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const destinationSearchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const API_BASE_URL = "/api";
+  // Direct hit to Next.js server port
+  const API_BASE_URL =
+    typeof window !== "undefined"
+      ? `http://${window.location.hostname}:3003/api`
+      : "/api";
 
   // Debounce delay (500ms)
   const DEBOUNCE_DELAY = 500;
