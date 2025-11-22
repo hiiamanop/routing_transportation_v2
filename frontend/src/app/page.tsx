@@ -146,10 +146,16 @@ export default function Home() {
   const originSearchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const destinationSearchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Direct hit to Next.js server port
-  const API_BASE_URL =
+  // Next.js API routes (search-places)
+  const SEARCH_API_BASE_URL =
     typeof window !== "undefined"
       ? `http://${window.location.hostname}:3003/api`
+      : "/api";
+
+  // Flask API backend (routing)
+  const ROUTE_API_BASE_URL =
+    typeof window !== "undefined"
+      ? `http://${window.location.hostname}:5001/api`
       : "/api";
 
   // Debounce delay (500ms)
@@ -163,7 +169,9 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/search-places?q=${encodeURIComponent(query.trim())}`
+        `${SEARCH_API_BASE_URL}/search-places?q=${encodeURIComponent(
+          query.trim()
+        )}`
       );
 
       if (!response.ok) {
@@ -193,7 +201,7 @@ export default function Home() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/search-places`, {
+      const response = await fetch(`${SEARCH_API_BASE_URL}/search-places`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -435,7 +443,10 @@ export default function Home() {
     setSelectedRoute(null);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/route`, routeRequest);
+      const response = await axios.post(
+        `${ROUTE_API_BASE_URL}/route`,
+        routeRequest
+      );
       setRouteResults(response.data);
 
       // Auto-select dijkstra route (Enhanced DFS uses Dijkstra)
