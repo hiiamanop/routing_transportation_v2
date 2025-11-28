@@ -211,17 +211,30 @@ def gmaps_style_route(
         transit_seg.departure_time = current_time
         
         # Use traffic-aware travel time if available
-        if traffic_helper.loaded and transit_seg.mode != TransportationMode.WALK:
-            # Calculate dynamic travel time based on current time
+        if transit_seg.mode != TransportationMode.WALK:
+            # Always use traffic-aware calculation (works even if traffic_helper not loaded - uses fallback)
+            base_time = transit_seg.duration_minutes
             dynamic_time = traffic_helper.get_travel_time(
                 route_name=transit_seg.route_name,
                 distance_km=transit_seg.distance_km,
                 current_time=current_time
             )
-            # Use dynamic time if it differs significantly from base time
-            if abs(dynamic_time - transit_seg.duration_minutes) > 0.5:
-                transit_seg.duration_minutes = dynamic_time
-                print(f"   🚦 Traffic-aware: {transit_seg.route_name} - {transit_seg.duration_minutes:.1f} min (hour {current_time.hour})")
+            # Always apply traffic-aware time
+            transit_seg.duration_minutes = dynamic_time
+            diff = dynamic_time - base_time
+            hour = current_time.hour
+            # Determine peak hour phase
+            if 6 <= hour <= 9:
+                phase = "PAGI"
+            elif 12 <= hour <= 14:
+                phase = "SIANG"
+            elif 17 <= hour <= 19:
+                phase = "SORE"
+            else:
+                phase = "NORMAL"
+            
+            if abs(diff) > 0.1:  # Only log if significant difference
+                print(f"   🚦 Traffic-aware [{phase}] {hour:02d}:00: {transit_seg.route_name} - {base_time:.1f}→{dynamic_time:.1f} min (diff: {diff:+.1f})")
         
         transit_seg.arrival_time = current_time + timedelta(minutes=transit_seg.duration_minutes)
         segments.append(transit_seg)

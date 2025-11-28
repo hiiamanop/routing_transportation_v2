@@ -713,6 +713,54 @@ export default function Home() {
                 </h3>
                 {routeResults.results[selectedRoute]?.route && (
                   <div className="space-y-2 text-sm text-black">
+                    {/* Departure Time Info */}
+                    {routeResults.request_info?.departure_time && (
+                      <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-200">
+                        <div className="text-xs text-blue-700 font-medium mb-1">
+                          🕐 Departure Time:
+                        </div>
+                        <div className="text-sm text-blue-900">
+                          {new Date(
+                            routeResults.request_info.departure_time
+                          ).toLocaleString("id-ID", {
+                            timeZone: "Asia/Jakarta",
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                          })}
+                        </div>
+                        {(() => {
+                          const hour = new Date(
+                            routeResults.request_info.departure_time
+                          ).getHours();
+                          let phase = "";
+                          let color = "";
+                          if (6 <= hour && hour <= 9) {
+                            phase = "Peak Hour - Pagi (06:00-09:00)";
+                            color = "text-orange-700 bg-orange-50";
+                          } else if (12 <= hour && hour <= 14) {
+                            phase = "Peak Hour - Siang (12:00-14:00)";
+                            color = "text-orange-700 bg-orange-50";
+                          } else if (17 <= hour && hour <= 19) {
+                            phase = "Peak Hour - Sore (17:00-19:00)";
+                            color = "text-orange-700 bg-orange-50";
+                          } else {
+                            phase = "Normal Hour";
+                            color = "text-green-700 bg-green-50";
+                          }
+                          return (
+                            <div
+                              className={`mt-1 text-xs px-2 py-1 rounded ${color}`}
+                            >
+                              {phase}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span>⏱️ Total Time:</span>
                       <span className="font-medium">

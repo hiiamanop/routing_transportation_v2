@@ -101,12 +101,26 @@ class TrafficAwareHelper:
         Returns:
             Travel time in minutes
         """
-        if not self.loaded:
-            # Fallback: use default speed
-            default_speed_kmh = 30.0  # Average speed
-            return (distance_km / default_speed_kmh) * 60
-        
         hour = current_time.hour
+        
+        if not self.loaded:
+            # Fallback: use 3-phase peak hour calculation
+            # 3 Fase Peak Hour:
+            # 1. Pagi: 6am - 9am (06:00-09:00)
+            # 2. Siang: 12pm - 2pm (12:00-14:00)
+            # 3. Sore: 5pm - 7pm (17:00-19:00)
+            is_peak_hour = (
+                (6 <= hour <= 9) or      # Pagi: 6am - 9am
+                (12 <= hour <= 14) or    # Siang: 12pm - 2pm
+                (17 <= hour <= 19)       # Sore: 5pm - 7pm
+            )
+            
+            if is_peak_hour:
+                default_speed_kmh = 20.0  # Peak hour: slower
+            else:
+                default_speed_kmh = 32.0  # Normal hour: faster
+            
+            return (distance_km / default_speed_kmh) * 60
         
         # Try to find matching corridor
         # Match route name to corridor
