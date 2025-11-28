@@ -15,6 +15,7 @@ from algorithms.ida_star_routing.data_structures import (
     TransportationGraph, Route, RouteSegment, TransportationMode, Stop
 )
 from algorithms.ida_star_routing.door_to_door import Location
+from core.traffic_aware import get_traffic_helper
 
 
 def find_nearest_stops_extended(graph: TransportationGraph, 
@@ -203,10 +204,25 @@ def gmaps_style_route(
     
     print(f"✅ Segment 1: Walk to {best_route['origin_stop'].name} ({best_route['origin_dist']*1000:.0f}m)")
     
-    # Transit segments
+    # Transit segments with traffic-aware timing
+    traffic_helper = get_traffic_helper()
     for transit_seg in best_route['transit_route'].segments:
         transit_seg.sequence = len(segments) + 1
         transit_seg.departure_time = current_time
+        
+        # Use traffic-aware travel time if available
+        if traffic_helper.loaded and transit_seg.mode != TransportationMode.WALK:
+            # Calculate dynamic travel time based on current time
+            dynamic_time = traffic_helper.get_travel_time(
+                route_name=transit_seg.route_name,
+                distance_km=transit_seg.distance_km,
+                current_time=current_time
+            )
+            # Use dynamic time if it differs significantly from base time
+            if abs(dynamic_time - transit_seg.duration_minutes) > 0.5:
+                transit_seg.duration_minutes = dynamic_time
+                print(f"   🚦 Traffic-aware: {transit_seg.route_name} - {transit_seg.duration_minutes:.1f} min (hour {current_time.hour})")
+        
         transit_seg.arrival_time = current_time + timedelta(minutes=transit_seg.duration_minutes)
         segments.append(transit_seg)
         current_time = transit_seg.arrival_time

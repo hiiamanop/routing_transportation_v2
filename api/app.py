@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sys
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import json
 
 # Add parent directory to path for imports
@@ -39,6 +39,50 @@ def after_request(response):
 
 # Global variable to store loaded network
 network_graph = None
+
+# GMT+7 timezone (WIB - Waktu Indonesia Barat)
+WIB_TZ = timezone(timedelta(hours=7))
+
+def parse_departure_time(time_str: str) -> datetime:
+    """
+    Parse departure time string to datetime with GMT+7 timezone
+    
+    Args:
+        time_str: ISO format datetime string (e.g., "2025-01-01T10:00" or "2025-01-01T10:00:00")
+    
+    Returns:
+        datetime object with GMT+7 timezone
+    """
+    if not time_str:
+        return datetime.now(WIB_TZ)
+    
+    try:
+        # Handle different formats
+        if 'T' in time_str:
+            # Remove 'Z' if present and add GMT+7
+            if time_str.endswith('Z'):
+                time_str = time_str[:-1] + '+07:00'
+            elif '+' not in time_str[-6:] and '-' not in time_str[-6:]:
+                # No timezone, assume GMT+7
+                if len(time_str) == 16:  # YYYY-MM-DDTHH:mm
+                    time_str = time_str + ':00+07:00'
+                elif len(time_str) == 19:  # YYYY-MM-DDTHH:mm:ss
+                    time_str = time_str + '+07:00'
+                else:
+                    time_str = time_str + '+07:00'
+            
+            dt = datetime.fromisoformat(time_str)
+            # Ensure timezone is GMT+7
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=WIB_TZ)
+            else:
+                # Convert to GMT+7
+                dt = dt.astimezone(WIB_TZ)
+            return dt
+        else:
+            raise ValueError("Invalid format: missing 'T' separator")
+    except ValueError as e:
+        raise ValueError(f"Invalid departure_time format: {str(e)}")
 
 def load_network():
     """Load network data once at startup"""
@@ -117,13 +161,13 @@ def route_request():
         if not all(key in destination for key in ['lat', 'lon']):
             return jsonify({"error": "Destination must have lat and lon"}), 400
         
-        # Parse departure time
-        departure_time = datetime.now()
+        # Parse departure time (GMT+7)
+        departure_time = datetime.now(WIB_TZ)
         if 'departure_time' in data and data['departure_time']:
             try:
-                departure_time = datetime.fromisoformat(data['departure_time'].replace('Z', '+00:00'))
-            except ValueError:
-                return jsonify({"error": "Invalid departure_time format"}), 400
+                departure_time = parse_departure_time(data['departure_time'])
+            except ValueError as e:
+                return jsonify({"error": str(e)}), 400
         
         # Load network
         graph = load_network()
@@ -338,13 +382,13 @@ def route_request_presentation():
         if not all(key in destination for key in ['lat', 'lon']):
             return jsonify({"error": "Destination must have lat and lon"}), 400
         
-        # Parse departure time
-        departure_time = datetime.now()
+        # Parse departure time (GMT+7)
+        departure_time = datetime.now(WIB_TZ)
         if 'departure_time' in data and data['departure_time']:
             try:
-                departure_time = datetime.fromisoformat(data['departure_time'].replace('Z', '+00:00'))
-            except ValueError:
-                return jsonify({"error": "Invalid departure_time format"}), 400
+                departure_time = parse_departure_time(data['departure_time'])
+            except ValueError as e:
+                return jsonify({"error": str(e)}), 400
         
         # Load network
         graph = load_network()

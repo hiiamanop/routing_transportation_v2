@@ -117,11 +117,29 @@ interface ApiResponse {
 }
 
 export default function Home() {
+  // Helper function to get current time in GMT+7 (WIB)
+  const getCurrentTimeGMT7 = (): string => {
+    const now = new Date();
+    // Convert to GMT+7 (WIB)
+    const gmt7Offset = 7 * 60; // 7 hours in minutes
+    const localOffset = now.getTimezoneOffset(); // Local timezone offset in minutes
+    const wibTime = new Date(
+      now.getTime() + (localOffset + gmt7Offset) * 60000
+    );
+    // Format as datetime-local string (YYYY-MM-DDTHH:mm)
+    const year = wibTime.getFullYear();
+    const month = String(wibTime.getMonth() + 1).padStart(2, "0");
+    const day = String(wibTime.getDate()).padStart(2, "0");
+    const hours = String(wibTime.getHours()).padStart(2, "0");
+    const minutes = String(wibTime.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const [routeRequest, setRouteRequest] = useState<RouteRequest>({
     origin: { name: "", lat: 0, lon: 0 },
     destination: { name: "", lat: 0, lon: 0 },
     algorithm: "dijkstra",
-    departure_time: new Date().toISOString().slice(0, 16),
+    departure_time: getCurrentTimeGMT7(),
   });
 
   const [routeResults, setRouteResults] = useState<ApiResponse | null>(null);
@@ -443,9 +461,20 @@ export default function Home() {
     setSelectedRoute(null);
 
     try {
+      // Convert datetime-local to ISO string with GMT+7 timezone
+      // datetime-local input is already in local timezone, we assume it's GMT+7
+      const departureTimeISO = routeRequest.departure_time
+        ? `${routeRequest.departure_time}:00+07:00` // Add seconds and GMT+7 timezone
+        : undefined;
+
+      const requestPayload = {
+        ...routeRequest,
+        departure_time: departureTimeISO,
+      };
+
       const response = await axios.post(
         `${ROUTE_API_BASE_URL}/route`,
-        routeRequest
+        requestPayload
       );
       setRouteResults(response.data);
 
