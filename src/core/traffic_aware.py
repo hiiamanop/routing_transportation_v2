@@ -150,9 +150,18 @@ class TrafficAwareHelper:
                 return round(time_minutes, 2)
         
         # Fallback: use default speed with peak hour adjustment
-        # Peak hours: 6-9 AM and 4-7 PM (slower)
+        # 3 Fase Peak Hour:
+        # 1. Pagi: 6am - 9am (06:00-09:00)
+        # 2. Siang: 12pm - 2pm (12:00-14:00)
+        # 3. Sore: 5pm - 7pm (17:00-19:00)
         # Normal hours: other times (faster)
-        if (6 <= hour <= 9) or (16 <= hour <= 19):
+        is_peak_hour = (
+            (6 <= hour <= 9) or      # Pagi: 6am - 9am
+            (12 <= hour <= 14) or    # Siang: 12pm - 2pm
+            (17 <= hour <= 19)       # Sore: 5pm - 7pm
+        )
+        
+        if is_peak_hour:
             # Peak hour: slower
             default_speed_kmh = 20.0
         else:
