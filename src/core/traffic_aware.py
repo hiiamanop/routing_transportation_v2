@@ -116,9 +116,9 @@ class TrafficAwareHelper:
             )
             
             if is_peak_hour:
-                default_speed_kmh = 20.0  # Peak hour: slower
+                default_speed_kmh = 12.0  # Peak hour: 12 km/h (slower)
             else:
-                default_speed_kmh = 32.0  # Normal hour: faster
+                default_speed_kmh = 20.0  # Normal hour: 20 km/h (faster)
             
             return (distance_km / default_speed_kmh) * 60
         
@@ -168,7 +168,8 @@ class TrafficAwareHelper:
         # 1. Pagi: 6am - 9am (06:00-09:00)
         # 2. Siang: 12pm - 2pm (12:00-14:00)
         # 3. Sore: 5pm - 7pm (17:00-19:00)
-        # Normal hours: other times (faster)
+        # Normal hours: other times - Speed: 20 km/h
+        # Peak hours: Speed: 12 km/h
         is_peak_hour = (
             (6 <= hour <= 9) or      # Pagi: 6am - 9am
             (12 <= hour <= 14) or    # Siang: 12pm - 2pm
@@ -176,11 +177,11 @@ class TrafficAwareHelper:
         )
         
         if is_peak_hour:
-            # Peak hour: slower
-            default_speed_kmh = 20.0
+            # Peak hour: 12 km/h (slower)
+            default_speed_kmh = 12.0
         else:
-            # Normal hour: faster
-            default_speed_kmh = 32.0
+            # Normal hour: 20 km/h (faster)
+            default_speed_kmh = 20.0
         
         return (distance_km / default_speed_kmh) * 60
 
