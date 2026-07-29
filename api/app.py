@@ -15,10 +15,11 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 
 from algorithms.ida_star_routing.data_loader import load_network_data
-from core.gmaps_style_routing import gmaps_style_route
+from core.gmaps_style_routing import gmaps_style_route, find_route_alternatives
 from algorithms.dfs_routing.optimized_dfs_test import gmaps_style_route_optimized_dfs
 from algorithms.ida_star_routing.ida_star_balanced import gmaps_style_route_balanced_ida_star
 from algorithms.ida_star_routing.ida_star_with_fallback import gmaps_style_route_ida_star_with_fallback
+from core import service_model
 
 app = Flask(__name__)
 # Enable CORS for all routes with explicit configuration
@@ -168,12 +169,36 @@ def route_request():
                 departure_time = parse_departure_time(data['departure_time'])
             except ValueError as e:
                 return jsonify({"error": str(e)}), 400
-        
+
+        # Di luar jam operasional angkutan umum: tidak ada rute yang bisa
+        # dijalani, jadi berikan estimasi kendaraan pribadi + alasannya
+        # (seperti Google Maps yang beralih ke moda menyetir).
+        if not service_model.any_service_available(departure_time):
+            estimate = service_model.driving_estimate(
+                (origin['lat'], origin['lon']),
+                (destination['lat'], destination['lon']),
+                departure_time,
+            )
+            return jsonify({
+                "success": True,
+                "public_transport_available": False,
+                "reason": (
+                    f"Di luar jam operasional angkutan umum "
+                    f"({departure_time.strftime('%H:%M')} WIB). "
+                    f"Jam layanan: {service_model.service_window_text()}."
+                ),
+                "suggested_mode": "PRIVATE_VEHICLE",
+                "private_vehicle": estimate,
+                "origin": origin,
+                "destination": destination,
+                "departure_time": departure_time.isoformat(),
+            }), 200
+
         # Load network
         graph = load_network()
-        
+
         results = {}
-        
+
         # Run Dijkstra
         if algorithm in ['dijkstra', 'both']:
             try:
@@ -303,6 +328,9 @@ def serialize_route(route, origin_name, destination_name, origin_coords=None, de
                 "from_stop": seg.from_stop.name if hasattr(seg, 'from_stop') else 'Unknown',
                 "to_stop": seg.to_stop.name if hasattr(seg, 'to_stop') else 'Unknown',
                 "duration_minutes": seg.duration_minutes,
+                "wait_minutes": getattr(seg, 'wait_minutes', 0.0),
+                "travel_minutes": seg.duration_minutes - getattr(seg, 'wait_minutes', 0.0),
+                "path": getattr(seg, 'path', None),
                 "cost": seg.cost,
                 "distance_km": seg.distance_km,
                 "departure_time": seg.departure_time.isoformat(),
@@ -336,6 +364,96 @@ def serialize_route(route, origin_name, destination_name, origin_coords=None, de
             for seg in route.segments
         ]
     }
+
+
+@app.route('/api/route/alternatives', methods=['POST'])
+def route_alternatives():
+    """
+    Beberapa opsi rute seperti Google Maps: tercepat, termurah, paling
+    sedikit transfer. Memakai Dijkstra (mesin utama, hasil optimal terjamin)
+    sebagai satu-satunya algoritma pencarian.
+
+    Expected JSON payload sama seperti POST /api/route (tanpa field
+    "algorithm" -- endpoint ini selalu memberi beberapa opsi sekaligus).
+    """
+    try:
+        data = request.get_json()
+        if not data or 'origin' not in data or 'destination' not in data:
+            return jsonify({"error": "origin and destination are required"}), 400
+
+        origin = data['origin']
+        destination = data['destination']
+
+        if not all(key in origin for key in ['lat', 'lon']):
+            return jsonify({"error": "Origin must have lat and lon"}), 400
+        if not all(key in destination for key in ['lat', 'lon']):
+            return jsonify({"error": "Destination must have lat and lon"}), 400
+
+        departure_time = datetime.now(WIB_TZ)
+        if 'departure_time' in data and data['departure_time']:
+            try:
+                departure_time = parse_departure_time(data['departure_time'])
+            except ValueError as e:
+                return jsonify({"error": str(e)}), 400
+
+        if not service_model.any_service_available(departure_time):
+            estimate = service_model.driving_estimate(
+                (origin['lat'], origin['lon']),
+                (destination['lat'], destination['lon']),
+                departure_time,
+            )
+            return jsonify({
+                "success": True,
+                "public_transport_available": False,
+                "reason": (
+                    f"Di luar jam operasional angkutan umum "
+                    f"({departure_time.strftime('%H:%M')} WIB). "
+                    f"Jam layanan: {service_model.service_window_text()}."
+                ),
+                "suggested_mode": "PRIVATE_VEHICLE",
+                "private_vehicle": estimate,
+                "origin": origin,
+                "destination": destination,
+                "departure_time": departure_time.isoformat(),
+            }), 200
+
+        graph = load_network()
+        alternatives = find_route_alternatives(
+            graph=graph,
+            origin_name=origin.get('name', 'Origin'),
+            origin_coords=(origin['lat'], origin['lon']),
+            dest_name=destination.get('name', 'Destination'),
+            dest_coords=(destination['lat'], destination['lon']),
+            departure_time=departure_time,
+        )
+
+        if not alternatives:
+            return jsonify({"success": False, "error": "No route found"}), 200
+
+        return jsonify({
+            "success": True,
+            "origin": origin,
+            "destination": destination,
+            "departure_time": departure_time.isoformat(),
+            "alternatives": [
+                {
+                    "label": alt["label"],
+                    "optimized_for": alt["optimized_for"],
+                    "route": serialize_route(
+                        alt["route"], origin.get('name', 'Origin'),
+                        destination.get('name', 'Destination'),
+                        (origin['lat'], origin['lon']),
+                        (destination['lat'], destination['lon']),
+                    ),
+                }
+                for alt in alternatives
+            ],
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 @app.route('/api/route/presentation', methods=['POST'])
 def route_request_presentation():
@@ -389,12 +507,36 @@ def route_request_presentation():
                 departure_time = parse_departure_time(data['departure_time'])
             except ValueError as e:
                 return jsonify({"error": str(e)}), 400
-        
+
+        # Di luar jam operasional angkutan umum: tidak ada rute yang bisa
+        # dijalani, jadi berikan estimasi kendaraan pribadi + alasannya
+        # (seperti Google Maps yang beralih ke moda menyetir).
+        if not service_model.any_service_available(departure_time):
+            estimate = service_model.driving_estimate(
+                (origin['lat'], origin['lon']),
+                (destination['lat'], destination['lon']),
+                departure_time,
+            )
+            return jsonify({
+                "success": True,
+                "public_transport_available": False,
+                "reason": (
+                    f"Di luar jam operasional angkutan umum "
+                    f"({departure_time.strftime('%H:%M')} WIB). "
+                    f"Jam layanan: {service_model.service_window_text()}."
+                ),
+                "suggested_mode": "PRIVATE_VEHICLE",
+                "private_vehicle": estimate,
+                "origin": origin,
+                "destination": destination,
+                "departure_time": departure_time.isoformat(),
+            }), 200
+
         # Load network
         graph = load_network()
-        
+
         results = {}
-        
+
         # Run Dijkstra
         if algorithm in ['dijkstra', 'both']:
             try:

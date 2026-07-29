@@ -18,6 +18,7 @@ from .data_structures import (
     DEFAULT_COSTS,
     DEFAULT_SPEEDS
 )
+from core import service_model
 
 
 # Constants
@@ -119,21 +120,41 @@ class DijkstraRouter:
         
         return transfer_map
     
-    def _calculate_edge_cost(self, edge: Edge, current_mode: Optional[TransportationMode]) -> float:
-        """Calculate cost for an edge based on optimization mode"""
-        if self.optimization_mode == "time":
+    def _edge_travel_minutes(self, edge: Edge, when: Optional[datetime] = None) -> float:
+        """Waktu tempuh nyata dari survei 30 hari, sama dengan yang dipakai IDA*."""
+        if edge.mode in (TransportationMode.WALK, TransportationMode.TRANSFER):
             return edge.base_time_minutes
-        elif self.optimization_mode == "cost":
+        return service_model.travel_minutes(
+            edge.route, edge.from_stop.stop_id, edge.to_stop.stop_id,
+            edge.distance_meters / 1000, when)
+
+    def _boarding_wait_minutes(self, edge: Edge, current_route: Optional[str]) -> float:
+        """Waktu tunggu kendaraan baru (nol kalau masih di rute yang sama)."""
+        if edge.mode in (TransportationMode.WALK, TransportationMode.TRANSFER):
+            return 0.0
+        if edge.route == current_route:
+            return 0.0
+        return service_model.wait_minutes(edge.route)
+
+    def _calculate_edge_cost(self, edge: Edge, current_mode: Optional[TransportationMode],
+                             current_route: Optional[str] = None,
+                             when: Optional[datetime] = None) -> float:
+        """Biaya ruas: waktu tempuh nyata + waktu tunggu kendaraan."""
+        wait = self._boarding_wait_minutes(edge, current_route)
+
+        if self.optimization_mode == "cost":
             return float(edge.cost)
+
+        travel = self._edge_travel_minutes(edge, when)
+        if self.optimization_mode == "time":
+            return travel + wait
         elif self.optimization_mode == "transfers":
-            # Penalize mode changes heavily
-            transfer_penalty = 30.0 if (current_mode and edge.mode != current_mode) else 0.0
-            return edge.base_time_minutes + transfer_penalty
+            # Penalti tambahan untuk pindah moda, di atas waktu tunggu yang
+            # sudah nyata menangkap "ongkos" transfer.
+            transfer_penalty = 20.0 if (current_mode and edge.mode != current_mode) else 0.0
+            return travel + wait + transfer_penalty
         else:  # balanced
-            time_norm = edge.base_time_minutes / 60
-            cost_norm = edge.cost / 10000
-            transfer_penalty = 1.0 if (current_mode and edge.mode != current_mode) else 0.0
-            return time_norm + cost_norm + transfer_penalty
+            return travel + wait + edge.cost / 1000
     
     def _calculate_walking_cost(self, distance_km: float) -> float:
         """Calculate cost for walking segment"""
@@ -205,29 +226,36 @@ class DijkstraRouter:
                 # Reconstruct path
                 return self._reconstruct_path(current_node, departure_time)
             
-            # Get current mode (from parent if available)
+            # Get current mode/route (from parent if available)
             current_mode = current_node.edge_used.mode if current_node.edge_used else current_stop.mode
-            
+            current_route = current_node.edge_used.route if current_node.edge_used else None
+            when = departure_time + timedelta(minutes=current_node.time_accumulated)
+
             # Explore regular edges (same route)
             for edge in self.graph.get_neighbors(current_stop):
                 neighbor = edge.to_stop
-                
+
                 if neighbor.stop_id in visited:
                     continue
-                
-                edge_cost = self._calculate_edge_cost(edge, current_mode)
+
+                edge_cost = self._calculate_edge_cost(edge, current_mode, current_route, when)
                 new_cost = current_cost + edge_cost
-                
+
                 # Update if better path found
                 if neighbor.stop_id not in best_cost or new_cost < best_cost[neighbor.stop_id]:
                     best_cost[neighbor.stop_id] = new_cost
-                    
+
+                    # Jam terus berjalan dgn waktu NYATA (tempuh+tunggu), bukan
+                    # skor optimasi -- penting saat optimization_mode="cost",
+                    # di mana edge_cost adalah Rupiah, bukan menit.
+                    duration = (self._edge_travel_minutes(edge, when) +
+                               self._boarding_wait_minutes(edge, current_route))
                     new_node = DijkstraNode(
                         cost=new_cost,
                         stop=neighbor,
                         parent=current_node,
                         edge_used=edge,
-                        time_accumulated=current_node.time_accumulated + edge.base_time_minutes,
+                        time_accumulated=current_node.time_accumulated + duration,
                         is_walking=False
                     )
                     
@@ -292,13 +320,19 @@ class DijkstraRouter:
         # Reverse to get start -> goal
         path.reverse()
         
-        # Build route segments
+        # Build route segments -- pakai waktu tempuh + tunggu yang SAMA dgn
+        # yang dipakai search (bukan base_time_minutes statis), supaya waktu
+        # yang ditampilkan = waktu yang dioptimasi.
         segments = []
         current_time = departure_time
-        
+        current_route = None
+
         for seq, (edge, is_walking) in enumerate(path, 1):
-            arrival_time = current_time + timedelta(minutes=edge.base_time_minutes)
-            
+            wait = self._boarding_wait_minutes(edge, current_route)
+            travel = self._edge_travel_minutes(edge, current_time)
+            duration = travel + wait
+            arrival_time = current_time + timedelta(minutes=duration)
+
             segment = RouteSegment(
                 sequence=seq,
                 mode=edge.mode,
@@ -307,13 +341,15 @@ class DijkstraRouter:
                 to_stop=edge.to_stop,
                 departure_time=current_time,
                 arrival_time=arrival_time,
-                duration_minutes=edge.base_time_minutes,
+                duration_minutes=duration,
                 cost=edge.cost,
-                distance_km=edge.distance_meters / 1000
+                distance_km=edge.distance_meters / 1000,
+                wait_minutes=wait
             )
-            
+
             segments.append(segment)
             current_time = arrival_time
+            current_route = edge.route
         
         # Create route
         route = Route(route_id=1, segments=segments)

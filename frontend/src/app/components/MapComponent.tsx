@@ -42,6 +42,9 @@ interface RouteSegment {
     lat: number;
     lon: number;
   };
+  // Jalur trotoar/jalan asli utk segmen jalan kaki (dari OSRM), kalau
+  // berhasil didapat backend. undefined/null = pakai garis lurus.
+  path?: [number, number][] | null;
 }
 
 interface Route {
@@ -248,8 +251,16 @@ export default function MapComponent({
       .map((segment) => {
         let coordinates: Array<[number, number]> = [];
 
-        // If route has waypoints, use subset between from and to
-        if (
+        // Segmen jalan kaki: pakai jalur trotoar asli dari backend kalau ada,
+        // supaya tidak digambar sebagai garis lurus menembus bangunan.
+        if (segment.mode === "WALK" && segment.path && segment.path.length > 1) {
+          coordinates = [...segment.path];
+          coordinates[0] = [segment.from_coords.lat, segment.from_coords.lon];
+          coordinates[coordinates.length - 1] = [
+            segment.to_coords.lat,
+            segment.to_coords.lon,
+          ];
+        } else if (
           segment.route_name &&
           routeWaypoints[segment.route_name] &&
           segment.mode !== "walking"

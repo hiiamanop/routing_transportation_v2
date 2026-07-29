@@ -126,7 +126,14 @@ class RouteSegment:
     cost: int
     distance_km: float
     traffic_condition: Optional[TrafficCondition] = None
-    
+    # Waktu menunggu kendaraan sebelum berangkat di segmen ini. Sudah TERMASUK
+    # di dalam duration_minutes; dipisah di sini supaya bisa ditampilkan sendiri
+    # ("tunggu 30 menit, lalu jalan 12 menit") seperti Google Maps.
+    wait_minutes: float = 0.0
+    # Polyline jalan/trotoar asli (list {'lat','lon'}) untuk segmen WALK, kalau
+    # berhasil didapat dari routing engine. None = pakai garis lurus (fallback).
+    path: Optional[List[Dict]] = None
+
     def to_dict(self) -> dict:
         return {
             'sequence': self.sequence,
@@ -137,9 +144,12 @@ class RouteSegment:
             'departure_time': self.departure_time.isoformat() if self.departure_time else None,
             'arrival_time': self.arrival_time.isoformat() if self.arrival_time else None,
             'duration_minutes': round(self.duration_minutes, 2),
+            'wait_minutes': round(self.wait_minutes, 2),
+            'travel_minutes': round(self.duration_minutes - self.wait_minutes, 2),
             'cost': self.cost,
             'distance_km': round(self.distance_km, 2),
-            'traffic_condition': self.traffic_condition.value if self.traffic_condition else None
+            'traffic_condition': self.traffic_condition.value if self.traffic_condition else None,
+            'path': self.path
         }
 
 
@@ -263,12 +273,19 @@ class Route:
         self.total_cost = self.calculate_route_cost(self.segments)
         self.total_distance_km = sum(s.distance_km for s in self.segments)
         
-        # Count transfers (mode changes)
-        self.num_transfers = sum(
-            1 for i in range(1, len(self.segments))
-            if self.segments[i].mode != self.segments[i-1].mode
-            and self.segments[i].mode != TransportationMode.TRANSFER
-        )
+        # Jumlah PINDAH KENDARAAN = banyaknya kali naik kendaraan, dikurangi 1.
+        # Dulu ini menghitung pergantian moda termasuk jalan kaki, sehingga
+        # perjalanan naik satu bus langsung (jalan -> bus -> jalan) dilaporkan
+        # "2 transfer". Naik satu kendaraan saja = 0 transfer, seperti Google Maps.
+        boardings = 0
+        prev_route = None
+        for s in self.segments:
+            if s.mode in (TransportationMode.WALK, TransportationMode.TRANSFER):
+                continue
+            if s.route_name != prev_route:
+                boardings += 1
+                prev_route = s.route_name
+        self.num_transfers = max(0, boardings - 1)
         
         # Set departure and arrival times
         self.departure_time = self.segments[0].departure_time if self.segments else None

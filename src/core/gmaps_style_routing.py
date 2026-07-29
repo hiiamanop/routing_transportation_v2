@@ -15,7 +15,7 @@ from algorithms.ida_star_routing.data_structures import (
     TransportationGraph, Route, RouteSegment, TransportationMode, Stop
 )
 from algorithms.ida_star_routing.door_to_door import Location
-from core.traffic_aware import get_traffic_helper
+from core import service_model
 
 
 def find_nearest_stops_extended(graph: TransportationGraph, 
@@ -36,15 +36,23 @@ def find_nearest_stops_extended(graph: TransportationGraph,
 
 def create_walking_segment(seq: int, from_loc: Location, to_loc: Location,
                           departure_time: datetime) -> RouteSegment:
-    """Create walking segment"""
+    """
+    Segmen jalan kaki. Waktu tempuh tetap dari jarak-garis-lurus/5km/jam
+    (jalur pejalan kaki biasanya tak jauh beda dari jarak lurus, tidak
+    seperti kendaraan yang harus muter ikut pola jalan raya) -- tapi polyline
+    di peta memakai jalur trotoar/jalan asli dari OSRM kalau berhasil didapat,
+    supaya tidak digambar sebagai garis lurus menembus bangunan.
+    """
     dist_km = haversine_distance_km(from_loc.lat, from_loc.lon, to_loc.lat, to_loc.lon)
     duration_min = (dist_km / 5.0) * 60  # 5 km/h walking speed
-    
-    from_stop = Stop(-1, f"walk_{seq}", from_loc.name, from_loc.lat, from_loc.lon, 
+
+    from_stop = Stop(-1, f"walk_{seq}", from_loc.name, from_loc.lat, from_loc.lon,
                      "Walking", TransportationMode.WALK)
     to_stop = Stop(-2, f"walk_{seq}", to_loc.name, to_loc.lat, to_loc.lon,
                    "Walking", TransportationMode.WALK)
-    
+
+    path = service_model.walking_path(from_loc.lat, from_loc.lon, to_loc.lat, to_loc.lon)
+
     return RouteSegment(
         sequence=seq,
         mode=TransportationMode.WALK,
@@ -55,7 +63,8 @@ def create_walking_segment(seq: int, from_loc: Location, to_loc: Location,
         arrival_time=departure_time + timedelta(minutes=duration_min),
         duration_minutes=duration_min,
         cost=0,
-        distance_km=dist_km
+        distance_km=dist_km,
+        path=path
     )
 
 
@@ -204,38 +213,16 @@ def gmaps_style_route(
     
     print(f"✅ Segment 1: Walk to {best_route['origin_stop'].name} ({best_route['origin_dist']*1000:.0f}m)")
     
-    # Transit segments with traffic-aware timing
-    traffic_helper = get_traffic_helper()
+    # Segmen transit: duration_minutes & wait_minutes SUDAH dihitung dengan
+    # benar (waktu nyata per-jam + waktu tunggu) di dalam DijkstraRouter itu
+    # sendiri. Dulu di sini ada lapisan "traffic-aware" tambahan yang menimpa
+    # angka itu dengan tebakan 12/20 km/h dari traffic_aware.py -- dihapus
+    # karena menimpa angka yang sudah benar dengan yang lebih kasar (dan
+    # kebetulan menganggap jam 08:00 & 13:00 sama-sama "peak", menutupi variasi
+    # per-jam yang seharusnya terlihat).
     for transit_seg in best_route['transit_route'].segments:
         transit_seg.sequence = len(segments) + 1
         transit_seg.departure_time = current_time
-        
-        # Use traffic-aware travel time if available
-        if transit_seg.mode != TransportationMode.WALK:
-            # Always use traffic-aware calculation (works even if traffic_helper not loaded - uses fallback)
-            base_time = transit_seg.duration_minutes
-            dynamic_time = traffic_helper.get_travel_time(
-                route_name=transit_seg.route_name,
-                distance_km=transit_seg.distance_km,
-                current_time=current_time
-            )
-            # Always apply traffic-aware time
-            transit_seg.duration_minutes = dynamic_time
-            diff = dynamic_time - base_time
-            hour = current_time.hour
-            # Determine peak hour phase
-            if 6 <= hour <= 9:
-                phase = "PAGI"
-            elif 12 <= hour <= 14:
-                phase = "SIANG"
-            elif 17 <= hour <= 19:
-                phase = "SORE"
-            else:
-                phase = "NORMAL"
-            
-            if abs(diff) > 0.1:  # Only log if significant difference
-                print(f"   🚦 Traffic-aware [{phase}] {hour:02d}:00: {transit_seg.route_name} - {base_time:.1f}→{dynamic_time:.1f} min (diff: {diff:+.1f})")
-        
         transit_seg.arrival_time = current_time + timedelta(minutes=transit_seg.duration_minutes)
         segments.append(transit_seg)
         current_time = transit_seg.arrival_time
@@ -261,6 +248,56 @@ def gmaps_style_route(
     complete_route.optimization_score = best_score
     
     return complete_route
+
+
+def _route_signature(route: Route) -> tuple:
+    """Sidik jari rute berdasarkan urutan halte transit - dipakai untuk
+    membuang alternatif yang sebetulnya rute yang sama persis."""
+    return tuple(
+        (s.from_stop.stop_id, s.to_stop.stop_id, s.route_name)
+        for s in route.segments if s.mode != TransportationMode.WALK
+    )
+
+
+def find_route_alternatives(
+    graph: TransportationGraph,
+    origin_name: str,
+    origin_coords: Tuple[float, float],
+    dest_name: str,
+    dest_coords: Tuple[float, float],
+    departure_time: Optional[datetime] = None,
+    max_walking_km: float = 2.0
+) -> List[Dict]:
+    """
+    Beberapa opsi rute seperti Google Maps: tercepat, termurah, paling sedikit
+    transfer. Dijalankan dengan tiga tujuan optimasi berbeda di atas Dijkstra
+    yang sama (bukan k-shortest-path formal) -- cukup untuk jaringan sekecil
+    ini (402 halte) dan sudah menghasilkan opsi yang benar-benar berbeda
+    karena tarif & jumlah transfer nyata berbeda antar rute.
+    """
+    candidates = [
+        ("Tercepat", "time"),
+        ("Termurah", "cost"),
+        ("Paling sedikit transfer", "transfers"),
+    ]
+
+    seen_signatures = set()
+    alternatives = []
+    for label, mode in candidates:
+        route = gmaps_style_route(
+            graph, origin_name, origin_coords, dest_name, dest_coords,
+            optimization_mode=mode, departure_time=departure_time,
+            max_walking_km=max_walking_km,
+        )
+        if route is None:
+            continue
+        sig = _route_signature(route)
+        if sig in seen_signatures:
+            continue  # sama persis dengan alternatif yang sudah ada, skip
+        seen_signatures.add(sig)
+        alternatives.append({"label": label, "optimized_for": mode, "route": route})
+
+    return alternatives
 
 
 def print_gmaps_route(route: Route, origin_name: str, dest_name: str):

@@ -24,13 +24,18 @@ from .data_structures import (
     TransportationMode
 )
 from .dijkstra import haversine_distance_km
+from core import service_model
 
 
 # BALANCED Constants
 WALKING_SPEED_KMH = 5.0
 MAX_TRANSFER_WALK_KM = 0.6  # Reasonable transfer distance
 TRANSFER_TIME_PENALTY = 5.0  # Reasonable penalty
-MODE_SWITCH_PENALTY = 10.0  # Moderate penalty for switching transport modes
+# MODE_SWITCH_PENALTY dihapus: dulu 10 menit tebakan untuk "ongkos repot pindah
+# moda". Sekarang digantikan waktu tunggu nyata dari service_model.wait_minutes(),
+# yang juga menangkap kasus yang dulu terlewat -- pindah antar KORIDOR pada moda
+# yang sama (mis. Feeder K1 -> Feeder K4) dulu dianggap gratis, padahal
+# penumpang tetap harus menunggu kendaraan yang berbeda.
 
 
 class BalancedIDAStarRouter:
@@ -209,7 +214,8 @@ class BalancedIDAStarRouter:
                          current_mode: TransportationMode,
                          path: List[Stop],
                          segments: List[RouteSegment],
-                         depth: int) -> any:
+                         depth: int,
+                         current_route: Optional[str] = None) -> any:
         """
         BALANCED recursive search with reasonable pruning and timeout checking
         """
@@ -252,12 +258,15 @@ class BalancedIDAStarRouter:
         # Sort neighbors by estimated total cost (g + h) to prioritize direct paths
         def sort_key(item):
             neighbor_stop, edge, is_transfer = item
-            estimated_cost_to_neighbor = self._calculate_balanced_edge_cost(edge, current_mode)
+            estimated_cost_to_neighbor = self._calculate_balanced_edge_cost(
+                edge, current_mode, current_route, current_time)
             heuristic_from_neighbor = self._balanced_heuristic(neighbor_stop, goal)
-            
-            # LARGER penalty untuk transfer: STRONGLY prefer direct routes
-            transfer_penalty = 50.0 if is_transfer else 0.0  # Large penalty to avoid transfers when not needed
-            
+
+            # Penalti transfer untuk URUTAN eksplorasi saja (bukan skor akhir):
+            # dorong jalur langsung dicoba lebih dulu. Biaya transfer yang
+            # sebenarnya sekarang sudah masuk lewat waktu tunggu di edge cost.
+            transfer_penalty = 50.0 if is_transfer else 0.0
+
             return estimated_cost_to_neighbor + heuristic_from_neighbor + transfer_penalty
         
         neighbors.sort(key=sort_key)  # Best total cost first, penalize transfers lightly
@@ -270,19 +279,24 @@ class BalancedIDAStarRouter:
             if neighbor.stop_id in visited:
                 continue
             
-            # Calculate cost with mode switching penalty
-            edge_cost = self._calculate_balanced_edge_cost(edge, current_mode)
+            # Biaya = waktu tempuh nyata + waktu tunggu kendaraan
+            edge_cost = self._calculate_balanced_edge_cost(
+                edge, current_mode, current_route, current_time)
             new_g_cost = g_cost + edge_cost
             new_h_cost = self._balanced_heuristic(neighbor, goal)
             new_f_cost = new_g_cost + new_h_cost
-            
+
             # Standard IDA* pruning: skip if f-cost exceeds bound
             if new_f_cost > bound:
                 continue
-            
-            # Create segment
-            arrival_time = current_time + timedelta(minutes=edge.base_time_minutes)
-            
+
+            # Segmen memakai angka yang SAMA dengan yang dipakai mencari, supaya
+            # waktu yang ditampilkan = waktu yang dioptimasi (dulu tidak sama).
+            wait = self._boarding_wait_minutes(edge, current_route)
+            travel = self._edge_travel_minutes(edge, current_time)
+            duration = travel + wait
+            arrival_time = current_time + timedelta(minutes=duration)
+
             segment = RouteSegment(
                 sequence=len(segments) + 1,
                 mode=edge.mode,
@@ -291,9 +305,10 @@ class BalancedIDAStarRouter:
                 to_stop=neighbor,
                 departure_time=current_time,
                 arrival_time=arrival_time,
-                duration_minutes=edge.base_time_minutes,
+                duration_minutes=duration,
                 cost=edge.cost,
-                distance_km=edge.distance_meters / 1000
+                distance_km=edge.distance_meters / 1000,
+                wait_minutes=wait
             )
             
             # Add to path
@@ -312,7 +327,8 @@ class BalancedIDAStarRouter:
                 current_mode=edge.mode,
                 path=path,
                 segments=new_segments,
-                depth=depth + 1
+                depth=depth + 1,
+                current_route=edge.route
             )
             
             # Check result
@@ -372,22 +388,47 @@ class BalancedIDAStarRouter:
         
         return neighbors
     
-    def _calculate_balanced_edge_cost(self, edge: Edge, current_mode: TransportationMode) -> float:
-        """Calculate cost with balanced penalties"""
-        base_cost = 0.0
-        
+    def _edge_travel_minutes(self, edge: Edge, when: Optional[datetime] = None) -> float:
+        """
+        Waktu tempuh nyata ruas ini, dari survei 30 hari kalau tersedia.
+        Menggantikan edge.base_time_minutes yang cuma jarak/kecepatan-tetap.
+        """
+        if edge.mode in (TransportationMode.WALK, TransportationMode.TRANSFER):
+            return edge.base_time_minutes
+        return service_model.travel_minutes(
+            edge.route,
+            edge.from_stop.stop_id,
+            edge.to_stop.stop_id,
+            edge.distance_meters / 1000,
+            when,
+        )
+
+    def _boarding_wait_minutes(self, edge: Edge, current_route: Optional[str]) -> float:
+        """
+        Waktu tunggu kendaraan. Dikenakan saat naik kendaraan BARU -- termasuk
+        naik pertama kali (current_route None) dan pindah koridor pada moda sama.
+        """
+        if edge.mode in (TransportationMode.WALK, TransportationMode.TRANSFER):
+            return 0.0
+        if edge.route == current_route:
+            return 0.0  # masih di kendaraan yang sama, tidak menunggu lagi
+        return service_model.wait_minutes(edge.route)
+
+    def _calculate_balanced_edge_cost(self, edge: Edge,
+                                      current_mode: TransportationMode,
+                                      current_route: Optional[str] = None,
+                                      when: Optional[datetime] = None) -> float:
+        """Biaya ruas: waktu tempuh nyata + waktu tunggu kendaraan."""
+        wait = self._boarding_wait_minutes(edge, current_route)
+
+        if self.optimization_mode == "cost":
+            return float(edge.cost)
+
+        travel = self._edge_travel_minutes(edge, when)
         if self.optimization_mode == "time":
-            base_cost = edge.base_time_minutes
-        elif self.optimization_mode == "cost":
-            base_cost = float(edge.cost)
-        else:  # balanced
-            base_cost = edge.base_time_minutes + edge.cost / 1000
-        
-        # Reasonable mode switching penalty
-        if edge.mode != current_mode and current_mode != TransportationMode.TRANSFER:
-            base_cost += MODE_SWITCH_PENALTY
-        
-        return base_cost
+            return travel + wait
+        # balanced: waktu (termasuk tunggu) + ongkos yang diskalakan
+        return travel + wait + edge.cost / 1000
 
 
 # Integration function (same interface as original)
