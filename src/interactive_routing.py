@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from datetime import datetime
 from algorithms.ida_star_routing.data_loader import load_network_data
 from core.gmaps_style_routing import gmaps_style_route, print_gmaps_route
-from optimized_dfs_test import gmaps_style_route_optimized_dfs
+from algorithms.dfs_routing.optimized_dfs_test import gmaps_style_route_optimized_dfs
 import json
 
 def get_float_input(prompt):

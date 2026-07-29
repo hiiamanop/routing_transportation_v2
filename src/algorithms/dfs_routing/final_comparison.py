@@ -15,7 +15,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from pure_dfs_test import gmaps_style_route_dfs as pure_dfs_route
 from optimized_dfs_test import gmaps_style_route_optimized_dfs as optimized_dfs_route
-from src.algorithms.ida_star_routing.dijkstra import find_route_dijkstra
+from algorithms.ida_star_routing.dijkstra import find_route_dijkstra
 
 def comprehensive_comparison(origin_lat, origin_lon, dest_lat, dest_lon):
     """

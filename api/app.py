@@ -16,7 +16,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 
 from algorithms.ida_star_routing.data_loader import load_network_data
 from core.gmaps_style_routing import gmaps_style_route
-from optimized_dfs_test import gmaps_style_route_optimized_dfs
+from algorithms.dfs_routing.optimized_dfs_test import gmaps_style_route_optimized_dfs
 from algorithms.ida_star_routing.ida_star_balanced import gmaps_style_route_balanced_ida_star
 from algorithms.ida_star_routing.ida_star_with_fallback import gmaps_style_route_ida_star_with_fallback
 
