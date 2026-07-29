@@ -1,7 +1,7 @@
 # Hasil Verifikasi Ulang (2026-07-19)
 
 Semua angka di bawah dihasilkan dari kode dan dataset asli di repo ini (bukan
-diasumsikan/dihaluskan dari naskah). Script sumber ada di `backend/experiments/`
+diasumsikan/dihaluskan dari naskah). Script sumber ada di `experiments/`
 dan bisa dijalankan ulang kapan saja untuk reproduksi:
 - `ground_truth.py` — cakupan ground truth (Task 1 & 3.1)
 - `run_case_study.py` — studi kasus OPI Jakabaring → Unsri (Task 1)

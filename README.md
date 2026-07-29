@@ -15,8 +15,8 @@ Sistem routing transportasi umum Palembang menggunakan algoritma Dijkstra dan Op
 ## 📁 Project Structure
 
 ```
-DFS_final/
-├── api/                    # Flask API Backend
+routing_transportation_v2/
+├── api/                    # Flask API Backend (entrypoint: app.py)
 │   ├── app.py             # Main API server
 │   └── requirements.txt   # Python dependencies
 ├── frontend/              # Next.js Frontend
@@ -27,8 +27,14 @@ DFS_final/
 │   │           └── MapComponent.tsx
 │   └── package.json
 ├── src/                   # Core routing algorithms
+│   ├── core/              # Dijkstra + gmaps-style output formatting
+│   └── algorithms/
+│       ├── ida_star_routing/  # IDA* + Dijkstra (production)
+│       └── dfs_routing/       # DFS variants (pure, optimized, comparison)
+├── experiments/           # Paper verification scripts (ground truth, baselines, scenarios)
+├── scripts/               # One-off data processing scripts (KMZ extraction, etc.)
 ├── dataset/               # Network data
-└── optimized_dfs_test.py  # Optimized DFS implementation
+└── docs/                  # Research paper drafts + reviewer notes
 ```
 
 ## 🚀 Quick Deployment

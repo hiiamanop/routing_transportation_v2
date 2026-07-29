@@ -31,8 +31,8 @@ from algorithms.ida_star_routing.ida_star_balanced import gmaps_style_route_bala
 from algorithms.ida_star_routing.data_structures import TransportationMode
 from algorithms.ida_star_routing.dijkstra import haversine_distance_km
 
-from backend.experiments.baselines import standard_dfs_route, conventional_route
-from backend.experiments.ground_truth import build_traffic_lookup, build_lrt_lookup, stop_id_to_local
+from experiments.baselines import standard_dfs_route, conventional_route
+from experiments.ground_truth import build_traffic_lookup, build_lrt_lookup, stop_id_to_local
 
 WIB = timezone(timedelta(hours=7))
 ROUTE_MODES = {TransportationMode.FEEDER_ANGKOT, TransportationMode.LRT, TransportationMode.TEMAN_BUS}
