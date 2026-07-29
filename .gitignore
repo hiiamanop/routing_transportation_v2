@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+venv/
+*.tsbuildinfo
+node_modules/
+.next/
