@@ -145,8 +145,8 @@ class BalancedIDAStarRouter:
         
         print(f"📊 Heuristic: {heuristic_bound:.2f}, Initial bound: {bound:.2f}")
         
-        # BALANCED bound sequence - REDUCED for faster termination
-        bound_multipliers = [1.2, 1.5, 2.0, 2.5, 3.5, 5.0]  # Reduced from 8 to 6 bounds
+        # BALANCED bound sequence
+        bound_multipliers = [1.2, 1.5, 2.0, 2.5, 3.5, 5.0, 7.0]  # one extra headroom step for multi-transfer routes
         
         for multiplier in bound_multipliers:
             if self.iterations >= max_iterations:
@@ -224,8 +224,9 @@ class BalancedIDAStarRouter:
         if depth > self.max_depth_reached:
             self.max_depth_reached = depth
         
-        # REASONABLE depth limit - REDUCED for faster termination on complex routes
-        if depth > 20:  # Reduced from 25 to 20 for faster termination
+        # Depth limit - loose enough to not cut off valid multi-hop transit routes
+        # (the paper's own case study reaches depth 21; 20 was clipping real routes)
+        if depth > 35:
             return float('inf')
         
         # Calculate f-cost with BALANCED heuristic
@@ -340,8 +341,9 @@ class BalancedIDAStarRouter:
             # Check if this edge gets us closer to goal
             to_goal_dist = haversine_distance_km(edge.to_stop.lat, edge.to_stop.lon, goal.lat, goal.lon)
             
-            # Allow moderate detour (necessary for direct connections on same route)
-            if to_goal_dist <= goal_dist * 1.5:  # Allow up to 50% detour for necessary connections
+            # Allow generous detour: transit corridors curve, so straight-line distance
+            # to goal is a poor proxy for "wrong direction" and was pruning valid paths
+            if to_goal_dist <= goal_dist * 2.0 or goal_dist < 1.0:
                 neighbors.append((edge.to_stop, edge, False))
         
         # 2. Transfer edges - BALANCED selection
@@ -352,8 +354,8 @@ class BalancedIDAStarRouter:
                 
                 # Consider transfers that reasonably move towards goal
                 to_goal_dist = haversine_distance_km(nearby_stop.lat, nearby_stop.lon, goal.lat, goal.lon)
-                
-                if to_goal_dist < goal_dist * 1.1:  # Must move closer or stay roughly same distance
+
+                if to_goal_dist < goal_dist * 1.3 or goal_dist < 1.0:  # was 1.1x, too strict for curved corridors
                     walk_time = (walk_dist / WALKING_SPEED_KMH) * 60 + TRANSFER_TIME_PENALTY
                     
                     virtual_edge = Edge(
