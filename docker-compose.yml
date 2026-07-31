@@ -1,0 +1,20 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    ports:
+      - "5001:5001"
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Wajib sbg BUILD arg (bukan cuma environment runtime) krn rewrites()
+        # Next.js di-bake saat `npm run build`, dibaca ulang saat `next start`.
+        API_INTERNAL_URL: http://api:5001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api

@@ -11,16 +11,22 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { modeColor, modeLabel } from "./icons";
 
-// Fix for default markers in react-leaflet
-delete (L.Icon.Default.prototype as { _getIconUrl?: () => string })._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+// Pin ala Google Maps: lingkaran biru (asal) & tetesan merah (tujuan),
+// dibuat lewat divIcon inline SVG -- lebih mirip Maps drpd marker default Leaflet.
+const originIcon = L.divIcon({
+  className: "",
+  html: `<svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="7" fill="#1a73e8" stroke="white" stroke-width="3"/></svg>`,
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+});
+
+const destinationIcon = L.divIcon({
+  className: "",
+  html: `<svg width="28" height="40" viewBox="0 0 28 40"><path d="M14 0C6.3 0 0 6.3 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.3 21.7 0 14 0Z" fill="#d93025"/><circle cx="14" cy="14" r="5.5" fill="white"/></svg>`,
+  iconSize: [28, 40],
+  iconAnchor: [14, 40],
 });
 
 interface RouteSegment {
@@ -201,7 +207,12 @@ export default function MapComponent({
     const route = routeResults.results[selectedRoute]!.route!;
     const uniqueRoutes = new Set(
       route.segments
-        .filter((seg) => seg.route_name && seg.mode !== "walking")
+        .filter(
+          (seg) =>
+            seg.route_name &&
+            seg.mode !== "WALK" &&
+            seg.mode !== "PRIVATE_VEHICLE"
+        )
         .map((seg) => seg.route_name)
     );
 
@@ -263,7 +274,8 @@ export default function MapComponent({
         } else if (
           segment.route_name &&
           routeWaypoints[segment.route_name] &&
-          segment.mode !== "walking"
+          segment.mode !== "WALK" &&
+          segment.mode !== "PRIVATE_VEHICLE"
         ) {
           const waypoints = routeWaypoints[segment.route_name];
           const fromLat = segment.from_coords.lat;
@@ -330,26 +342,11 @@ export default function MapComponent({
       });
   };
 
-  // Get color for different transport modes
-  const getModeColor = (mode: string) => {
-    switch (mode.toLowerCase()) {
-      case "walking":
-        return "#10B981"; // Green
-      case "teman_bus":
-        return "#3B82F6"; // Blue
-      case "feeder_angkot":
-        return "#F59E0B"; // Orange
-      case "lrt":
-        return "#8B5CF6"; // Purple
-      default:
-        return "#6B7280"; // Gray
-    }
-  };
-
   const routeSegments = getRouteSegments();
+  const usedModes = Array.from(new Set(routeSegments.map((s) => s.mode)));
 
   return (
-    <div className="h-[600px] w-full">
+    <div className="relative h-full w-full">
       <MapContainer
         center={[-2.9911, 104.7574]} // Palembang center
         zoom={12}
@@ -369,14 +366,15 @@ export default function MapComponent({
 
         {/* Origin Marker */}
         {routeRequest.origin.lat && routeRequest.origin.lon && (
-          <Marker position={[routeRequest.origin.lat, routeRequest.origin.lon]}>
+          <Marker
+            position={[routeRequest.origin.lat, routeRequest.origin.lon]}
+            icon={originIcon}
+          >
             <Popup>
-              <div className="text-center">
-                <div className="font-semibold text-green-600">📍 Origin</div>
-                <div>{routeRequest.origin.name}</div>
-                <div className="text-sm text-black">
-                  {routeRequest.origin.lat.toFixed(6)},{" "}
-                  {routeRequest.origin.lon.toFixed(6)}
+              <div className="text-sm">
+                <div className="font-medium text-[var(--gmaps-blue)]">Origin</div>
+                <div className="text-[var(--gmaps-text)]">
+                  {routeRequest.origin.name}
                 </div>
               </div>
             </Popup>
@@ -390,14 +388,15 @@ export default function MapComponent({
               routeRequest.destination.lat,
               routeRequest.destination.lon,
             ]}
+            icon={destinationIcon}
           >
             <Popup>
-              <div className="text-center">
-                <div className="font-semibold text-red-600">🎯 Destination</div>
-                <div>{routeRequest.destination.name}</div>
-                <div className="text-sm text-black">
-                  {routeRequest.destination.lat.toFixed(6)},{" "}
-                  {routeRequest.destination.lon.toFixed(6)}
+              <div className="text-sm">
+                <div className="font-medium text-[var(--gmaps-red)]">
+                  Destination
+                </div>
+                <div className="text-[var(--gmaps-text)]">
+                  {routeRequest.destination.name}
                 </div>
               </div>
             </Popup>
@@ -405,59 +404,36 @@ export default function MapComponent({
         )}
 
         {/* Route Segments */}
-        {routeSegments.map((segment, index) => (
-          <Polyline
-            key={`${selectedRoute}-${index}`}
-            positions={segment.coordinates}
-            color={getModeColor(segment.mode)}
-            weight={4}
-            opacity={0.8}
-          />
-        ))}
-
-        {/* Stop Markers - REMOVED per user request */}
+        {routeSegments.map((segment, index) => {
+          const isOwnLeg = segment.mode === "WALK" || segment.mode === "PRIVATE_VEHICLE";
+          return (
+            <Polyline
+              key={`${selectedRoute}-${index}`}
+              positions={segment.coordinates}
+              color={modeColor(segment.mode)}
+              weight={isOwnLeg ? 3 : 5}
+              opacity={isOwnLeg ? 0.7 : 0.9}
+              {...(isOwnLeg ? { dashArray: "1, 8" } : {})}
+            />
+          );
+        })}
       </MapContainer>
 
-      {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-3 z-[1000]">
-        <div className="text-sm font-semibold mb-2 text-black">
-          Transport Modes
-        </div>
-        <div className="space-y-1 text-xs text-black">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-1 bg-green-500"></div>
-            <span className="text-black">Walking</span>
+      {/* Legend -- hanya moda yang benar-benar dipakai di rute saat ini */}
+      {usedModes.length > 0 && (
+        <div className="absolute bottom-4 left-4 z-[1000] rounded-lg bg-white p-3 shadow-lg">
+          <div className="mb-1.5 text-xs font-medium text-[var(--gmaps-text-secondary)]">
+            Legend
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-1 bg-blue-500"></div>
-            <span className="text-black">Teman Bus</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-1 bg-orange-500"></div>
-            <span className="text-black">Feeder Angkot</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-1 bg-purple-500"></div>
-            <span className="text-black">LRT</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Route Info Overlay */}
-      {routeSegments.length > 0 && (
-        <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-3 z-[1000] max-w-xs">
-          <div className="text-sm font-semibold mb-2 text-black">
-            🗺️ Route (Enhanced DFS)
-          </div>
-          <div className="space-y-1 text-xs text-black">
-            {routeSegments.map((segment, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: getModeColor(segment.mode) }}
-                ></div>
-                <span className="truncate text-black">
-                  {segment.from_stop} → {segment.to_stop}
+          <div className="space-y-1.5">
+            {usedModes.map((mode) => (
+              <div key={mode} className="flex items-center gap-2">
+                <span
+                  className="h-1 w-4 rounded-full"
+                  style={{ backgroundColor: modeColor(mode) }}
+                />
+                <span className="text-xs text-[var(--gmaps-text)]">
+                  {modeLabel(mode)}
                 </span>
               </div>
             ))}

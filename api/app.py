@@ -26,7 +26,8 @@ app = Flask(__name__)
 CORS(app, 
      origins="*",
      methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
-     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+     allow_headers=["Content-Type", "Authorization"
+     "", "X-Requested-With"],
      supports_credentials=False,
      max_age=3600)
 
@@ -304,10 +305,6 @@ def route_request():
 
 def serialize_route(route, origin_name, destination_name, origin_coords=None, dest_coords=None):
     """Convert route object to JSON-serializable format"""
-    # Load stops data to get coordinates
-    graph = load_network()
-    stops_dict = {stop.name: stop for stop in graph.stops.values()}
-    
     return {
         "route_id": route.route_id,
         "origin": origin_name,
@@ -331,34 +328,24 @@ def serialize_route(route, origin_name, destination_name, origin_coords=None, de
                 "wait_minutes": getattr(seg, 'wait_minutes', 0.0),
                 "travel_minutes": seg.duration_minutes - getattr(seg, 'wait_minutes', 0.0),
                 "path": getattr(seg, 'path', None),
+                "via_stops": getattr(seg, 'via_stops', []),
                 "cost": seg.cost,
                 "distance_km": seg.distance_km,
                 "departure_time": seg.departure_time.isoformat(),
                 "arrival_time": seg.arrival_time.isoformat(),
-                # Add coordinates for map visualization
+                # Koordinat langsung dari objek Stop milik segmen ini (bukan
+                # dicari ulang lewat dict ber-kunci nama halte) -- beberapa
+                # halte berbagi nama yang sama di koridor berbeda (mis. "BS
+                # SPBU 24 ada" ada di Feeder Koridor 5 DAN 6, lokasi beda ~13km),
+                # jadi lookup by-name dulu diam-diam bisa memberi koordinat
+                # halte koridor lain yang salah.
                 "from_coords": {
-                    "lat": (
-                        origin_coords[0] if seg.sequence == 1 and origin_coords else
-                        stops_dict.get(seg.from_stop.name if hasattr(seg, 'from_stop') else 'Unknown', {}).lat if stops_dict.get(seg.from_stop.name if hasattr(seg, 'from_stop') else 'Unknown') else
-                        seg.from_location.lat if hasattr(seg, 'from_location') and seg.from_location and hasattr(seg.from_location, 'lat') else None
-                    ),
-                    "lon": (
-                        origin_coords[1] if seg.sequence == 1 and origin_coords else
-                        stops_dict.get(seg.from_stop.name if hasattr(seg, 'from_stop') else 'Unknown', {}).lon if stops_dict.get(seg.from_stop.name if hasattr(seg, 'from_stop') else 'Unknown') else
-                        seg.from_location.lon if hasattr(seg, 'from_location') and seg.from_location and hasattr(seg.from_location, 'lon') else None
-                    )
+                    "lat": origin_coords[0] if seg.sequence == 1 and origin_coords else seg.from_stop.lat,
+                    "lon": origin_coords[1] if seg.sequence == 1 and origin_coords else seg.from_stop.lon,
                 },
                 "to_coords": {
-                    "lat": (
-                        dest_coords[0] if seg.sequence == len(route.segments) and dest_coords else
-                        stops_dict.get(seg.to_stop.name if hasattr(seg, 'to_stop') else 'Unknown', {}).lat if stops_dict.get(seg.to_stop.name if hasattr(seg, 'to_stop') else 'Unknown') else
-                        seg.to_location.lat if hasattr(seg, 'to_location') and seg.to_location and hasattr(seg.to_location, 'lat') else None
-                    ),
-                    "lon": (
-                        dest_coords[1] if seg.sequence == len(route.segments) and dest_coords else
-                        stops_dict.get(seg.to_stop.name if hasattr(seg, 'to_stop') else 'Unknown', {}).lon if stops_dict.get(seg.to_stop.name if hasattr(seg, 'to_stop') else 'Unknown') else
-                        seg.to_location.lon if hasattr(seg, 'to_location') and seg.to_location and hasattr(seg.to_location, 'lon') else None
-                    )
+                    "lat": dest_coords[0] if seg.sequence == len(route.segments) and dest_coords else seg.to_stop.lat,
+                    "lon": dest_coords[1] if seg.sequence == len(route.segments) and dest_coords else seg.to_stop.lon,
                 }
             }
             for seg in route.segments

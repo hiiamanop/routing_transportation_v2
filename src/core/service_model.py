@@ -6,9 +6,10 @@ yang tidak pernah ada di repo ini sehingga selalu jatuh ke tebakan 12/20 km/h.
 Modul ini membaca langsung dari data survei yang memang ada di dataset/.
 
 Sumber data:
-- dataset/traffic_30days/*.csv : survei 30 hari, waktu tempuh nyata per ruas
-                                 per jam (8 Feeder + 2 Teman Bus)
-- dataset/lrt/jadwal.csv       : jadwal resmi LRT (trip pertama & terakhir)
+- dataset/traffic_30days/*.csv        : survei 30 hari, dipakai utk kecepatan
+                                        rata-rata kendaraan pribadi per jam
+- dataset/lrt/jadwal_lrt_palembang_*.csv : jadwal resmi LRT lengkap (~47
+                                        perjalanan/arah, 1 Januari 2026)
 
 ASUMSI YANG DIDEKLARASIKAN (tidak berasal dari data penelitian ini):
 headway armada TIDAK ADA di dataset manapun. Angka di HEADWAY_MINUTES berasal
@@ -18,6 +19,7 @@ FREKUENSI kendaraan: ke-480 keberangkatan di CSV semuanya tepat pada detik :00
 di awal jam, yang berarti itu jadwal surveyor, bukan jadwal armada.
 """
 
+import bisect
 import csv
 import glob
 import math
@@ -25,18 +27,30 @@ import os
 from collections import defaultdict
 from datetime import datetime, time
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 _ROOT = Path(__file__).resolve().parent.parent.parent
 TRAFFIC_GLOB = str(_ROOT / "dataset" / "traffic_30days" / "*.csv")
-LRT_JADWAL = str(_ROOT / "dataset" / "lrt" / "jadwal.csv")
+# Jadwal resmi lengkap (semua ~47 perjalanan/arah, 1 Januari 2026) -- lebih
+# representatif drpd jadwal.csv lama yg cuma catat trip pertama & terakhir.
+# Key = label arah, dipakai jg utk cari jadwal keberangkatan per stasiun.
+LRT_DIRECTION_FILES = {
+    "BANDARA_DJKA": str(_ROOT / "dataset" / "lrt" / "jadwal_lrt_palembang_bandara_djka.csv"),
+    "DJKA_BANDARA": str(_ROOT / "dataset" / "lrt" / "jadwal_lrt_palembang_djka_bandara.csv"),
+}
 
 # --- Asumsi headway (menit antar kendaraan di rute yang sama) --------------
-# SUMBER: sekunder (internet), bukan survei primer penelitian ini. TODO: sitasi.
-# Ubah di sini kalau nanti ada data headway hasil survei sendiri.
+# SUMBER: sekunder (update dari pemilik penelitian: Feeder 12 menit, Teman Bus
+# 15 menit), bukan survei primer penelitian ini. TODO: sitasi kalau ada data
+# headway hasil survei sendiri.
+# LRT TIDAK pakai ini lagi utk perhitungan nyata -- sekarang kita punya jadwal
+# resmi lengkap (~47 trip/arah), jadi waktu tunggu LRT dihitung dari selisih
+# ke keberangkatan terdekat sesudah waktu tiba penumpang (lihat
+# _lrt_schedule_wait). Angka 17 di sini cuma fallback kalau lookup jadwal
+# gagal (mis. data hilang).
 HEADWAY_MINUTES = {
-    "FEEDER_ANGKOT": 30.0,
-    "TEMAN_BUS": 30.0,
+    "FEEDER_ANGKOT": 12.0,
+    "TEMAN_BUS": 15.0,
     "LRT": 17.0,
 }
 
@@ -63,15 +77,30 @@ PRIVATE_VEHICLE_SPEED_FACTOR = 1.4
 # Dipakai kalau data survei tidak tersedia sama sekali.
 FALLBACK_ROAD_SPEED_KMH = 25.0
 
+# --- Kecepatan tetap Feeder & Teman Bus, per jam sibuk/normal --------------
+# Survei per-jam ternyata berlubang (banyak ruas cuma punya data 1 arah/1 jam),
+# sehingga waktu tempuh jam sibuk vs normal sering keluar identik. Ketetapan
+# pemilik penelitian (2026-07-30): patok langsung kecepatannya, jangan lagi
+# bergantung pada data per-jam. LRT TIDAK memakai ini -- rel sendiri, tidak
+# kena macet, tetap statis dari jadwal resmi (headway 17 menit yang menandai
+# jam sibuk, bukan kecepatannya).
+PEAK_WINDOWS = [(time(7, 0), time(9, 0)), (time(16, 0), time(19, 0))]
+PEAK_SPEED_KMH = 25.0
+OFFPEAK_SPEED_KMH = 32.5
+
+
+def is_peak_hour(when: datetime) -> bool:
+    t = when.time()
+    return any(start <= t <= end for start, end in PEAK_WINDOWS)
+
 LRT_NAME_TO_LOCAL = {
     'Bandara': '5', 'Asrama Haji': '6', 'Punti Kayu': '1', 'RSUD': '2',
     'Garuda Dempo': '3', 'Demang': '4', 'Bumi Sriwijaya': '7', 'Dishub': '8',
     'Cinde': '9', 'Ampera': '10', 'Polresta': '11', 'Jakabaring': '12', 'DJKA': '13',
 }
 
-DEFAULT_SPEEDS_KMH = {
-    "LRT": 40.0, "TEMAN_BUS": 25.0, "FEEDER_ANGKOT": 20.0, "WALK": 5.0,
-}
+# Dipakai kalau ruas LRT tidak ada di jadwal resmi sama sekali.
+LRT_FALLBACK_SPEED_KMH = 40.0
 
 
 def mode_of_route(route: str) -> str:
@@ -94,92 +123,139 @@ class _ServiceData:
     """Lookup waktu tempuh nyata. Dibaca sekali, di-cache di level modul."""
 
     def __init__(self):
-        # (route, from_local, to_local, hour) -> mean menit
-        self.by_hour: Dict[Tuple[str, str, str, int], float] = {}
-        # (route, from_local, to_local) -> mean menit (semua jam)
+        # (route, from_local, to_local) -> mean menit. Cuma diisi utk LRT
+        # (dari jadwal resmi) -- Feeder & Teman Bus pakai PEAK_SPEED_KMH /
+        # OFFPEAK_SPEED_KMH langsung, bukan lagi data survei per-ruas.
         self.by_edge: Dict[Tuple[str, str, str], float] = {}
         # hour -> mean effective_speed_kmh se-kota (untuk kendaraan pribadi)
         self.road_speed_by_hour: Dict[int, float] = {}
+        # (from_local, to_local) -> label arah ("BANDARA_DJKA"/"DJKA_BANDARA"),
+        # dipakai wait_minutes utk tau jadwal keberangkatan mana yg relevan.
+        self.lrt_direction: Dict[Tuple[str, str], str] = {}
+        # (label arah, station_local) -> menit-sejak-tengah-malam tiap
+        # keberangkatan LRT dari stasiun itu, terurut menaik.
+        self.lrt_departures: Dict[Tuple[str, str], List[int]] = {}
         self.loaded = False
         self.n_rows = 0
 
     def load(self):
         if self.loaded:
             return self
-        hour_sums, hour_counts = defaultdict(float), defaultdict(int)
-        edge_sums, edge_counts = defaultdict(float), defaultdict(int)
         spd_sums, spd_counts = defaultdict(float), defaultdict(int)
 
         for path in glob.glob(TRAFFIC_GLOB):
             with open(path, newline="") as f:
                 for row in csv.DictReader(f):
-                    # CSV pakai "Angkot Feeder Koridor N", graf pakai
-                    # "Feeder Koridor N" - normalkan supaya join-nya cocok.
-                    route = row["corridor"].replace("Angkot ", "", 1)
-                    frm, to = row["from_stop"], row["to_stop"]
                     try:
-                        minutes = float(row["travel_time_min"])
                         hour = int(row["departure_time"][:2])
                         speed = float(row["effective_speed_kmh"])
                     except (ValueError, KeyError):
                         continue
                     self.n_rows += 1
-                    hour_sums[(route, frm, to, hour)] += minutes
-                    hour_counts[(route, frm, to, hour)] += 1
-                    edge_sums[(route, frm, to)] += minutes
-                    edge_counts[(route, frm, to)] += 1
                     spd_sums[hour] += speed
                     spd_counts[hour] += 1
 
-        self.by_hour = {k: hour_sums[k] / hour_counts[k] for k in hour_sums}
-        self.by_edge = {k: edge_sums[k] / edge_counts[k] for k in edge_sums}
         self.road_speed_by_hour = {h: spd_sums[h] / spd_counts[h] for h in spd_sums}
 
-        for (a, b), minutes in _load_lrt_times().items():
+        pair_times, direction, departures = _load_lrt_schedule()
+        for (a, b), minutes in pair_times.items():
             self.by_edge[("LRT Sumsel", a, b)] = minutes
+        self.lrt_direction = direction
+        self.lrt_departures = departures
 
         self.loaded = True
         return self
 
 
-def _parse_wib(t: str) -> int:
-    t = t.replace(" WIB", "").strip()
-    h, m = t.split(".")
+# Header CSV jadwal lengkap tidak selalu eja nama stasiun sama persis dgn
+# LRT_NAME_TO_LOCAL (mis. "B. SRIWIJAYA" vs "BUMI SRIWIJAYA") -- normalkan.
+_LRT_HEADER_ALIAS = {
+    "BANDARA": "Bandara", "ASRAMA HAJI": "Asrama Haji", "PUNTI KAYU": "Punti Kayu",
+    "RSUD": "RSUD", "GARUDA DEMPO": "Garuda Dempo", "DEMANG": "Demang",
+    "B. SRIWIJAYA": "Bumi Sriwijaya", "BUMI SRIWIJAYA": "Bumi Sriwijaya",
+    "DISHUB": "Dishub", "CINDE": "Cinde", "AMPERA": "Ampera",
+    "POLRESTA": "Polresta", "JAKABARING": "Jakabaring", "DJKA": "DJKA",
+}
+
+
+def _parse_hhmm(t: str) -> int:
+    h, m = t.strip().split(":")
     return int(h) * 60 + int(m)
 
 
-def _load_lrt_times() -> Dict[Tuple[str, str], float]:
-    """(from_local, to_local) -> menit antar stasiun, dari jadwal resmi."""
-    if not os.path.exists(LRT_JADWAL):
-        return {}
-    rows = list(csv.reader(open(LRT_JADWAL)))
-    directions, current = [], []
-    for r in rows:
-        if not any(r) or (r and r[0] and "Perjalanan" in r[0]):
-            if current:
-                directions.append(current)
-                current = []
-            continue
-        if len(r) == 3 and r[1] and r[2]:
-            current.append(r)
-    if current:
-        directions.append(current)
+def _load_lrt_schedule() -> Tuple[Dict[Tuple[str, str], float],
+                                  Dict[Tuple[str, str], str],
+                                  Dict[Tuple[str, str], List[int]]]:
+    """
+    Baca kedua file jadwal resmi lengkap (~47 trip/arah, 1 Januari 2026).
+    Return 3 hal sekaligus (satu pembacaan file, bukan reuse dua kali):
 
-    pair_times = defaultdict(list)
-    for direction in directions:
-        for i in range(len(direction) - 1):
-            name_a, t1a, t1b = direction[i]
-            name_b, t2a, t2b = direction[i + 1]
-            a = LRT_NAME_TO_LOCAL.get(name_a.strip())
-            b = LRT_NAME_TO_LOCAL.get(name_b.strip())
-            if not a or not b:
+    - pair_times: (from_local, to_local) -> rata-rata menit antar stasiun
+      bersebelahan, dari SELURUH trip (bukan cuma pertama & terakhir spt
+      jadwal.csv lama) -- dipakai travel_minutes LRT.
+    - direction:  (from_local, to_local) -> label arah file asalnya --
+      dipakai wait_minutes utk tau jadwal keberangkatan mana yg relevan.
+    - departures: (label arah, station_local) -> daftar menit-sejak-tengah-
+      malam tiap keberangkatan dari stasiun itu, terurut menaik -- dipakai
+      wait_minutes utk cari keberangkatan terdekat sesudah waktu tiba
+      penumpang (bukan lagi asumsi headway tetap).
+    """
+    pair_time_samples = defaultdict(list)
+    direction: Dict[Tuple[str, str], str] = {}
+    departures = defaultdict(list)
+
+    for label, path in LRT_DIRECTION_FILES.items():
+        if not os.path.exists(path):
+            continue
+        with open(path, newline="") as f:
+            rows = list(csv.reader(f))
+        locals_ = [LRT_NAME_TO_LOCAL[_LRT_HEADER_ALIAS[h.strip().upper()]]
+                  for h in rows[0][1:]]
+        for row in rows[1:]:
+            if not row or not row[0].strip():
                 continue
-            for ta, tb in ((t1a, t2a), (t1b, t2b)):
-                diff = _parse_wib(tb) - _parse_wib(ta)
-                if diff < 0:
-                    diff += 24 * 60
-                pair_times[(a, b)].append(diff)
-    return {k: sum(v) / len(v) for k, v in pair_times.items()}
+            minutes_row = [_parse_hhmm(t) if t.strip() else None for t in row[1:]]
+
+            for local, minute in zip(locals_, minutes_row):
+                if minute is not None:
+                    departures[(label, local)].append(minute)
+
+            for i in range(len(locals_) - 1):
+                m1, m2 = minutes_row[i], minutes_row[i + 1]
+                if m1 is None or m2 is None:
+                    continue
+                diff = m2 - m1
+                if diff <= 0:
+                    continue  # data janggal (salah ketik di jadwal sumber), abaikan
+                pair_time_samples[(locals_[i], locals_[i + 1])].append(diff)
+                direction[(locals_[i], locals_[i + 1])] = label
+
+    pair_times = {k: sum(v) / len(v) for k, v in pair_time_samples.items()}
+    for key in departures:
+        departures[key].sort()
+    return pair_times, direction, dict(departures)
+
+
+def _lrt_schedule_wait(from_stop_id: str, to_stop_id: str, when: datetime) -> Optional[float]:
+    """
+    Menit tunggu = selisih ke keberangkatan LRT terdekat sesudah `when` di
+    stasiun asal, dari jadwal resmi lengkap. None kalau arah/stasiun tidak
+    dikenal atau sudah lewat trip terakhir hari itu -- pemanggil fallback ke
+    HEADWAY_MINUTES.
+    """
+    data = get_data()
+    frm, to = local_of_stop_id(from_stop_id), local_of_stop_id(to_stop_id)
+    label = data.lrt_direction.get((frm, to))
+    if label is None:
+        return None
+    departures = data.lrt_departures.get((label, frm))
+    if not departures:
+        return None
+    now_min = when.hour * 60 + when.minute
+    idx = bisect.bisect_left(departures, now_min)
+    if idx >= len(departures):
+        return None
+    return float(departures[idx] - now_min)
 
 
 _data: Optional[_ServiceData] = None
@@ -195,30 +271,50 @@ def get_data() -> _ServiceData:
 def travel_minutes(route: str, from_stop_id: str, to_stop_id: str,
                    distance_km: float, when: Optional[datetime] = None) -> float:
     """
-    Waktu tempuh satu ruas. Prioritas:
-      1. data survei nyata untuk jam tersebut
-      2. data survei nyata rata-rata semua jam
-      3. rumus jarak/kecepatan (ruas tanpa cakupan survei)
-    """
-    data = get_data()
-    frm, to = local_of_stop_id(from_stop_id), local_of_stop_id(to_stop_id)
+    Waktu tempuh satu ruas.
 
-    if when is not None:
-        hit = data.by_hour.get((route, frm, to, when.hour))
+    LRT: statis dari jadwal resmi (rel sendiri, tidak kena macet) -- lihat
+    _load_lrt_times(). Jarak antar-stasiun nyata cuma 2-8 menit; headway
+    (17 menit) adalah waktu TUNGGU sekali naik, bukan ditambahkan per stasiun.
+
+    Feeder & Teman Bus: kecepatan tetap sesuai jam (lihat PEAK_WINDOWS) --
+    data survei per-jam ditinggalkan krn cakupannya berlubang (banyak ruas
+    cuma py data 1 arah/1 jam), sehingga waktu tempuh jam sibuk vs normal
+    sering keluar identik.
+    """
+    if mode_of_route(route) == "LRT":
+        data = get_data()
+        frm, to = local_of_stop_id(from_stop_id), local_of_stop_id(to_stop_id)
+        hit = data.by_edge.get((route, frm, to))
         if hit is not None:
             return hit
+        hit = data.by_edge.get((route, to, frm))
+        if hit is not None:
+            return hit
+        return distance_km / LRT_FALLBACK_SPEED_KMH * 60
 
-    hit = data.by_edge.get((route, frm, to))
-    if hit is not None:
-        return hit
-
-    speed = DEFAULT_SPEEDS_KMH.get(mode_of_route(route), 20.0)
+    speed = PEAK_SPEED_KMH if (when is not None and is_peak_hour(when)) else OFFPEAK_SPEED_KMH
     return distance_km / speed * 60
 
 
-def wait_minutes(route: str) -> float:
-    """Waktu tunggu saat naik kendaraan ini. Nol untuk jalan kaki."""
+def wait_minutes(route: str, from_stop_id: Optional[str] = None,
+                 to_stop_id: Optional[str] = None,
+                 when: Optional[datetime] = None) -> float:
+    """
+    Waktu tunggu saat naik kendaraan ini. Nol untuk jalan kaki.
+
+    LRT: selisih ke keberangkatan terdekat SESUDAH `when` di jadwal resmi
+    (0-17 menit tergantung kapan penumpang tiba, bukan selalu headway penuh)
+    -- krn kita sekarang punya jadwal lengkap semua trip, tidak perlu lagi
+    menebak pakai headway rata-rata. Turun ke HEADWAY_MINUTES kalau
+    from_stop_id/to_stop_id/when tidak diberikan atau lookup jadwal gagal.
+    """
     mode = mode_of_route(route)
+    if mode == "LRT" and from_stop_id and to_stop_id and when is not None:
+        sched_wait = _lrt_schedule_wait(from_stop_id, to_stop_id, when)
+        if sched_wait is not None:
+            return sched_wait
+
     headway = HEADWAY_MINUTES.get(mode)
     if headway is None:
         return 0.0
@@ -351,23 +447,40 @@ def demo():
     """Self-check: jalankan `python src/core/service_model.py`."""
     data = get_data()
     assert data.n_rows > 0, "tidak ada baris survei yang terbaca"
-    assert data.by_hour, "lookup per-jam kosong"
 
-    # Waktu tempuh nyata harus berbeda antar jam (pola jam sibuk).
-    k1 = ("Feeder Koridor 1", "1", "2", 7)
-    k2 = ("Feeder Koridor 1", "1", "2", 13)
-    assert k1 in data.by_hour and k2 in data.by_hour, "ruas contoh tidak ada"
-    assert data.by_hour[k1] > data.by_hour[k2], "jam sibuk harusnya lebih lambat"
+    # Feeder/Teman Bus: kecepatan tetap, jam sibuk harus lebih lambat.
+    peak = travel_minutes("Feeder Koridor 1", "Feeder_Koridor_1_1",
+                          "Feeder_Koridor_1_2", 5.0, datetime(2026, 1, 1, 8))
+    normal = travel_minutes("Feeder Koridor 1", "Feeder_Koridor_1_1",
+                            "Feeder_Koridor_1_2", 5.0, datetime(2026, 1, 1, 13))
+    assert peak > normal, "jam sibuk harusnya lebih lambat"
+    assert peak == 5.0 / PEAK_SPEED_KMH * 60
+    assert normal == 5.0 / OFFPEAK_SPEED_KMH * 60
 
-    # Ruas tanpa cakupan survei tetap dapat angka (fallback rumus).
-    t = travel_minutes("Feeder Koridor 1", "Feeder_Koridor_1_999",
-                       "Feeder_Koridor_1_998", 2.0, datetime(2026, 1, 1, 8))
-    assert t > 0, "fallback rumus gagal"
+    # LRT statis -- sama jam sibuk atau tidak, pakai jadwal resmi.
+    lrt_peak = travel_minutes("LRT Sumsel", "LRT_Sumsel_1", "LRT_Sumsel_2",
+                              3.0, datetime(2026, 1, 1, 8))
+    lrt_normal = travel_minutes("LRT Sumsel", "LRT_Sumsel_1", "LRT_Sumsel_2",
+                                3.0, datetime(2026, 1, 1, 13))
+    assert lrt_peak == lrt_normal, "LRT harusnya tidak berubah krn jam sibuk"
 
-    # Waktu tunggu = headway penuh sesuai WAIT_MODEL.
-    assert wait_minutes("Feeder Koridor 1") == 30.0
-    assert wait_minutes("LRT Sumsel") == 17.0
+    # Feeder/Teman Bus: masih headway penuh sesuai WAIT_MODEL (tidak ada
+    # jadwal resmi utk moda ini).
+    assert wait_minutes("Feeder Koridor 1") == 12.0
     assert wait_minutes("Walking") == 0.0
+
+    # LRT: tunggu = selisih ke jadwal terdekat SESUDAH waktu tiba (bukan
+    # headway tetap lagi). Punti Kayu(1) -> RSUD(2) pakai jadwal arah
+    # BANDARA_DJKA.
+    punti_kayu_departures = data.lrt_departures[("BANDARA_DJKA", "1")]
+    first_dep = punti_kayu_departures[0]
+    h, m = divmod(first_dep - 4, 60)
+    tiba_4_menit_sblm = datetime(2026, 1, 1, h, m)
+    wait = wait_minutes("LRT Sumsel", "LRT_Sumsel_1", "LRT_Sumsel_2", tiba_4_menit_sblm)
+    assert wait == 4.0, f"harusnya nunggu 4 menit ke jadwal berikutnya, dpt {wait}"
+
+    # Tanpa konteks jadwal (stop_id/when tak diberikan) -> fallback headway.
+    assert wait_minutes("LRT Sumsel") == 17.0
 
     # Jam operasional.
     assert is_in_service("Feeder Koridor 1", datetime(2026, 1, 1, 8, 0))
@@ -380,11 +493,9 @@ def demo():
                            datetime(2026, 1, 1, 3, 0))
     assert est["duration_minutes"] > 0 and est["distance_km"] > 0
 
-    print(f"OK - {data.n_rows:,} baris survei, "
-          f"{len(data.by_hour):,} lookup per-jam, "
-          f"{len(data.by_edge):,} ruas")
-    print(f"   jam 07 vs 13 pada Feeder K1 ruas 1->2: "
-          f"{data.by_hour[k1]:.2f} vs {data.by_hour[k2]:.2f} menit")
+    print(f"OK - {data.n_rows:,} baris survei, {len(data.by_edge):,} ruas LRT")
+    print(f"   Feeder K1 5km jam 08 vs 13: {peak:.2f} vs {normal:.2f} menit")
+    print(f"   LRT Punti Kayu->RSUD jam 08 vs 13: {lrt_peak:.2f} vs {lrt_normal:.2f} menit (statis)")
     print(f"   estimasi kendaraan pribadi: {est['distance_km']} km, "
           f"{est['duration_minutes']} menit @ {est['assumed_speed_kmh']} km/h")
 

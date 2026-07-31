@@ -17,54 +17,93 @@ from algorithms.ida_star_routing.data_structures import (
 from algorithms.ida_star_routing.door_to_door import Location
 from core import service_model
 
+WALKING_SPEED_KMH = 5.0
+# Di atas jarak ini, first/last-mile jalan kaki diganti "kendaraan pribadi"
+# (ojek/motor) drpd gagal total "no route found" atau memaksa jalan kaki
+# sangat jauh -- lihat create_first_last_mile_segment().
+WALK_MAX_KM = 0.5
+# Radius pencarian halte kandidat first/last-mile -- lebih lebar drpd
+# WALK_MAX_KM krn halte yg agak jauh utk jalan kaki masih relevan kalau
+# dijangkau naik motor.
+FIRST_LAST_MILE_SEARCH_KM = 3.0
 
-def find_nearest_stops_extended(graph: TransportationGraph, 
-                                lat: float, lon: float, 
-                                max_distance_km: float = 2.0,
+
+def find_nearest_stops_extended(graph: TransportationGraph,
+                                lat: float, lon: float,
+                                max_distance_km: float = FIRST_LAST_MILE_SEARCH_KM,
                                 top_k: int = 10) -> List[Tuple[Stop, float]]:
     """Find nearest stops with extended range"""
     distances = []
-    
+
     for stop in graph.stops.values():
         dist = haversine_distance_km(lat, lon, stop.lat, stop.lon)
         if dist <= max_distance_km:
             distances.append((stop, dist))
-    
+
     distances.sort(key=lambda x: x[1])
     return distances[:top_k]
 
 
-def create_walking_segment(seq: int, from_loc: Location, to_loc: Location,
-                          departure_time: datetime) -> RouteSegment:
+def _first_last_mile_minutes(from_coords: Tuple[float, float], to_coords: Tuple[float, float],
+                             dist_km: float, departure_time: datetime) -> float:
     """
-    Segmen jalan kaki. Waktu tempuh tetap dari jarak-garis-lurus/5km/jam
-    (jalur pejalan kaki biasanya tak jauh beda dari jarak lurus, tidak
-    seperti kendaraan yang harus muter ikut pola jalan raya) -- tapi polyline
-    di peta memakai jalur trotoar/jalan asli dari OSRM kalau berhasil didapat,
-    supaya tidak digambar sebagai garis lurus menembus bangunan.
+    Estimasi waktu first/last-mile buat SKORING kombinasi (tanpa panggil OSRM
+    spt create_first_last_mile_segment() -- dipanggil berkali-kali per
+    kombinasi, jadi harus murah).
+    """
+    if dist_km <= WALK_MAX_KM:
+        return (dist_km / WALKING_SPEED_KMH) * 60
+    return service_model.driving_estimate(from_coords, to_coords, departure_time)["duration_minutes"]
+
+
+def create_first_last_mile_segment(seq: int, from_loc: Location, to_loc: Location,
+                                   departure_time: datetime) -> RouteSegment:
+    """
+    Segmen first/last-mile. Jalan kaki (garis-lurus/5km/jam, polyline trotoar
+    asli dari OSRM kalau berhasil didapat) kalau jaraknya <= WALK_MAX_KM.
+    Lebih jauh dari itu: "kendaraan pribadi" (motor) pakai estimasi jarak
+    jalan + kecepatan dari service_model.driving_estimate() -- drpd memaksa
+    jalan kaki sangat jauh atau gagal total "no route found".
     """
     dist_km = haversine_distance_km(from_loc.lat, from_loc.lon, to_loc.lat, to_loc.lon)
-    duration_min = (dist_km / 5.0) * 60  # 5 km/h walking speed
 
-    from_stop = Stop(-1, f"walk_{seq}", from_loc.name, from_loc.lat, from_loc.lon,
+    from_stop = Stop(-1, f"leg_{seq}", from_loc.name, from_loc.lat, from_loc.lon,
                      "Walking", TransportationMode.WALK)
-    to_stop = Stop(-2, f"walk_{seq}", to_loc.name, to_loc.lat, to_loc.lon,
+    to_stop = Stop(-2, f"leg_{seq}", to_loc.name, to_loc.lat, to_loc.lon,
                    "Walking", TransportationMode.WALK)
 
-    path = service_model.walking_path(from_loc.lat, from_loc.lon, to_loc.lat, to_loc.lon)
+    if dist_km <= WALK_MAX_KM:
+        duration_min = (dist_km / WALKING_SPEED_KMH) * 60
+        path = service_model.walking_path(from_loc.lat, from_loc.lon, to_loc.lat, to_loc.lon)
+        return RouteSegment(
+            sequence=seq,
+            mode=TransportationMode.WALK,
+            route_name="Walking",
+            from_stop=from_stop,
+            to_stop=to_stop,
+            departure_time=departure_time,
+            arrival_time=departure_time + timedelta(minutes=duration_min),
+            duration_minutes=duration_min,
+            cost=0,
+            distance_km=dist_km,
+            path=path
+        )
 
+    estimate = service_model.driving_estimate(
+        (from_loc.lat, from_loc.lon), (to_loc.lat, to_loc.lon), departure_time)
+    duration_min = estimate["duration_minutes"]
     return RouteSegment(
         sequence=seq,
-        mode=TransportationMode.WALK,
-        route_name="Walking",
+        mode=TransportationMode.PRIVATE_VEHICLE,
+        route_name="Kendaraan Pribadi",
         from_stop=from_stop,
         to_stop=to_stop,
         departure_time=departure_time,
         arrival_time=departure_time + timedelta(minutes=duration_min),
         duration_minutes=duration_min,
         cost=0,
-        distance_km=dist_km,
-        path=path
+        distance_km=estimate["distance_km"],
+        path=None
     )
 
 
@@ -76,11 +115,11 @@ def gmaps_style_route(
     dest_coords: Tuple[float, float],
     optimization_mode: str = "time",
     departure_time: Optional[datetime] = None,
-    max_walking_km: float = 2.0
+    max_walking_km: float = FIRST_LAST_MILE_SEARCH_KM
 ) -> Optional[Route]:
     """
     Complete Google Maps style routing
-    
+
     Args:
         graph: Transportation network
         origin_name: Origin name
@@ -89,41 +128,43 @@ def gmaps_style_route(
         dest_coords: (lat, lon)
         optimization_mode: Optimization criteria
         departure_time: When to depart
-        max_walking_km: Maximum walking distance
-    
+        max_walking_km: Radius pencarian halte kandidat first/last-mile
+            (BUKAN cuma jalan kaki -- di atas WALK_MAX_KM otomatis jadi
+            "kendaraan pribadi", lihat create_first_last_mile_segment())
+
     Returns:
         Complete route with walking + transit
     """
     if departure_time is None:
         departure_time = datetime.now()
-    
+
     print(f"\n{'='*90}")
     print(f"{'🗺️  GOOGLE MAPS STYLE ROUTING':^90}")
     print(f"{'='*90}")
-    
+
     print(f"\n📍 FROM: {origin_name}")
     print(f"   📌 {origin_coords[0]:.5f}, {origin_coords[1]:.5f}")
-    
+
     print(f"\n📍 TO:   {dest_name}")
     print(f"   📌 {dest_coords[0]:.5f}, {dest_coords[1]:.5f}")
-    
+
     print(f"\n⚙️  Settings:")
     print(f"   🕐 Departure: {departure_time.strftime('%Y-%m-%d %H:%M')}")
     print(f"   🎯 Optimize:  {optimization_mode.upper()}")
-    print(f"   🚶 Max walk:  {max_walking_km} km")
-    
+    print(f"   🚶 Radius kandidat halte: {max_walking_km} km (jalan kaki <= {WALK_MAX_KM}km, sisanya motor)")
+
     # Find nearest stops
     print(f"\n{'─'*90}")
     print(f"STEP 1: Finding nearest transit stops")
     print(f"{'─'*90}")
-    
+
     origin_stops = find_nearest_stops_extended(graph, origin_coords[0], origin_coords[1], max_walking_km)
     dest_stops = find_nearest_stops_extended(graph, dest_coords[0], dest_coords[1], max_walking_km)
-    
+
     if not origin_stops:
         print(f"❌ No stops within {max_walking_km}km of origin")
         return None
-    
+
     if not dest_stops:
         print(f"❌ No stops within {max_walking_km}km of destination")
         return None
@@ -161,12 +202,23 @@ def gmaps_style_route(
             transit_route = router.search(origin_stop, dest_stop, departure_time)
             
             if transit_route:
-                # Calculate total score including walking
-                origin_walk_time = (origin_dist / 5.0) * 60  # 5 km/h
-                dest_walk_time = (dest_dist / 5.0) * 60
-                total_time = origin_walk_time + transit_route.total_time_minutes + dest_walk_time
-                
+                # Calculate total score including first/last-mile (jalan
+                # kaki atau motor, tergantung jarak -- lihat WALK_MAX_KM)
+                origin_leg_time = _first_last_mile_minutes(
+                    origin_coords, (origin_stop.lat, origin_stop.lon), origin_dist, departure_time)
+                dest_leg_time = _first_last_mile_minutes(
+                    (dest_stop.lat, dest_stop.lon), dest_coords, dest_dist, departure_time)
+                total_time = origin_leg_time + transit_route.total_time_minutes + dest_leg_time
+
                 if optimization_mode == "time":
+                    # Pemilihan halte naik/turun pertama dari alamat asal/
+                    # tujuan TETAP murni waktu tercepat -- prioritas mutlak
+                    # minimalkan jalan kaki hanya berlaku utk TRANSFER di
+                    # tengah perjalanan (ganti moda/koridor), sudah ditangani
+                    # di DijkstraRouter._calculate_walking_cost(). Kalau
+                    # dipakai di sini juga, pencarian bisa memaksa naik
+                    # kendaraan yang jauh lebih lama demi transfer 0 meter,
+                    # padahal yang diinginkan cuma transfer-nya yg dihemat.
                     score = total_time
                 elif optimization_mode == "cost":
                     score = transit_route.total_cost  # Walking is free
@@ -207,11 +259,11 @@ def gmaps_style_route(
         best_route['origin_stop'].lon
     )
     
-    walk1 = create_walking_segment(1, origin_loc, origin_stop_loc, current_time)
+    walk1 = create_first_last_mile_segment(1, origin_loc, origin_stop_loc, current_time)
     segments.append(walk1)
     current_time = walk1.arrival_time
-    
-    print(f"✅ Segment 1: Walk to {best_route['origin_stop'].name} ({best_route['origin_dist']*1000:.0f}m)")
+
+    print(f"✅ Segment 1: {walk1.mode.value} to {best_route['origin_stop'].name} ({best_route['origin_dist']*1000:.0f}m)")
     
     # Segmen transit: duration_minutes & wait_minutes SUDAH dihitung dengan
     # benar (waktu nyata per-jam + waktu tunggu) di dalam DijkstraRouter itu
@@ -237,10 +289,10 @@ def gmaps_style_route(
     )
     dest_loc = Location(dest_name, dest_coords[0], dest_coords[1])
     
-    walk2 = create_walking_segment(len(segments) + 1, dest_stop_loc, dest_loc, current_time)
+    walk2 = create_first_last_mile_segment(len(segments) + 1, dest_stop_loc, dest_loc, current_time)
     segments.append(walk2)
-    
-    print(f"✅ Segment {len(segments)}: Walk to destination ({best_route['dest_dist']*1000:.0f}m)")
+
+    print(f"✅ Segment {len(segments)}: {walk2.mode.value} to destination ({best_route['dest_dist']*1000:.0f}m)")
     
     # Create final route
     complete_route = Route(route_id=1, segments=segments)
@@ -255,7 +307,8 @@ def _route_signature(route: Route) -> tuple:
     membuang alternatif yang sebetulnya rute yang sama persis."""
     return tuple(
         (s.from_stop.stop_id, s.to_stop.stop_id, s.route_name)
-        for s in route.segments if s.mode != TransportationMode.WALK
+        for s in route.segments
+        if s.mode not in (TransportationMode.WALK, TransportationMode.PRIVATE_VEHICLE)
     )
 
 
@@ -266,7 +319,7 @@ def find_route_alternatives(
     dest_name: str,
     dest_coords: Tuple[float, float],
     departure_time: Optional[datetime] = None,
-    max_walking_km: float = 2.0
+    max_walking_km: float = FIRST_LAST_MILE_SEARCH_KM
 ) -> List[Dict]:
     """
     Beberapa opsi rute seperti Google Maps: tercepat, termurah, paling sedikit

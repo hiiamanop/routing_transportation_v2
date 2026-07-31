@@ -2,25 +2,41 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #202124;
+
+  /* Palet ala Google Maps */
+  --gmaps-blue: #1a73e8;
+  --gmaps-blue-hover: #1765cc;
+  --gmaps-blue-tint: #e8f0fe;
+  --gmaps-text: #202124;
+  --gmaps-text-secondary: #5f6368;
+  --gmaps-border: #dadce0;
+  --gmaps-surface-hover: #f1f3f4;
+  --gmaps-red: #d93025;
+  --gmaps-green: #188038;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-sans);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Roboto, Arial, sans-serif;
+}
+
+/* Scrollbar tipis ala Maps utk panel yang bisa discroll */
+.gmaps-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gmaps-border) transparent;
+}
+.gmaps-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.gmaps-scroll::-webkit-scrollbar-thumb {
+  background: var(--gmaps-border);
+  border-radius: 8px;
 }

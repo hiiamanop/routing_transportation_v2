@@ -21,9 +21,12 @@ from .data_structures import (
     Route,
     RouteSegment,
     TransportationGraph,
-    TransportationMode
+    TransportationMode,
+    merge_consecutive_segments
 )
-from .dijkstra import haversine_distance_km
+from .dijkstra import (
+    haversine_distance_km, TRANSFER_TIEBREAK_PER_KM, TRANSFER_TIEBREAK_CAP_KM
+)
 from core import service_model
 
 
@@ -179,7 +182,8 @@ class BalancedIDAStarRouter:
                 current_mode=start.mode,
                 path=[start],
                 segments=[],
-                depth=0
+                depth=0,
+                came_from_transfer=False
             )
             
             if isinstance(result, Route):
@@ -215,7 +219,8 @@ class BalancedIDAStarRouter:
                          path: List[Stop],
                          segments: List[RouteSegment],
                          depth: int,
-                         current_route: Optional[str] = None) -> any:
+                         current_route: Optional[str] = None,
+                         came_from_transfer: bool = False) -> any:
         """
         BALANCED recursive search with reasonable pruning and timeout checking
         """
@@ -245,7 +250,9 @@ class BalancedIDAStarRouter:
         
         # Goal reached!
         if current.stop_id == goal.stop_id:
-            route = Route(route_id=1, segments=segments)
+            # Gabungkan segmen berturut-turut satu kendaraan (mode+rute sama)
+            # jadi satu baris tampilan -- lihat merge_consecutive_segments().
+            route = Route(route_id=1, segments=merge_consecutive_segments(segments))
             route.calculate_metrics()
             route.optimization_score = g_cost
             return route
@@ -278,7 +285,14 @@ class BalancedIDAStarRouter:
             # Skip if visited
             if neighbor.stop_id in visited:
                 continue
-            
+
+            # Dilarang dua transfer jalan kaki berturut-turut -- kalau tidak,
+            # pencarian bisa zigzag jalan kaki lompat-lompat antar halte dari
+            # BEBERAPA rute berbeda sebelum naik kendaraan apapun (lihat
+            # catatan yang sama di dijkstra.py).
+            if is_transfer and came_from_transfer:
+                continue
+
             # Biaya = waktu tempuh nyata + waktu tunggu kendaraan
             edge_cost = self._calculate_balanced_edge_cost(
                 edge, current_mode, current_route, current_time)
@@ -292,7 +306,7 @@ class BalancedIDAStarRouter:
 
             # Segmen memakai angka yang SAMA dengan yang dipakai mencari, supaya
             # waktu yang ditampilkan = waktu yang dioptimasi (dulu tidak sama).
-            wait = self._boarding_wait_minutes(edge, current_route)
+            wait = self._boarding_wait_minutes(edge, current_route, current_time)
             travel = self._edge_travel_minutes(edge, current_time)
             duration = travel + wait
             arrival_time = current_time + timedelta(minutes=duration)
@@ -328,7 +342,8 @@ class BalancedIDAStarRouter:
                 path=path,
                 segments=new_segments,
                 depth=depth + 1,
-                current_route=edge.route
+                current_route=edge.route,
+                came_from_transfer=is_transfer
             )
             
             # Check result
@@ -403,29 +418,41 @@ class BalancedIDAStarRouter:
             when,
         )
 
-    def _boarding_wait_minutes(self, edge: Edge, current_route: Optional[str]) -> float:
+    def _boarding_wait_minutes(self, edge: Edge, current_route: Optional[str],
+                               when: Optional[datetime] = None) -> float:
         """
         Waktu tunggu kendaraan. Dikenakan saat naik kendaraan BARU -- termasuk
         naik pertama kali (current_route None) dan pindah koridor pada moda sama.
+        Utk LRT, `when` dipakai cari keberangkatan terdekat di jadwal resmi
+        (lihat service_model.wait_minutes) -- bukan headway tetap lagi.
         """
         if edge.mode in (TransportationMode.WALK, TransportationMode.TRANSFER):
             return 0.0
         if edge.route == current_route:
             return 0.0  # masih di kendaraan yang sama, tidak menunggu lagi
-        return service_model.wait_minutes(edge.route)
+        return service_model.wait_minutes(
+            edge.route, edge.from_stop.stop_id, edge.to_stop.stop_id, when)
 
     def _calculate_balanced_edge_cost(self, edge: Edge,
                                       current_mode: TransportationMode,
                                       current_route: Optional[str] = None,
                                       when: Optional[datetime] = None) -> float:
         """Biaya ruas: waktu tempuh nyata + waktu tunggu kendaraan."""
-        wait = self._boarding_wait_minutes(edge, current_route)
+        wait = self._boarding_wait_minutes(edge, current_route, when)
 
         if self.optimization_mode == "cost":
             return float(edge.cost)
 
         travel = self._edge_travel_minutes(edge, when)
         if self.optimization_mode == "time":
+            if edge.mode in (TransportationMode.WALK, TransportationMode.TRANSFER):
+                # Cost = waktu nyata + nudge mikro dibatasi -- sama dgn
+                # dijkstra.py (lihat komentar TRANSFER_TIEBREAK_PER_KM di sana).
+                # Pengali langsung SEMPAT dipakai tapi terbukti bisa
+                # mengalahkan selisih waktu nyata berskala menit.
+                distance_km = edge.distance_meters / 1000
+                tiebreak = min(distance_km, TRANSFER_TIEBREAK_CAP_KM) * TRANSFER_TIEBREAK_PER_KM
+                return travel + wait + tiebreak
             return travel + wait
         # balanced: waktu (termasuk tunggu) + ongkos yang diskalakan
         return travel + wait + edge.cost / 1000

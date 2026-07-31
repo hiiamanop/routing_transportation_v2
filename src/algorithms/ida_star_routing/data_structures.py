@@ -37,6 +37,10 @@ class TransportationMode(Enum):
     FEEDER_ANGKOT = "FEEDER_ANGKOT"
     TRANSFER = "TRANSFER"
     WALK = "WALK"
+    # Dipakai utk first/last-mile kalau halte terdekat lebih jauh dari
+    # WALK_MAX_KM (gmaps_style_routing.py) -- naik ojek/motor pribadi drpd
+    # gagal total "no route found" atau memaksa jalan kaki sangat jauh.
+    PRIVATE_VEHICLE = "PRIVATE_VEHICLE"
 
 
 class TrafficCondition(Enum):
@@ -133,6 +137,11 @@ class RouteSegment:
     # Polyline jalan/trotoar asli (list {'lat','lon'}) untuk segmen WALK, kalau
     # berhasil didapat dari routing engine. None = pakai garis lurus (fallback).
     path: Optional[List[Dict]] = None
+    # Nama halte PERANTARA yang dilewati (tidak termasuk from_stop/to_stop
+    # sendiri) saat beberapa edge digabung jadi satu segmen naik kendaraan
+    # (lihat merge_consecutive_segments) -- utk dropdown "lihat halte yang
+    # dilewati" ala Google Maps.
+    via_stops: List[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -149,8 +158,52 @@ class RouteSegment:
             'cost': self.cost,
             'distance_km': round(self.distance_km, 2),
             'traffic_condition': self.traffic_condition.value if self.traffic_condition else None,
-            'path': self.path
+            'path': self.path,
+            'via_stops': self.via_stops
         }
+
+
+def merge_consecutive_segments(segments: List[RouteSegment]) -> List[RouteSegment]:
+    """
+    Gabungkan segmen berturut-turut dengan (mode, route_name) sama jadi satu
+    baris tampilan. Graf menyimpan satu edge per pasang halte BERDEKATAN pada
+    satu koridor, jadi satu kali naik kendaraan lewat N halte pecah jadi N
+    segmen terpisah secara internal -- pengguna semestinya melihat "naik X
+    dari A ke B" sekali, bukan N baris dengan tarif yang sama berulang.
+
+    cost TIDAK dijumlahkan: setiap edge individual sudah membawa tarif datar
+    penuh (bukan 0 utk hop lanjutan), jadi menjumlahkannya akan melipatgandakan
+    tarif secara keliru. Segmen gabungan memakai cost dari hop pertama saja,
+    konsisten dengan Route.calculate_route_cost() yang menagih sekali per
+    boarding.
+    """
+    if not segments:
+        return segments
+
+    merged: List[RouteSegment] = []
+    for seg in segments:
+        prev = merged[-1] if merged else None
+        can_merge = (
+            prev is not None
+            and prev.mode == seg.mode
+            and prev.route_name == seg.route_name
+            and seg.mode not in (TransportationMode.WALK, TransportationMode.TRANSFER)
+        )
+        if can_merge:
+            # Halte tempat prev berakhir (seg.from_stop) jadi perantara,
+            # sebelum prev.to_stop digeser maju ke seg.to_stop.
+            prev.via_stops = prev.via_stops + [seg.from_stop.name]
+            prev.to_stop = seg.to_stop
+            prev.arrival_time = seg.arrival_time
+            prev.duration_minutes += seg.duration_minutes
+            prev.wait_minutes += seg.wait_minutes
+            prev.distance_km += seg.distance_km
+        else:
+            merged.append(seg)
+
+    for i, seg in enumerate(merged, 1):
+        seg.sequence = i
+    return merged
 
 
 @dataclass
@@ -245,8 +298,9 @@ class Route:
         current_mode = None
         
         for segment in segments:
-            # Skip walking and transfer segments
-            if segment.mode in [TransportationMode.WALK, TransportationMode.TRANSFER]:
+            # Skip walking, transfer, and private-vehicle (first/last-mile) segments
+            if segment.mode in [TransportationMode.WALK, TransportationMode.TRANSFER,
+                               TransportationMode.PRIVATE_VEHICLE]:
                 continue
             
             # If mode changed, add cost for new mode
@@ -280,7 +334,8 @@ class Route:
         boardings = 0
         prev_route = None
         for s in self.segments:
-            if s.mode in (TransportationMode.WALK, TransportationMode.TRANSFER):
+            if s.mode in (TransportationMode.WALK, TransportationMode.TRANSFER,
+                        TransportationMode.PRIVATE_VEHICLE):
                 continue
             if s.route_name != prev_route:
                 boardings += 1

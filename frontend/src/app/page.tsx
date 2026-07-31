@@ -3,12 +3,25 @@
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import axios from "axios";
+import {
+  SearchIcon,
+  SwapIcon,
+  ClockIcon,
+  AlertIcon,
+  CarIcon,
+  LoaderIcon,
+  NavigationIcon,
+  ChevronDownIcon,
+  modeIcon,
+  modeLabel,
+  modeColor,
+} from "./components/icons";
 
 // Dynamically import Map component to avoid SSR issues
 const MapComponent = dynamic(() => import("./components/MapComponent"), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-96 bg-gray-100">
+    <div className="flex h-full w-full items-center justify-center bg-[var(--gmaps-surface-hover)] text-sm text-[var(--gmaps-text-secondary)]">
       Loading map...
     </div>
   ),
@@ -62,6 +75,10 @@ interface RouteSegment {
     lat: number;
     lon: number;
   };
+  // Nama halte perantara yang dilewati (khusus segmen naik kendaraan yang
+  // sudah digabung dari beberapa hop backend) -- utk dropdown "lihat halte
+  // yang dilewati" ala Google Maps.
+  via_stops?: string[];
 }
 
 interface Route {
@@ -116,6 +133,23 @@ interface ApiResponse {
   error?: string;
 }
 
+// Bentuk respons saat di luar jam operasional angkutan umum -- TIDAK punya
+// key "results" seperti ApiResponse biasa, jadi harus dicek terpisah sebelum
+// mengakses response.data.results (kalau tidak, TypeError krn results
+// undefined, ketangkep di catch block sbg "Failed to get route" walau
+// server sebenarnya menjawab 200 OK).
+interface OutOfServiceResponse {
+  success: true;
+  public_transport_available: false;
+  reason: string;
+  private_vehicle: {
+    distance_km: number;
+    duration_minutes: number;
+    assumed_speed_kmh: number;
+    note: string;
+  };
+}
+
 export default function Home() {
   // Helper function to get current time in GMT+7 (WIB)
   const getCurrentTimeGMT7 = (): string => {
@@ -145,9 +179,22 @@ export default function Home() {
   const [routeResults, setRouteResults] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [serviceInfo, setServiceInfo] = useState<OutOfServiceResponse | null>(
+    null
+  );
   const [selectedRoute, setSelectedRoute] = useState<"dijkstra" | "dfs" | null>(
     null
   );
+  // Sequence segmen yg dropdown "halte yang dilewati"-nya sedang terbuka.
+  const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
+  const toggleStepExpanded = (sequence: number) => {
+    setExpandedSteps((prev) => {
+      const next = new Set(prev);
+      if (next.has(sequence)) next.delete(sequence);
+      else next.add(sequence);
+      return next;
+    });
+  };
 
   // OSM Places API states
   const [originSuggestions, setOriginSuggestions] = useState<OSMPlace[]>([]);
@@ -164,17 +211,12 @@ export default function Home() {
   const originSearchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const destinationSearchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Next.js API routes (search-places)
-  const SEARCH_API_BASE_URL =
-    typeof window !== "undefined"
-      ? `http://${window.location.hostname}:3003/api`
-      : "/api";
-
-  // Flask API backend (routing)
-  const ROUTE_API_BASE_URL =
-    typeof window !== "undefined"
-      ? `http://${window.location.hostname}/api`
-      : "/api";
+  // Route Next.js sendiri (search-places) & proxy ke Flask (lihat
+  // next.config.ts rewrites) -- keduanya sama-sama di origin ini, jadi path
+  // relatif saja. (Sebelumnya search-places hardcode ke port 3003 yang
+  // sebenarnya tidak dipakai di manapun -- bug lama.)
+  const SEARCH_API_BASE_URL = "/api";
+  const ROUTE_API_BASE_URL = "/api";
 
   // Debounce delay (500ms)
   const DEBOUNCE_DELAY = 500;
@@ -453,12 +495,22 @@ export default function Home() {
     };
   }, []);
 
+  const handleSwapLocations = () => {
+    setRouteRequest((prev) => ({
+      ...prev,
+      origin: prev.destination,
+      destination: prev.origin,
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setServiceInfo(null);
     setRouteResults(null);
     setSelectedRoute(null);
+    setExpandedSteps(new Set());
 
     try {
       // Convert datetime-local to ISO string with GMT+7 timezone
@@ -476,13 +528,32 @@ export default function Home() {
         `${ROUTE_API_BASE_URL}/route`,
         requestPayload
       );
+
+      // Di luar jam operasional: respons TIDAK punya key "results" (lihat
+      // OutOfServiceResponse) -- tangani terpisah sebelum menyentuh
+      // response.data.results, supaya tidak crash jadi "Failed to get route".
+      if (response.data.public_transport_available === false) {
+        setServiceInfo(response.data as OutOfServiceResponse);
+        return;
+      }
+
       setRouteResults(response.data);
 
       // Auto-select dijkstra route (Enhanced DFS uses Dijkstra)
-      if (response.data.results.dijkstra?.success) {
+      const dijkstraResult = response.data.results.dijkstra;
+      const dfsResult = response.data.results.dfs;
+      if (dijkstraResult?.success) {
         setSelectedRoute("dijkstra");
-      } else if (response.data.results.dfs?.success) {
+      } else if (dfsResult?.success) {
         setSelectedRoute("dfs");
+      } else {
+        // Server menjawab 200 tapi tidak ada rute yang ditemukan (mis. asal/tujuan
+        // tidak terhubung ke jaringan) -- tanpa ini, UI diam saja tanpa pesan apa pun.
+        setError(
+          dijkstraResult?.error ||
+            dfsResult?.error ||
+            "Rute tidak ditemukan antara lokasi asal dan tujuan."
+        );
       }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } } };
@@ -506,367 +577,387 @@ export default function Home() {
     }).format(cost);
   };
 
+  const activeRoute =
+    routeResults && selectedRoute && routeResults.results[selectedRoute]?.success
+      ? routeResults.results[selectedRoute]!.route
+      : null;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-2xl font-bold text-black">
-            🗺️ Palembang Public Transport Routing
-          </h1>
-          <p className="text-black mt-1">
-            Find optimal routes using Enhanced DFS algorithm
-          </p>
+    <div className="flex min-h-screen flex-col bg-white lg:h-screen lg:flex-row lg:overflow-hidden">
+      {/* Left panel: search + directions, full-width & natural scroll on
+          mobile, fixed-width & internally scrollable on desktop -- mirrors
+          Google Maps' directions sidebar. */}
+      <aside className="flex w-full flex-col border-b border-[var(--gmaps-border)] bg-white lg:h-full lg:w-[420px] lg:border-b-0 lg:border-r">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--gmaps-blue)] text-white">
+            <NavigationIcon width={18} height={18} />
+          </div>
+          <div className="min-w-0">
+            <h1 className="truncate text-base font-medium leading-tight text-[var(--gmaps-text)]">
+              Palembang Transit Router
+            </h1>
+            <p className="truncate text-xs text-[var(--gmaps-text-secondary)]">
+              Rute angkutan umum tercepat
+            </p>
+          </div>
         </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Route Planning Form */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-black mb-4">
-                📍 Plan Your Route
-              </h2>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="gmaps-scroll lg:flex-1 lg:overflow-y-auto">
+          <form onSubmit={handleSubmit} className="px-4 pb-4">
+            <div className="flex items-start gap-2">
+              <div className="min-w-0 flex-1 space-y-2">
                 {/* Origin with OSM Autocomplete */}
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Origin
-                  </label>
-                  <div className="space-y-2 relative" ref={originInputRef}>
-                    <input
-                      type="text"
-                      placeholder="Search location in Palembang..."
-                      value={routeRequest.origin.name}
-                      onChange={(e) => handleOriginChange(e.target.value)}
-                      onFocus={() => {
-                        if (originSuggestions.length > 0) {
-                          setShowOriginSuggestions(true);
-                        }
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                      required
+                <div className="relative" ref={originInputRef}>
+                  <span className="pointer-events-none absolute left-3 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-[var(--gmaps-green)] bg-white" />
+                  <input
+                    type="text"
+                    placeholder="Choose origin..."
+                    value={routeRequest.origin.name}
+                    onChange={(e) => handleOriginChange(e.target.value)}
+                    onFocus={() => {
+                      if (originSuggestions.length > 0) {
+                        setShowOriginSuggestions(true);
+                      }
+                    }}
+                    className="w-full rounded-lg border border-[var(--gmaps-border)] bg-[var(--gmaps-surface-hover)] py-2.5 pl-9 pr-8 text-sm text-[var(--gmaps-text)] outline-none placeholder:text-[var(--gmaps-text-secondary)] focus:border-[var(--gmaps-blue)] focus:bg-white focus:ring-2 focus:ring-[var(--gmaps-blue-tint)]"
+                    required
+                  />
+                  {originSearching && (
+                    <LoaderIcon
+                      width={16}
+                      height={16}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--gmaps-text-secondary)]"
                     />
-                    {originSearching && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
-                        <div className="text-sm text-gray-500 text-center">
-                          🔍 Searching...
-                        </div>
-                      </div>
-                    )}
-                    {!originSearching &&
-                      showOriginSuggestions &&
-                      originSuggestions.length > 0 && (
-                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                          {originSuggestions.map((place) => (
-                            <div
-                              key={place.place_id}
-                              onClick={() => selectOriginPlace(place)}
-                              className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                            >
-                              <div className="text-sm font-medium text-black">
+                  )}
+                  {!originSearching &&
+                    showOriginSuggestions &&
+                    originSuggestions.length > 0 && (
+                      <div className="gmaps-scroll absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-[var(--gmaps-border)] bg-white shadow-lg">
+                        {originSuggestions.map((place) => (
+                          <div
+                            key={place.place_id}
+                            onClick={() => selectOriginPlace(place)}
+                            className="flex cursor-pointer items-start gap-2 border-b border-[var(--gmaps-border)] px-3 py-2 last:border-b-0 hover:bg-[var(--gmaps-surface-hover)]"
+                          >
+                            <NavigationIcon
+                              width={14}
+                              height={14}
+                              className="mt-0.5 shrink-0 text-[var(--gmaps-text-secondary)]"
+                            />
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-medium text-[var(--gmaps-text)]">
                                 {place.display_name.split(",")[0]}
                               </div>
-                              <div className="text-xs text-gray-500">
+                              <div className="truncate text-xs text-[var(--gmaps-text-secondary)]">
                                 {place.display_name}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      )}
-                    <div className="text-xs text-gray-500">
-                      Coordinates: {routeRequest.origin.lat.toFixed(6)},{" "}
-                      {routeRequest.origin.lon.toFixed(6)}
-                    </div>
-                  </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                 </div>
 
                 {/* Destination with OSM Autocomplete */}
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Destination
-                  </label>
-                  <div className="space-y-2 relative" ref={destinationInputRef}>
-                    <input
-                      type="text"
-                      placeholder="Search location in Palembang..."
-                      value={routeRequest.destination.name}
-                      onChange={(e) => handleDestinationChange(e.target.value)}
-                      onFocus={() => {
-                        if (destinationSuggestions.length > 0) {
-                          setShowDestinationSuggestions(true);
-                        }
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                      required
+                <div className="relative" ref={destinationInputRef}>
+                  <span className="pointer-events-none absolute left-3 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-sm bg-[var(--gmaps-red)]" />
+                  <input
+                    type="text"
+                    placeholder="Choose destination..."
+                    value={routeRequest.destination.name}
+                    onChange={(e) => handleDestinationChange(e.target.value)}
+                    onFocus={() => {
+                      if (destinationSuggestions.length > 0) {
+                        setShowDestinationSuggestions(true);
+                      }
+                    }}
+                    className="w-full rounded-lg border border-[var(--gmaps-border)] bg-[var(--gmaps-surface-hover)] py-2.5 pl-9 pr-8 text-sm text-[var(--gmaps-text)] outline-none placeholder:text-[var(--gmaps-text-secondary)] focus:border-[var(--gmaps-blue)] focus:bg-white focus:ring-2 focus:ring-[var(--gmaps-blue-tint)]"
+                    required
+                  />
+                  {destinationSearching && (
+                    <LoaderIcon
+                      width={16}
+                      height={16}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--gmaps-text-secondary)]"
                     />
-                    {destinationSearching && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
-                        <div className="text-sm text-gray-500 text-center">
-                          🔍 Searching...
-                        </div>
-                      </div>
-                    )}
-                    {!destinationSearching &&
-                      showDestinationSuggestions &&
-                      destinationSuggestions.length > 0 && (
-                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                          {destinationSuggestions.map((place) => (
-                            <div
-                              key={place.place_id}
-                              onClick={() => selectDestinationPlace(place)}
-                              className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                            >
-                              <div className="text-sm font-medium text-black">
+                  )}
+                  {!destinationSearching &&
+                    showDestinationSuggestions &&
+                    destinationSuggestions.length > 0 && (
+                      <div className="gmaps-scroll absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-[var(--gmaps-border)] bg-white shadow-lg">
+                        {destinationSuggestions.map((place) => (
+                          <div
+                            key={place.place_id}
+                            onClick={() => selectDestinationPlace(place)}
+                            className="flex cursor-pointer items-start gap-2 border-b border-[var(--gmaps-border)] px-3 py-2 last:border-b-0 hover:bg-[var(--gmaps-surface-hover)]"
+                          >
+                            <NavigationIcon
+                              width={14}
+                              height={14}
+                              className="mt-0.5 shrink-0 text-[var(--gmaps-text-secondary)]"
+                            />
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-medium text-[var(--gmaps-text)]">
                                 {place.display_name.split(",")[0]}
                               </div>
-                              <div className="text-xs text-gray-500">
+                              <div className="truncate text-xs text-[var(--gmaps-text-secondary)]">
                                 {place.display_name}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      )}
-                    <div className="text-xs text-gray-500">
-                      Coordinates: {routeRequest.destination.lat.toFixed(6)},{" "}
-                      {routeRequest.destination.lon.toFixed(6)}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Algorithm - Fixed to Enhanced DFS */}
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Algorithm
-                  </label>
-                  <input
-                    type="text"
-                    value="Enhanced DFS"
-                    disabled
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Using Dijkstra algorithm for optimal routing
-                  </p>
-                </div>
-
-                {/* Departure Time */}
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Departure Time
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={routeRequest.departure_time}
-                    onChange={(e) =>
-                      setRouteRequest((prev) => ({
-                        ...prev,
-                        departure_time: e.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? "🔄 Finding Route..." : "🚀 Find Route"}
-                </button>
-              </form>
-
-              {/* Error Display */}
-              {error && (
-                <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
-                  ❌ {error}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Map */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <MapComponent
-                routeResults={routeResults}
-                selectedRoute={selectedRoute}
-                routeRequest={routeRequest}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Route Results */}
-        {routeResults &&
-          selectedRoute &&
-          routeResults.results[selectedRoute]?.success && (
-            <div className="mt-6 space-y-4">
-              {/* Route Summary */}
-              <div className="bg-white rounded-lg shadow-sm p-4">
-                <h3 className="font-semibold text-black mb-3">
-                  📊 Route Summary (Enhanced DFS)
-                </h3>
-                {routeResults.results[selectedRoute]?.route && (
-                  <div className="space-y-2 text-sm text-black">
-                    {/* Departure Time Info */}
-                    {routeResults.request_info?.departure_time && (
-                      <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-200">
-                        <div className="text-xs text-blue-700 font-medium mb-1">
-                          🕐 Departure Time:
-                        </div>
-                        <div className="text-sm text-blue-900">
-                          {new Date(
-                            routeResults.request_info.departure_time
-                          ).toLocaleString("id-ID", {
-                            timeZone: "Asia/Jakarta",
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: false,
-                          })}
-                        </div>
-                        {(() => {
-                          const hour = new Date(
-                            routeResults.request_info.departure_time
-                          ).getHours();
-                          let phase = "";
-                          let color = "";
-                          if (6 <= hour && hour <= 9) {
-                            phase = "Peak Hour - Pagi (06:00-09:00)";
-                            color = "text-orange-700 bg-orange-50";
-                          } else if (12 <= hour && hour <= 14) {
-                            phase = "Peak Hour - Siang (12:00-14:00)";
-                            color = "text-orange-700 bg-orange-50";
-                          } else if (17 <= hour && hour <= 19) {
-                            phase = "Peak Hour - Sore (17:00-19:00)";
-                            color = "text-orange-700 bg-orange-50";
-                          } else {
-                            phase = "Normal Hour";
-                            color = "text-green-700 bg-green-50";
-                          }
-                          return (
-                            <div
-                              className={`mt-1 text-xs px-2 py-1 rounded ${color}`}
-                            >
-                              {phase}
-                            </div>
-                          );
-                        })()}
+                          </div>
+                        ))}
                       </div>
                     )}
-                    <div className="flex justify-between">
-                      <span>⏱️ Total Time:</span>
-                      <span className="font-medium">
-                        {formatTime(
-                          routeResults.results[selectedRoute]!.route!.summary
-                            .total_time_minutes
-                        )}
-                      </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSwapLocations}
+                title="Swap origin & destination"
+                className="mt-1 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--gmaps-border)] text-[var(--gmaps-text-secondary)] hover:bg-[var(--gmaps-surface-hover)] hover:text-[var(--gmaps-blue)]"
+              >
+                <SwapIcon width={16} height={16} />
+              </button>
+            </div>
+
+            {/* Departure Time */}
+            <div className="mt-3 flex items-center gap-2 rounded-lg border border-[var(--gmaps-border)] px-3 py-2">
+              <ClockIcon
+                width={18}
+                height={18}
+                className="shrink-0 text-[var(--gmaps-text-secondary)]"
+              />
+              <input
+                type="datetime-local"
+                value={routeRequest.departure_time}
+                onChange={(e) =>
+                  setRouteRequest((prev) => ({
+                    ...prev,
+                    departure_time: e.target.value,
+                  }))
+                }
+                className="w-full min-w-0 flex-1 bg-transparent text-sm text-[var(--gmaps-text)] outline-none"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--gmaps-blue)] py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--gmaps-blue-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <LoaderIcon width={16} height={16} />
+                  Finding route...
+                </>
+              ) : (
+                <>
+                  <SearchIcon width={16} height={16} />
+                  Find route
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Error Display */}
+          {error && (
+            <div className="mx-4 mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-[var(--gmaps-red)]">
+              <AlertIcon width={16} height={16} className="mt-0.5 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Di luar jam operasional angkutan umum */}
+          {serviceInfo && (
+            <div className="mx-4 mb-4 space-y-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
+              <div className="flex items-start gap-2 font-medium">
+                <CarIcon
+                  width={16}
+                  height={16}
+                  className="mt-0.5 shrink-0 text-amber-700"
+                />
+                <span>{serviceInfo.reason}</span>
+              </div>
+              <p className="pl-6 text-xs text-amber-800">
+                Estimasi kendaraan pribadi: {serviceInfo.private_vehicle.distance_km} km,{" "}
+                {serviceInfo.private_vehicle.duration_minutes} menit (~
+                {serviceInfo.private_vehicle.assumed_speed_kmh} km/jam)
+              </p>
+              <p className="pl-6 text-xs text-amber-700/80">
+                {serviceInfo.private_vehicle.note}
+              </p>
+            </div>
+          )}
+
+          {/* Route Results -- directions-list style, like Google Maps */}
+          {activeRoute && (
+            <div className="border-t border-[var(--gmaps-border)]">
+              <div className="px-4 py-4">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-medium text-[var(--gmaps-text)]">
+                    {formatTime(activeRoute.summary.total_time_minutes)}
+                  </span>
+                  <span className="text-sm text-[var(--gmaps-text-secondary)]">
+                    · {activeRoute.summary.total_distance_km.toFixed(2)} km
+                  </span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-[var(--gmaps-surface-hover)] px-2.5 py-1 text-xs text-[var(--gmaps-text-secondary)]">
+                    {formatCost(activeRoute.summary.total_cost)}
+                  </span>
+                  <span className="rounded-full bg-[var(--gmaps-surface-hover)] px-2.5 py-1 text-xs text-[var(--gmaps-text-secondary)]">
+                    {activeRoute.summary.num_transfers} transfer
+                  </span>
+                </div>
+
+                {routeResults?.request_info?.departure_time && (
+                  <div className="mt-3 rounded-lg border border-[var(--gmaps-blue-tint)] bg-[var(--gmaps-blue-tint)] px-3 py-2">
+                    <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[var(--gmaps-blue-hover)]">
+                      <ClockIcon width={13} height={13} />
+                      Departure Time
                     </div>
-                    <div className="flex justify-between">
-                      <span>💰 Total Cost:</span>
-                      <span className="font-medium">
-                        {formatCost(
-                          routeResults.results[selectedRoute]!.route!.summary
-                            .total_cost
-                        )}
-                      </span>
+                    <div className="text-sm text-[var(--gmaps-text)]">
+                      {new Date(
+                        routeResults.request_info.departure_time
+                      ).toLocaleString("id-ID", {
+                        timeZone: "Asia/Jakarta",
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      })}
                     </div>
-                    <div className="flex justify-between">
-                      <span>📏 Distance:</span>
-                      <span className="font-medium">
-                        {routeResults.results[
-                          selectedRoute
-                        ]!.route!.summary.total_distance_km.toFixed(2)}{" "}
-                        km
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>🔄 Transfers:</span>
-                      <span className="font-medium">
-                        {
-                          routeResults.results[selectedRoute]!.route!.summary
-                            .num_transfers
-                        }
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>🚌 Segments:</span>
-                      <span className="font-medium">
-                        {
-                          routeResults.results[selectedRoute]!.route!.segments
-                            .length
-                        }
-                      </span>
-                    </div>
+                    {(() => {
+                      const hour = new Date(
+                        routeResults.request_info.departure_time
+                      ).getHours();
+                      let phase = "";
+                      let color = "";
+                      if (6 <= hour && hour <= 9) {
+                        phase = "Peak Hour - Pagi (06:00-09:00)";
+                        color = "text-orange-700 bg-orange-50";
+                      } else if (12 <= hour && hour <= 14) {
+                        phase = "Peak Hour - Siang (12:00-14:00)";
+                        color = "text-orange-700 bg-orange-50";
+                      } else if (17 <= hour && hour <= 19) {
+                        phase = "Peak Hour - Sore (17:00-19:00)";
+                        color = "text-orange-700 bg-orange-50";
+                      } else {
+                        phase = "Normal Hour";
+                        color = "text-green-700 bg-green-50";
+                      }
+                      return (
+                        <div
+                          className={`mt-1 inline-block rounded px-2 py-0.5 text-xs ${color}`}
+                        >
+                          {phase}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
 
-              {/* Route Details */}
-              <div className="bg-white rounded-lg shadow-sm p-4">
-                <h3 className="font-semibold text-black mb-3">
-                  🚌 Route Details
-                </h3>
-                {routeResults.results[selectedRoute]?.route && (
-                  <div className="space-y-3">
-                    {routeResults.results[selectedRoute]!.route!.segments.map(
-                      (segment, index) => (
-                        <div
-                          key={index}
-                          className="border-l-4 border-blue-500 pl-3 py-2"
-                        >
-                          <div className="flex items-center space-x-2 mb-1">
-                            <span className="text-sm font-medium text-blue-600">
-                              {segment.sequence}.
-                            </span>
-                            <span className="text-sm font-medium text-black">
-                              {segment.mode === "WALK"
-                                ? "🚶 Walk"
-                                : segment.mode === "FEEDER_ANGKOT"
-                                ? "🚐 Feeder Angkot"
-                                : segment.mode === "TEMAN_BUS"
-                                ? "🚌 Teman Bus"
-                                : segment.mode === "LRT"
-                                ? "🚇 LRT"
-                                : "🚌 Transit"}
+              {/* Steps timeline */}
+              <div className="gmaps-scroll relative max-h-[420px] overflow-y-auto px-4 pb-4">
+                {activeRoute.segments.length > 1 && (
+                  <span className="absolute bottom-8 left-8 top-4 w-px bg-[var(--gmaps-border)]" />
+                )}
+                <div className="space-y-4">
+                  {activeRoute.segments.map((segment, index) => (
+                    <div key={index} className="flex gap-3">
+                      <div
+                        className="z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white"
+                        style={{ backgroundColor: modeColor(segment.mode) }}
+                      >
+                        {modeIcon(segment.mode, { width: 16, height: 16 })}
+                      </div>
+                      <div className="min-w-0 flex-1 pt-0.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span className="text-sm font-medium text-[var(--gmaps-text)]">
+                              {modeLabel(segment.mode)}
                             </span>
                             {segment.route_name &&
                               segment.route_name !== "Unknown" && (
-                                <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                                <span
+                                  className="truncate rounded px-1.5 py-0.5 text-xs font-medium text-white"
+                                  style={{
+                                    backgroundColor: modeColor(segment.mode),
+                                  }}
+                                >
                                   {segment.route_name}
                                 </span>
                               )}
                           </div>
-                          <div className="text-sm text-black">
-                            <div className="font-medium">
-                              {segment.from_stop} → {segment.to_stop}
-                            </div>
-                            <div className="text-xs text-gray-600 mt-1">
-                              ⏱️ {Math.round(segment.duration_minutes)} min
-                              {segment.distance_km > 0 && (
-                                <> • 📏 {segment.distance_km.toFixed(2)} km</>
-                              )}
-                              {segment.cost > 0 && (
-                                <> • 💰 {formatCost(segment.cost)}</>
-                              )}
-                            </div>
-                          </div>
+                          <span className="shrink-0 text-xs text-[var(--gmaps-text-secondary)]">
+                            {Math.round(segment.duration_minutes)} min
+                          </span>
                         </div>
-                      )
-                    )}
-                  </div>
-                )}
+                        <p className="mt-0.5 truncate text-xs text-[var(--gmaps-text-secondary)]">
+                          {segment.from_stop} → {segment.to_stop}
+                        </p>
+                        {(segment.distance_km > 0 || segment.cost > 0) && (
+                          <p className="mt-0.5 text-xs text-[var(--gmaps-text-secondary)]">
+                            {segment.distance_km > 0 &&
+                              `${segment.distance_km.toFixed(2)} km`}
+                            {segment.distance_km > 0 && segment.cost > 0 && " · "}
+                            {segment.cost > 0 && formatCost(segment.cost)}
+                          </p>
+                        )}
+                        {segment.via_stops && segment.via_stops.length > 0 && (
+                          <div className="mt-1.5">
+                            <button
+                              type="button"
+                              onClick={() => toggleStepExpanded(segment.sequence)}
+                              className="flex cursor-pointer items-center gap-1 text-xs font-medium text-[var(--gmaps-blue)] hover:underline"
+                            >
+                              <ChevronDownIcon
+                                width={14}
+                                height={14}
+                                className={`shrink-0 transition-transform ${
+                                  expandedSteps.has(segment.sequence) ? "rotate-180" : ""
+                                }`}
+                              />
+                              {expandedSteps.has(segment.sequence)
+                                ? "Sembunyikan halte"
+                                : `${segment.via_stops.length} halte dilewati`}
+                            </button>
+                            {expandedSteps.has(segment.sequence) && (
+                              <ul className="mt-1.5 space-y-1 border-l border-dashed border-[var(--gmaps-border)] pl-3">
+                                {segment.via_stops.map((stop, i) => (
+                                  <li
+                                    key={i}
+                                    className="text-xs text-[var(--gmaps-text-secondary)]"
+                                  >
+                                    {stop}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
+        </div>
+      </aside>
+
+      {/* Map -- fills remaining space, full height on desktop */}
+      <div className="relative h-[50vh] w-full lg:h-full lg:flex-1">
+        <MapComponent
+          routeResults={routeResults}
+          selectedRoute={selectedRoute}
+          routeRequest={routeRequest}
+        />
       </div>
     </div>
   );

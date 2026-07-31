@@ -16,7 +16,8 @@ from .data_structures import (
     TransportationGraph,
     TransportationMode,
     DEFAULT_COSTS,
-    DEFAULT_SPEEDS
+    DEFAULT_SPEEDS,
+    merge_consecutive_segments
 )
 from core import service_model
 
@@ -25,6 +26,24 @@ from core import service_model
 WALKING_SPEED_KMH = 5.0
 MAX_TRANSFER_WALK_KM = 0.5  # Maximum walking distance for transfers (500m)
 TRANSFER_TIME_PENALTY = 5.0  # Extra 5 minutes for transfer overhead
+
+# Preferensi jalan kaki lebih pendek saat TRANSFER, dipakai HANYA sbg
+# tie-breaker mikro (menit) -- BUKAN pengali cost spt sebelumnya.
+#
+# Riwayat: pernah dicoba pengali 100.000x lalu 5x pada (walking_time +
+# TRANSFER_TIME_PENALTY). Keduanya ternyata BISA mengalahkan selisih waktu
+# NYATA berskala menit, krn cost gabungan (transfer yg dikalikan + tunggu/
+# tempuh kendaraan yg TIDAK dikalikan) tidak lagi sebanding dgn total waktu
+# sungguhan -- ditemukan lewat kasus nyata (2026-07-31): transfer 26m vs 302m
+# (real time beda cuma ~3 menit) sampai mengalahkan pilihan yg REAL TIME-nya
+# 12-13 menit lebih cepat, krn cost 5x menutupi selisih tunggu LRT berbasis
+# jadwal. Cost yg dipakai utk ranking pqueue HARUS = waktu nyata total,
+# supaya optimization_mode="time" selalu menemukan rute tercepat SUNGGUHAN.
+# Nudge ini cuma menambah pecahan menit kecil (dibatasi/di-cap), jadi tidak
+# pernah bisa membalik pilihan yg bedanya sampai hitungan menit -- cuma
+# menang saat dua opsi memang sudah hampir sama waktu nyatanya.
+TRANSFER_TIEBREAK_PER_KM = 0.05  # menit per km jarak transfer
+TRANSFER_TIEBREAK_CAP_KM = 2.0   # jarak transfer di atas ini tidak menambah nudge lagi
 
 
 def haversine_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -128,19 +147,25 @@ class DijkstraRouter:
             edge.route, edge.from_stop.stop_id, edge.to_stop.stop_id,
             edge.distance_meters / 1000, when)
 
-    def _boarding_wait_minutes(self, edge: Edge, current_route: Optional[str]) -> float:
-        """Waktu tunggu kendaraan baru (nol kalau masih di rute yang sama)."""
+    def _boarding_wait_minutes(self, edge: Edge, current_route: Optional[str],
+                               when: Optional[datetime] = None) -> float:
+        """
+        Waktu tunggu kendaraan baru (nol kalau masih di rute yang sama).
+        Utk LRT, `when` dipakai cari keberangkatan terdekat di jadwal resmi
+        (lihat service_model.wait_minutes) -- bukan headway tetap lagi.
+        """
         if edge.mode in (TransportationMode.WALK, TransportationMode.TRANSFER):
             return 0.0
         if edge.route == current_route:
             return 0.0
-        return service_model.wait_minutes(edge.route)
+        return service_model.wait_minutes(
+            edge.route, edge.from_stop.stop_id, edge.to_stop.stop_id, when)
 
     def _calculate_edge_cost(self, edge: Edge, current_mode: Optional[TransportationMode],
                              current_route: Optional[str] = None,
                              when: Optional[datetime] = None) -> float:
         """Biaya ruas: waktu tempuh nyata + waktu tunggu kendaraan."""
-        wait = self._boarding_wait_minutes(edge, current_route)
+        wait = self._boarding_wait_minutes(edge, current_route, when)
 
         if self.optimization_mode == "cost":
             return float(edge.cost)
@@ -159,9 +184,14 @@ class DijkstraRouter:
     def _calculate_walking_cost(self, distance_km: float) -> float:
         """Calculate cost for walking segment"""
         walking_time = (distance_km / WALKING_SPEED_KMH) * 60  # minutes
-        
+
         if self.optimization_mode == "time":
-            return walking_time + TRANSFER_TIME_PENALTY
+            # Cost = waktu nyata + nudge mikro dibatasi (lihat komentar
+            # TRANSFER_TIEBREAK_PER_KM) -- transfer lebih pendek cuma menang
+            # kalau dua opsi memang sudah dekat waktu nyatanya.
+            real_time = walking_time + TRANSFER_TIME_PENALTY
+            tiebreak = min(distance_km, TRANSFER_TIEBREAK_CAP_KM) * TRANSFER_TIEBREAK_PER_KM
+            return real_time + tiebreak
         elif self.optimization_mode == "cost":
             return 0.0  # Walking is free
         elif self.optimization_mode == "transfers":
@@ -190,66 +220,89 @@ class DijkstraRouter:
         print(f"   To:   {goal.name} ({goal.mode.value})")
         print(f"   Mode: {self.optimization_mode}")
         
-        # Priority queue: (cost, node)
+        # State = (stop_id, current_route) -- BUKAN cuma stop_id. Kalau state
+        # cuma stop_id, dua cara berbeda mencapai halte yang sama (jalan kaki
+        # vs masih naik kendaraan yang sama) dianggap satu hal, padahal biaya
+        # LANJUTANNYA beda: yang baru jalan kaki harus bayar tunggu penuh saat
+        # naik kendaraan berikutnya, yang masih di kendaraan tidak. Kalau opsi
+        # "cost lebih murah utk sampai di halte ini" ternyata jalan kaki
+        # (tanpa tunggu ke depan lebih baik), padahal versi "sedikit lebih
+        # mahal tapi sudah naik kendaraan" (tak perlu tunggu lagi) sebenarnya
+        # lebih baik utk PERJALANAN SELANJUTNYA, versi yang salah menang dan
+        # yang benar tidak pernah dieksplorasi krn halte itu sudah "dikunjungi".
+        # Contoh nyata: transfer H. PI->Dishub (jalan langsung) vs H. PI->Bumi
+        # Sriwijaya lalu terus naik LRT lewat Dishub (tak bayar tunggu lagi).
         pq = []
+        start_state = (start.stop_id, None)
         heapq.heappush(pq, DijkstraNode(cost=0.0, stop=start))
-        
-        # Best cost to reach each stop
-        best_cost: Dict[str, float] = {start.stop_id: 0.0}
-        
-        # Best node to reach each stop (for path reconstruction)
-        best_node: Dict[str, DijkstraNode] = {
-            start.stop_id: DijkstraNode(cost=0.0, stop=start)
-        }
-        
-        visited: Set[str] = set()
+
+        # Best cost utk tiap STATE (halte, rute yang sedang dinaiki)
+        best_cost: Dict[Tuple[str, Optional[str]], float] = {start_state: 0.0}
+
+        visited: Set[Tuple[str, Optional[str]]] = set()
         nodes_explored = 0
-        
+
         while pq:
             current_node = heapq.heappop(pq)
             current_stop = current_node.stop
             current_cost = current_node.cost
-            
+            current_route = current_node.edge_used.route if current_node.edge_used else None
+            state = (current_stop.stop_id, current_route)
+
             # Skip if already visited
-            if current_stop.stop_id in visited:
+            if state in visited:
                 continue
-            
-            visited.add(current_stop.stop_id)
+
+            visited.add(state)
             nodes_explored += 1
-            
-            # Goal reached!
+
+            # Goal reached! (state pertama yg stop_id-nya goal PASTI yang
+            # termurah, krn heap selalu mengeluarkan cost terkecil dulu --
+            # tidak peduli lewat rute apa sampainya)
             if current_stop.stop_id == goal.stop_id:
                 print(f"\n✅ Route found!")
                 print(f"   Nodes explored: {nodes_explored}")
                 print(f"   Cost: {current_cost:.2f}")
-                
+
                 # Reconstruct path
                 return self._reconstruct_path(current_node, departure_time)
-            
-            # Get current mode/route (from parent if available)
+
+            # Get current mode (from parent if available)
             current_mode = current_node.edge_used.mode if current_node.edge_used else current_stop.mode
-            current_route = current_node.edge_used.route if current_node.edge_used else None
+            came_from_stop = current_node.edge_used.from_stop if current_node.edge_used else None
             when = departure_time + timedelta(minutes=current_node.time_accumulated)
 
             # Explore regular edges (same route)
             for edge in self.graph.get_neighbors(current_stop):
                 neighbor = edge.to_stop
+                neighbor_state = (neighbor.stop_id, edge.route)
 
-                if neighbor.stop_id in visited:
+                if neighbor_state in visited:
+                    continue
+
+                # Larang U-turn: balik ke halte yg baru saja ditinggalkan,
+                # masih di rute yg sama. Sekadar mengenakan tunggu baru (bukan
+                # gratis) TIDAK cukup -- dua jadwal arah berlawanan bisa
+                # kebetulan selisih beberapa detik, jadi U-turn kadang masih
+                # menang tipis walau tunggu baru sudah dihitung. Di dunia
+                # nyata tidak ada penumpang/algoritma navigasi yg naik kereta
+                # ke arah salah demi selisih hitungan detik -- larang total.
+                if (edge.route == current_route and came_from_stop is not None
+                        and edge.to_stop.stop_id == came_from_stop.stop_id):
                     continue
 
                 edge_cost = self._calculate_edge_cost(edge, current_mode, current_route, when)
                 new_cost = current_cost + edge_cost
 
                 # Update if better path found
-                if neighbor.stop_id not in best_cost or new_cost < best_cost[neighbor.stop_id]:
-                    best_cost[neighbor.stop_id] = new_cost
+                if neighbor_state not in best_cost or new_cost < best_cost[neighbor_state]:
+                    best_cost[neighbor_state] = new_cost
 
                     # Jam terus berjalan dgn waktu NYATA (tempuh+tunggu), bukan
                     # skor optimasi -- penting saat optimization_mode="cost",
                     # di mana edge_cost adalah Rupiah, bukan menit.
                     duration = (self._edge_travel_minutes(edge, when) +
-                               self._boarding_wait_minutes(edge, current_route))
+                               self._boarding_wait_minutes(edge, current_route, when))
                     new_node = DijkstraNode(
                         cost=new_cost,
                         stop=neighbor,
@@ -258,27 +311,34 @@ class DijkstraRouter:
                         time_accumulated=current_node.time_accumulated + duration,
                         is_walking=False
                     )
-                    
-                    best_node[neighbor.stop_id] = new_node
+
                     heapq.heappush(pq, new_node)
-            
-            # Explore transfer options (walking to nearby stops)
-            if current_stop.stop_id in self.transfer_map:
+
+            # Explore transfer options (walking to nearby stops) -- dilarang
+            # dua transfer jalan kaki berturut-turut (current_node.is_walking
+            # berarti kita baru saja tiba di sini lewat jalan kaki lintas
+            # rute). Tanpa batas ini, pencarian bisa zigzag jalan kaki
+            # lompat-lompat antar halte dari BEBERAPA rute berbeda sebelum
+            # naik kendaraan apapun -- tampak seperti "sengaja jalan kaki jauh"
+            # padahal cuma efek transfer_map yang menghubungkan sembarang dua
+            # halte berdekatan tanpa peduli rutenya.
+            if not current_node.is_walking and current_stop.stop_id in self.transfer_map:
                 for nearby_stop, walk_dist_km in self.transfer_map[current_stop.stop_id]:
-                    if nearby_stop.stop_id in visited:
+                    nearby_state = (nearby_stop.stop_id, "Transfer (Walking)")
+                    if nearby_state in visited:
                         continue
-                    
+
                     # Skip if same route (already handled by regular edges)
                     if nearby_stop.route == current_stop.route:
                         continue
-                    
+
                     walking_cost = self._calculate_walking_cost(walk_dist_km)
                     new_cost = current_cost + walking_cost
-                    
+
                     # Update if better path found
-                    if nearby_stop.stop_id not in best_cost or new_cost < best_cost[nearby_stop.stop_id]:
-                        best_cost[nearby_stop.stop_id] = new_cost
-                        
+                    if nearby_state not in best_cost or new_cost < best_cost[nearby_state]:
+                        best_cost[nearby_state] = new_cost
+
                         # Create virtual walking edge
                         virtual_edge = Edge(
                             from_stop=current_stop,
@@ -289,7 +349,7 @@ class DijkstraRouter:
                             base_time_minutes=(walk_dist_km / WALKING_SPEED_KMH) * 60 + TRANSFER_TIME_PENALTY,
                             cost=0
                         )
-                        
+
                         new_node = DijkstraNode(
                             cost=new_cost,
                             stop=nearby_stop,
@@ -298,10 +358,9 @@ class DijkstraRouter:
                             time_accumulated=current_node.time_accumulated + virtual_edge.base_time_minutes,
                             is_walking=True
                         )
-                        
-                        best_node[nearby_stop.stop_id] = new_node
+
                         heapq.heappush(pq, new_node)
-        
+
         print(f"\n❌ No route found")
         print(f"   Nodes explored: {nodes_explored}")
         return None
@@ -328,7 +387,7 @@ class DijkstraRouter:
         current_route = None
 
         for seq, (edge, is_walking) in enumerate(path, 1):
-            wait = self._boarding_wait_minutes(edge, current_route)
+            wait = self._boarding_wait_minutes(edge, current_route, current_time)
             travel = self._edge_travel_minutes(edge, current_time)
             duration = travel + wait
             arrival_time = current_time + timedelta(minutes=duration)
@@ -350,7 +409,11 @@ class DijkstraRouter:
             segments.append(segment)
             current_time = arrival_time
             current_route = edge.route
-        
+
+        # Gabungkan segmen berturut-turut satu kendaraan (mode+rute sama) jadi
+        # satu baris tampilan -- lihat merge_consecutive_segments().
+        segments = merge_consecutive_segments(segments)
+
         # Create route
         route = Route(route_id=1, segments=segments)
         route.calculate_metrics()
