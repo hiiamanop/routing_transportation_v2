@@ -15,7 +15,10 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 
 from algorithms.ida_star_routing.data_loader import load_network_data
-from core.gmaps_style_routing import gmaps_style_route, find_route_alternatives
+from core.gmaps_style_routing import (
+    gmaps_style_route, find_route_alternatives, select_preferred_route, PREFERENCE_CRITERIA,
+    describe_no_route_reason
+)
 from algorithms.dfs_routing.optimized_dfs_test import gmaps_style_route_optimized_dfs
 from algorithms.ida_star_routing.ida_star_balanced import gmaps_style_route_balanced_ida_star
 from algorithms.ida_star_routing.ida_star_with_fallback import gmaps_style_route_ida_star_with_fallback
@@ -383,6 +386,23 @@ def route_alternatives():
             except ValueError as e:
                 return jsonify({"error": str(e)}), 400
 
+        # Preferensi pengguna (opsional) -- skala 1-5 per kriteria, dipakai
+        # utk menilai ulang alternatif yang sudah dihitung (bukan pencarian
+        # baru). Divalidasi ketat krn ini input dari luar (trust boundary).
+        preferences = None
+        if 'preferences' in data and data['preferences'] is not None:
+            raw_prefs = data['preferences']
+            if not isinstance(raw_prefs, dict) or set(raw_prefs.keys()) != set(PREFERENCE_CRITERIA):
+                return jsonify({
+                    "error": f"preferences must have exactly these keys: {list(PREFERENCE_CRITERIA)}"
+                }), 400
+            try:
+                preferences = {k: float(raw_prefs[k]) for k in PREFERENCE_CRITERIA}
+            except (TypeError, ValueError):
+                return jsonify({"error": "preferences values must be numbers"}), 400
+            if any(v < 1 or v > 5 for v in preferences.values()):
+                return jsonify({"error": "preferences values must be between 1 and 5"}), 400
+
         if not service_model.any_service_available(departure_time):
             estimate = service_model.driving_estimate(
                 (origin['lat'], origin['lon']),
@@ -415,7 +435,15 @@ def route_alternatives():
         )
 
         if not alternatives:
-            return jsonify({"success": False, "error": "No route found"}), 200
+            reason = describe_no_route_reason(
+                graph, (origin['lat'], origin['lon']), (destination['lat'], destination['lon'])
+            )
+            return jsonify({"success": False, "error": reason}), 200
+
+        if preferences is not None:
+            preferred = select_preferred_route(alternatives, preferences)
+            if preferred is not None:
+                alternatives.append(preferred)
 
         return jsonify({
             "success": True,
@@ -640,13 +668,20 @@ def get_route_waypoints(route_name):
             data = json.load(f)
         
         route_waypoints = data.get('route_waypoints', {})
-        
+        route_stop_anchors = data.get('route_stop_anchors', {})
+
         if route_name in route_waypoints:
             return jsonify({
                 "success": True,
                 "route": route_name,
                 "waypoints": route_waypoints[route_name],
-                "count": len(route_waypoints[route_name])
+                "count": len(route_waypoints[route_name]),
+                # [lat, lon, waypoint_index] per halte asli -- dicatat PERSIS
+                # saat polyline dibuat (bukan ditebak lewat nearest-search),
+                # supaya frontend tidak perlu cari "titik terdekat" di seluruh
+                # polyline (rawan salah utk rute berbentuk loop yg bisa lewat
+                # berdekatan dgn dirinya sendiri di titik yg beda).
+                "stop_anchors": route_stop_anchors.get(route_name, [])
             })
         else:
             return jsonify({

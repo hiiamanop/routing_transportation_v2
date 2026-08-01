@@ -25,7 +25,7 @@ WALK_MAX_KM = 0.5
 # Radius pencarian halte kandidat first/last-mile -- lebih lebar drpd
 # WALK_MAX_KM krn halte yg agak jauh utk jalan kaki masih relevan kalau
 # dijangkau naik motor.
-FIRST_LAST_MILE_SEARCH_KM = 3.0
+FIRST_LAST_MILE_SEARCH_KM = 5.0
 
 
 def find_nearest_stops_extended(graph: TransportationGraph,
@@ -44,66 +44,50 @@ def find_nearest_stops_extended(graph: TransportationGraph,
     return distances[:top_k]
 
 
-def _first_last_mile_minutes(from_coords: Tuple[float, float], to_coords: Tuple[float, float],
-                             dist_km: float, departure_time: datetime) -> float:
+def _first_last_mile_minutes(dist_km: float) -> float:
     """
-    Estimasi waktu first/last-mile buat SKORING kombinasi (tanpa panggil OSRM
-    spt create_first_last_mile_segment() -- dipanggil berkali-kali per
-    kombinasi, jadi harus murah).
+    Estimasi waktu first/last-mile buat SKORING kombinasi. Kecepatan SAMA
+    persis dgn jalan kaki (5km/jam) baik itu WALK maupun PRIVATE_VEHICLE --
+    beda >500m cuma soal PENAMAAN (orang biasanya sudah enggan jalan kaki
+    lebih dari itu), bukan klaim kendaraan lebih cepat -- lihat
+    create_first_last_mile_segment().
     """
-    if dist_km <= WALK_MAX_KM:
-        return (dist_km / WALKING_SPEED_KMH) * 60
-    return service_model.driving_estimate(from_coords, to_coords, departure_time)["duration_minutes"]
+    return (dist_km / WALKING_SPEED_KMH) * 60
 
 
 def create_first_last_mile_segment(seq: int, from_loc: Location, to_loc: Location,
                                    departure_time: datetime) -> RouteSegment:
     """
-    Segmen first/last-mile. Jalan kaki (garis-lurus/5km/jam, polyline trotoar
-    asli dari OSRM kalau berhasil didapat) kalau jaraknya <= WALK_MAX_KM.
-    Lebih jauh dari itu: "kendaraan pribadi" (motor) pakai estimasi jarak
-    jalan + kecepatan dari service_model.driving_estimate() -- drpd memaksa
-    jalan kaki sangat jauh atau gagal total "no route found".
+    Segmen first/last-mile. Waktu SELALU dihitung dari jarak-garis-lurus/
+    5km/jam (sama persis WALK & PRIVATE_VEHICLE) -- cuma label/mode yg beda
+    di atas WALK_MAX_KM ("Kendaraan Pribadi" drpd "Jalan kaki"), krn orang
+    biasanya sudah enggan jalan kaki lebih dari itu. TIDAK ada klaim
+    kendaraan lebih cepat (tidak ada data tunggu ojek/lalu lintas utk ruas
+    sependek ini).
     """
     dist_km = haversine_distance_km(from_loc.lat, from_loc.lon, to_loc.lat, to_loc.lon)
+    duration_min = _first_last_mile_minutes(dist_km)
 
     from_stop = Stop(-1, f"leg_{seq}", from_loc.name, from_loc.lat, from_loc.lon,
                      "Walking", TransportationMode.WALK)
     to_stop = Stop(-2, f"leg_{seq}", to_loc.name, to_loc.lat, to_loc.lon,
                    "Walking", TransportationMode.WALK)
 
-    if dist_km <= WALK_MAX_KM:
-        duration_min = (dist_km / WALKING_SPEED_KMH) * 60
-        path = service_model.walking_path(from_loc.lat, from_loc.lon, to_loc.lat, to_loc.lon)
-        return RouteSegment(
-            sequence=seq,
-            mode=TransportationMode.WALK,
-            route_name="Walking",
-            from_stop=from_stop,
-            to_stop=to_stop,
-            departure_time=departure_time,
-            arrival_time=departure_time + timedelta(minutes=duration_min),
-            duration_minutes=duration_min,
-            cost=0,
-            distance_km=dist_km,
-            path=path
-        )
+    is_walk = dist_km <= WALK_MAX_KM
+    path = service_model.walking_path(from_loc.lat, from_loc.lon, to_loc.lat, to_loc.lon) if is_walk else None
 
-    estimate = service_model.driving_estimate(
-        (from_loc.lat, from_loc.lon), (to_loc.lat, to_loc.lon), departure_time)
-    duration_min = estimate["duration_minutes"]
     return RouteSegment(
         sequence=seq,
-        mode=TransportationMode.PRIVATE_VEHICLE,
-        route_name="Kendaraan Pribadi",
+        mode=TransportationMode.WALK if is_walk else TransportationMode.PRIVATE_VEHICLE,
+        route_name="Walking" if is_walk else "Kendaraan Pribadi",
         from_stop=from_stop,
         to_stop=to_stop,
         departure_time=departure_time,
         arrival_time=departure_time + timedelta(minutes=duration_min),
         duration_minutes=duration_min,
         cost=0,
-        distance_km=estimate["distance_km"],
-        path=None
+        distance_km=dist_km,
+        path=path
     )
 
 
@@ -203,11 +187,9 @@ def gmaps_style_route(
             
             if transit_route:
                 # Calculate total score including first/last-mile (jalan
-                # kaki atau motor, tergantung jarak -- lihat WALK_MAX_KM)
-                origin_leg_time = _first_last_mile_minutes(
-                    origin_coords, (origin_stop.lat, origin_stop.lon), origin_dist, departure_time)
-                dest_leg_time = _first_last_mile_minutes(
-                    (dest_stop.lat, dest_stop.lon), dest_coords, dest_dist, departure_time)
+                # kaki atau kendaraan pribadi, kecepatan sama -- lihat WALK_MAX_KM)
+                origin_leg_time = _first_last_mile_minutes(origin_dist)
+                dest_leg_time = _first_last_mile_minutes(dest_dist)
                 total_time = origin_leg_time + transit_route.total_time_minutes + dest_leg_time
 
                 if optimization_mode == "time":
@@ -351,6 +333,135 @@ def find_route_alternatives(
         alternatives.append({"label": label, "optimized_for": mode, "route": route})
 
     return alternatives
+
+
+def describe_no_route_reason(
+    graph: TransportationGraph,
+    origin_coords: Tuple[float, float],
+    dest_coords: Tuple[float, float],
+    max_walking_km: float = FIRST_LAST_MILE_SEARCH_KM,
+) -> str:
+    """
+    Alasan spesifik kalau find_route_alternatives() balik kosong -- dicek
+    ULANG di sini (bukan reuse hasil yg sudah None) supaya pesan errornya
+    bisa membedakan "halte tidak ditemukan di sekitar titik ini" (kasus
+    paling umum, mis. titik terlalu jauh dari jaringan) dari "halte ada di
+    kedua titik tapi tidak ada rute yg menghubungkan keduanya".
+    """
+    origin_stops = find_nearest_stops_extended(graph, origin_coords[0], origin_coords[1], max_walking_km)
+    dest_stops = find_nearest_stops_extended(graph, dest_coords[0], dest_coords[1], max_walking_km)
+    radius = f"{max_walking_km:.0f} km"
+
+    if not origin_stops and not dest_stops:
+        return (
+            f"Tidak ditemukan halte transportasi umum dalam radius {radius} "
+            f"dari titik asal maupun titik tujuan."
+        )
+    if not origin_stops:
+        return f"Tidak ditemukan halte transportasi umum dalam radius {radius} dari titik asal."
+    if not dest_stops:
+        return f"Tidak ditemukan halte transportasi umum dalam radius {radius} dari titik tujuan."
+    return "Halte ditemukan di titik asal dan tujuan, tapi tidak ada rute yang menghubungkan keduanya di jaringan kami."
+
+
+# --- Fitur "preferensi pengguna": pilih di antara alternatif yang SUDAH ---
+# --- ada (Tercepat/Termurah/Transfer paling sedikit), bukan pencarian baru.
+
+PREFERENCE_CRITERIA = ("time", "cost", "comfort", "accessibility", "reliability")
+
+
+def _route_comfort_score(route: Route) -> float:
+    """Rata-rata skor kenyamanan per moda (COMFORT_SCORE), tertimbang durasi
+    tiap segmen, dikurangi penalti per transfer. Lihat komentar
+    COMFORT_SCORE di service_model.py -- ini skor editorial, bukan hasil ukur."""
+    total_duration = sum(s.duration_minutes for s in route.segments)
+    if total_duration <= 0:
+        return 0.0
+    weighted = sum(
+        service_model.COMFORT_SCORE.get(s.mode.value, 2.5) * s.duration_minutes
+        for s in route.segments
+    )
+    score = weighted / total_duration - service_model.TRANSFER_COMFORT_PENALTY * route.num_transfers
+    return max(0.0, min(5.0, score))
+
+
+def _route_reliability_score(route: Route) -> float:
+    """Rata-rata skor keandalan per moda (RELIABILITY_SCORE), tertimbang
+    durasi tiap segmen."""
+    total_duration = sum(s.duration_minutes for s in route.segments)
+    if total_duration <= 0:
+        return 0.0
+    weighted = sum(
+        service_model.RELIABILITY_SCORE.get(s.mode.value, 2.5) * s.duration_minutes
+        for s in route.segments
+    )
+    return weighted / total_duration
+
+
+def _route_accessibility_km(route: Route) -> float:
+    """Total jarak first/last-mile (jalan kaki + kendaraan pribadi) -- makin
+    pendek makin mudah diakses."""
+    return sum(
+        s.distance_km for s in route.segments
+        if s.mode in (TransportationMode.WALK, TransportationMode.PRIVATE_VEHICLE)
+    )
+
+
+def score_route_by_preference(route: Route, weights: Dict[str, float],
+                              bounds: Dict[str, Tuple[float, float]]) -> float:
+    """
+    Gabungkan 5 kriteria jadi satu skor (lebih tinggi = lebih cocok dgn
+    preferensi). `bounds` = {criterion: (lo, hi)} dari MIN-MAX di antara
+    kandidat yang sedang dibandingkan (bukan angka acuan tetap -- perjalanan
+    2km vs 25km punya skala waktu/biaya yg beda jauh, jadi normalisasi harus
+    relatif ke kandidat yg ada, bukan konstanta yg dikarang).
+    """
+    def goodness(value: float, criterion: str, higher_is_better: bool) -> float:
+        lo, hi = bounds[criterion]
+        if hi == lo:
+            return 1.0
+        return (value - lo) / (hi - lo) if higher_is_better else (hi - value) / (hi - lo)
+
+    time_g = goodness(route.total_time_minutes, "time", higher_is_better=False)
+    cost_g = goodness(route.total_cost, "cost", higher_is_better=False)
+    comfort_g = goodness(_route_comfort_score(route), "comfort", higher_is_better=True)
+    access_g = goodness(_route_accessibility_km(route), "accessibility", higher_is_better=False)
+    reliability_g = goodness(_route_reliability_score(route), "reliability", higher_is_better=True)
+
+    return (
+        weights["time"] * time_g + weights["cost"] * cost_g +
+        weights["comfort"] * comfort_g + weights["accessibility"] * access_g +
+        weights["reliability"] * reliability_g
+    )
+
+
+def select_preferred_route(alternatives: List[Dict], preferences: Dict[str, float]) -> Optional[Dict]:
+    """
+    Pilih alternatif (dari `find_route_alternatives()`) yang paling cocok dgn
+    preferensi 1-5 pengguna utk 5 kriteria. Tidak menjalankan pencarian rute
+    baru -- murni menilai ulang kandidat yang sudah ada.
+    """
+    if not alternatives:
+        return None
+
+    total_rating = sum(preferences.values())
+    if total_rating <= 0:
+        weights = {c: 1.0 / len(PREFERENCE_CRITERIA) for c in PREFERENCE_CRITERIA}
+    else:
+        weights = {c: preferences[c] / total_rating for c in PREFERENCE_CRITERIA}
+
+    routes = [alt["route"] for alt in alternatives]
+    raw = {
+        "time": [r.total_time_minutes for r in routes],
+        "cost": [r.total_cost for r in routes],
+        "comfort": [_route_comfort_score(r) for r in routes],
+        "accessibility": [_route_accessibility_km(r) for r in routes],
+        "reliability": [_route_reliability_score(r) for r in routes],
+    }
+    bounds = {c: (min(values), max(values)) for c, values in raw.items()}
+
+    best_alt = max(alternatives, key=lambda alt: score_route_by_preference(alt["route"], weights, bounds))
+    return {"label": "Sesuai Preferensi Saya", "optimized_for": "preference", "route": best_alt["route"]}
 
 
 def print_gmaps_route(route: Route, origin_name: str, dest_name: str):

@@ -119,6 +119,14 @@ export const NavigationIcon = (props: IconProps) => (
   </svg>
 );
 
+export const SlidersIcon = (props: IconProps) => (
+  <svg {...base(props)}>
+    <path d="M4 6h10M18 6h2M4 18h2M10 18h10" />
+    <circle cx="16" cy="6" r="2" fill="currentColor" stroke="none" />
+    <circle cx="8" cy="18" r="2" fill="currentColor" stroke="none" />
+  </svg>
+);
+
 export const ChevronDownIcon = (props: IconProps) => (
   <svg {...base(props)}>
     <path d="M6 9l6 6 6-6" />

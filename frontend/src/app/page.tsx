@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import axios from "axios";
 import {
   SearchIcon,
@@ -12,6 +13,7 @@ import {
   LoaderIcon,
   NavigationIcon,
   ChevronDownIcon,
+  SlidersIcon,
   modeIcon,
   modeLabel,
   modeColor,
@@ -38,7 +40,6 @@ interface RouteRequest {
     lat: number;
     lon: number;
   };
-  algorithm: "dijkstra";
   departure_time?: string;
 }
 
@@ -96,48 +97,26 @@ interface Route {
   segments: RouteSegment[];
 }
 
-interface RouteResult {
-  success: boolean;
-  route?: Route;
-  algorithm_info?: {
-    algorithm: string;
-    iterations: number;
-    max_depth: number;
-    pruned_paths: number;
-  };
-  error?: string;
+interface Alternative {
+  label: string;
+  optimized_for: string;
+  route: Route;
 }
 
-interface ApiResponse {
+interface AlternativesResponse {
   success: boolean;
-  results: {
-    dijkstra?: RouteResult;
-    dfs?: RouteResult;
-    comparison?: {
-      dijkstra_time: number;
-      dfs_time: number;
-      dijkstra_cost: number;
-      dfs_cost: number;
-      dijkstra_segments: number;
-      dfs_segments: number;
-      fastest: string;
-      cheapest: string;
-    };
-  };
-  request_info: {
-    origin: { name: string; lat: number; lon: number };
-    destination: { name: string; lat: number; lon: number };
-    algorithm: string;
-    departure_time: string;
-  };
+  origin: { name: string; lat: number; lon: number };
+  destination: { name: string; lat: number; lon: number };
+  departure_time: string;
+  alternatives: Alternative[];
   error?: string;
 }
 
 // Bentuk respons saat di luar jam operasional angkutan umum -- TIDAK punya
-// key "results" seperti ApiResponse biasa, jadi harus dicek terpisah sebelum
-// mengakses response.data.results (kalau tidak, TypeError krn results
-// undefined, ketangkep di catch block sbg "Failed to get route" walau
-// server sebenarnya menjawab 200 OK).
+// key "alternatives" seperti AlternativesResponse biasa, jadi harus dicek
+// terpisah sebelum mengakses response.data.alternatives (kalau tidak,
+// TypeError krn alternatives undefined, ketangkep di catch block sbg
+// "Failed to get route" walau server sebenarnya menjawab 200 OK).
 interface OutOfServiceResponse {
   success: true;
   public_transport_available: false;
@@ -172,19 +151,17 @@ export default function Home() {
   const [routeRequest, setRouteRequest] = useState<RouteRequest>({
     origin: { name: "", lat: 0, lon: 0 },
     destination: { name: "", lat: 0, lon: 0 },
-    algorithm: "dijkstra",
     departure_time: getCurrentTimeGMT7(),
   });
 
-  const [routeResults, setRouteResults] = useState<ApiResponse | null>(null);
+  const [alternativesResponse, setAlternativesResponse] =
+    useState<AlternativesResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [serviceInfo, setServiceInfo] = useState<OutOfServiceResponse | null>(
     null
   );
-  const [selectedRoute, setSelectedRoute] = useState<"dijkstra" | "dfs" | null>(
-    null
-  );
+  const [selectedIndex, setSelectedIndex] = useState(0);
   // Sequence segmen yg dropdown "halte yang dilewati"-nya sedang terbuka.
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
   const toggleStepExpanded = (sequence: number) => {
@@ -508,8 +485,8 @@ export default function Home() {
     setLoading(true);
     setError(null);
     setServiceInfo(null);
-    setRouteResults(null);
-    setSelectedRoute(null);
+    setAlternativesResponse(null);
+    setSelectedIndex(0);
     setExpandedSteps(new Set());
 
     try {
@@ -519,40 +496,44 @@ export default function Home() {
         ? `${routeRequest.departure_time}:00+07:00` // Add seconds and GMT+7 timezone
         : undefined;
 
+      // Preferensi (opsional) dari halaman /preferensi -- kalau pengguna
+      // belum pernah mengaturnya, tidak dikirim sama sekali (backend cuma
+      // menambah opsi ke-4 "Sesuai Preferensi Saya" kalau field ini ada).
+      let preferences: Record<string, number> | undefined;
+      try {
+        const stored = localStorage.getItem("transit_preferences_v1");
+        if (stored) preferences = JSON.parse(stored);
+      } catch {
+        preferences = undefined;
+      }
+
       const requestPayload = {
-        ...routeRequest,
+        origin: routeRequest.origin,
+        destination: routeRequest.destination,
         departure_time: departureTimeISO,
+        ...(preferences ? { preferences } : {}),
       };
 
       const response = await axios.post(
-        `${ROUTE_API_BASE_URL}/route`,
+        `${ROUTE_API_BASE_URL}/route/alternatives`,
         requestPayload
       );
 
-      // Di luar jam operasional: respons TIDAK punya key "results" (lihat
-      // OutOfServiceResponse) -- tangani terpisah sebelum menyentuh
-      // response.data.results, supaya tidak crash jadi "Failed to get route".
+      // Di luar jam operasional: respons TIDAK punya key "alternatives"
+      // (lihat OutOfServiceResponse) -- tangani terpisah sebelum menyentuh
+      // response.data.alternatives, supaya tidak crash jadi "Failed to get route".
       if (response.data.public_transport_available === false) {
         setServiceInfo(response.data as OutOfServiceResponse);
         return;
       }
 
-      setRouteResults(response.data);
+      setAlternativesResponse(response.data);
 
-      // Auto-select dijkstra route (Enhanced DFS uses Dijkstra)
-      const dijkstraResult = response.data.results.dijkstra;
-      const dfsResult = response.data.results.dfs;
-      if (dijkstraResult?.success) {
-        setSelectedRoute("dijkstra");
-      } else if (dfsResult?.success) {
-        setSelectedRoute("dfs");
-      } else {
+      if (!response.data.alternatives || response.data.alternatives.length === 0) {
         // Server menjawab 200 tapi tidak ada rute yang ditemukan (mis. asal/tujuan
         // tidak terhubung ke jaringan) -- tanpa ini, UI diam saja tanpa pesan apa pun.
         setError(
-          dijkstraResult?.error ||
-            dfsResult?.error ||
-            "Rute tidak ditemukan antara lokasi asal dan tujuan."
+          response.data.error || "Rute tidak ditemukan antara lokasi asal dan tujuan."
         );
       }
     } catch (err: unknown) {
@@ -577,10 +558,9 @@ export default function Home() {
     }).format(cost);
   };
 
-  const activeRoute =
-    routeResults && selectedRoute && routeResults.results[selectedRoute]?.success
-      ? routeResults.results[selectedRoute]!.route
-      : null;
+  const alternatives = alternativesResponse?.alternatives ?? [];
+  const activeAlternative = alternatives[selectedIndex] ?? null;
+  const activeRoute = activeAlternative?.route ?? null;
 
   return (
     <div className="flex min-h-screen flex-col bg-white lg:h-screen lg:flex-row lg:overflow-hidden">
@@ -592,7 +572,7 @@ export default function Home() {
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--gmaps-blue)] text-white">
             <NavigationIcon width={18} height={18} />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="truncate text-base font-medium leading-tight text-[var(--gmaps-text)]">
               Palembang Transit Router
             </h1>
@@ -600,6 +580,14 @@ export default function Home() {
               Rute angkutan umum tercepat
             </p>
           </div>
+          <Link
+            href="/preferensi"
+            title="Atur preferensi saya"
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--gmaps-border)] px-3 py-1.5 text-xs font-medium text-[var(--gmaps-text-secondary)] hover:bg-[var(--gmaps-surface-hover)] hover:text-[var(--gmaps-blue)]"
+          >
+            <SlidersIcon width={14} height={14} />
+            Preferensi
+          </Link>
         </div>
 
         <div className="gmaps-scroll lg:flex-1 lg:overflow-y-auto">
@@ -791,6 +779,27 @@ export default function Home() {
             </div>
           )}
 
+          {/* Tab alternatif rute -- Tercepat/Termurah/Transfer paling sedikit,
+              ditambah "Sesuai Preferensi Saya" kalau preferensi sudah diatur. */}
+          {alternatives.length > 1 && (
+            <div className="flex gap-1.5 overflow-x-auto px-4 pb-3">
+              {alternatives.map((alt, index) => (
+                <button
+                  key={`${alt.optimized_for}-${index}`}
+                  type="button"
+                  onClick={() => setSelectedIndex(index)}
+                  className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                    index === selectedIndex
+                      ? "border-[var(--gmaps-blue)] bg-[var(--gmaps-blue-tint)] text-[var(--gmaps-blue-hover)]"
+                      : "border-[var(--gmaps-border)] text-[var(--gmaps-text-secondary)] hover:bg-[var(--gmaps-surface-hover)]"
+                  }`}
+                >
+                  {alt.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Route Results -- directions-list style, like Google Maps */}
           {activeRoute && (
             <div className="border-t border-[var(--gmaps-border)]">
@@ -812,7 +821,7 @@ export default function Home() {
                   </span>
                 </div>
 
-                {routeResults?.request_info?.departure_time && (
+                {alternativesResponse?.departure_time && (
                   <div className="mt-3 rounded-lg border border-[var(--gmaps-blue-tint)] bg-[var(--gmaps-blue-tint)] px-3 py-2">
                     <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[var(--gmaps-blue-hover)]">
                       <ClockIcon width={13} height={13} />
@@ -820,7 +829,7 @@ export default function Home() {
                     </div>
                     <div className="text-sm text-[var(--gmaps-text)]">
                       {new Date(
-                        routeResults.request_info.departure_time
+                        alternativesResponse.departure_time
                       ).toLocaleString("id-ID", {
                         timeZone: "Asia/Jakarta",
                         year: "numeric",
@@ -833,7 +842,7 @@ export default function Home() {
                     </div>
                     {(() => {
                       const hour = new Date(
-                        routeResults.request_info.departure_time
+                        alternativesResponse.departure_time
                       ).getHours();
                       let phase = "";
                       let color = "";
@@ -954,8 +963,7 @@ export default function Home() {
       {/* Map -- fills remaining space, full height on desktop */}
       <div className="relative h-[50vh] w-full lg:h-full lg:flex-1">
         <MapComponent
-          routeResults={routeResults}
-          selectedRoute={selectedRoute}
+          activeRoute={activeRoute}
           routeRequest={routeRequest}
         />
       </div>

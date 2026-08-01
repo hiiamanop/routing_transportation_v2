@@ -54,6 +54,24 @@ HEADWAY_MINUTES = {
     "LRT": 17.0,
 }
 
+# --- Skor kenyamanan & keandalan per moda (fitur "preferensi pengguna") ----
+# SUMBER: editorial, BUKAN data survei/pengukuran -- tidak ada data kenyamanan
+# atau keandalan primer di dataset manapun. Skala 1-5, sama dgn skala Likert
+# yg diisi pengguna di halaman preferensi. LRT dinilai paling andal krn
+# satu-satunya moda dgn jadwal resmi nyata (_lrt_schedule_wait di bawah);
+# Feeder Angkot dinilai paling rendah keandalannya krn angkutan informal tanpa
+# data headway riil (sama spt disclaimer HEADWAY_MINUTES di atas). TODO:
+# ganti dgn data survei kepuasan penumpang kalau tersedia.
+COMFORT_SCORE = {
+    "LRT": 5.0, "TEMAN_BUS": 3.5, "FEEDER_ANGKOT": 2.0,
+    "WALK": 2.5, "PRIVATE_VEHICLE": 4.0,
+}
+RELIABILITY_SCORE = {
+    "LRT": 5.0, "TEMAN_BUS": 3.5, "FEEDER_ANGKOT": 2.0,
+    "WALK": 4.5, "PRIVATE_VEHICLE": 3.0,
+}
+TRANSFER_COMFORT_PENALTY = 0.3  # poin dikurangi dari skor kenyamanan per transfer
+
 # Model tunggu: "full" = headway penuh (skenario terburuk, pilihan pemilik
 # penelitian), "half" = headway/2 (kedatangan penumpang acak, lazim di literatur).
 WAIT_MODEL = "full"

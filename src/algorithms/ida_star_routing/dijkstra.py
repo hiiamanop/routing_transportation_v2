@@ -45,6 +45,19 @@ TRANSFER_TIME_PENALTY = 5.0  # Extra 5 minutes for transfer overhead
 TRANSFER_TIEBREAK_PER_KM = 0.05  # menit per km jarak transfer
 TRANSFER_TIEBREAK_CAP_KM = 2.0   # jarak transfer di atas ini tidak menambah nudge lagi
 
+# Tie-breaker mikro utk optimization_mode="cost": Feeder Angkot GRATIS
+# berapa pun transfernya, dan LRT/Teman Bus tarif RATA sekali naik (bukan per
+# halte) -- jadi BANYAK rute berbeda bisa punya ongkos PERSIS SAMA (mis.
+# Rp5.000 vs Rp5.000), dan tanpa pemecah seri, pencarian "termurah" bisa
+# jatuh ke rute yg muter-muter krn kebetulan itu yg lebih dulu dieksplorasi
+# -- ditemukan lewat kasus nyata (2026-08-01): dua rute sama-sama Rp5.000,
+# satu 1j26m/2 transfer, satunya 2j3m/4 transfer, "termurah" malah pilih yg
+# lebih lambat krn tak ada alasan matematis memilih salah satu di antara yg
+# seri. Nilai sekecil ini (0.01 menit/menit tempuh) 250.000x lebih kecil dari
+# unit rupiah terkecil (Rp5.000), jadi TIDAK PERNAH bisa mengalahkan selisih
+# ongkos riil sekecil apapun -- cuma menang saat ongkos memang PERSIS SAMA.
+COST_TIEBREAK_PER_MINUTE = 0.01
+
 
 def haversine_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Calculate distance in kilometers"""
@@ -166,11 +179,19 @@ class DijkstraRouter:
                              when: Optional[datetime] = None) -> float:
         """Biaya ruas: waktu tempuh nyata + waktu tunggu kendaraan."""
         wait = self._boarding_wait_minutes(edge, current_route, when)
+        travel = self._edge_travel_minutes(edge, when)
 
         if self.optimization_mode == "cost":
-            return float(edge.cost)
+            # Tarif dikenakan SEKALI per naik kendaraan baru (edge.route
+            # beda dari current_route), bukan per ruas/halte yg dilewati --
+            # sama spt _boarding_wait_minutes. edge.cost sendiri adalah tarif
+            # FLAT per moda (DEFAULT_COSTS), jadi kalau dikenakan per ruas,
+            # LRT/Teman Bus jadi dihitung berkali lipat cuma krn melewati
+            # banyak halte, padahal tarif nyata (lihat calculate_route_cost)
+            # cuma sekali per perjalanan.
+            fare = float(edge.cost) if edge.route != current_route else 0.0
+            return fare + COST_TIEBREAK_PER_MINUTE * travel
 
-        travel = self._edge_travel_minutes(edge, when)
         if self.optimization_mode == "time":
             return travel + wait
         elif self.optimization_mode == "transfers":

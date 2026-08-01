@@ -68,43 +68,6 @@ interface Route {
   segments: RouteSegment[];
 }
 
-interface RouteResult {
-  success: boolean;
-  route?: Route;
-  algorithm_info?: {
-    algorithm: string;
-    iterations: number;
-    max_depth: number;
-    pruned_paths: number;
-  };
-  error?: string;
-}
-
-interface ApiResponse {
-  success: boolean;
-  results: {
-    dijkstra?: RouteResult;
-    dfs?: RouteResult;
-    comparison?: {
-      dijkstra_time: number;
-      dfs_time: number;
-      dijkstra_cost: number;
-      dfs_cost: number;
-      dijkstra_segments: number;
-      dfs_segments: number;
-      fastest: string;
-      cheapest: string;
-    };
-  };
-  request_info: {
-    origin: { name: string; lat: number; lon: number };
-    destination: { name: string; lat: number; lon: number };
-    algorithm: string;
-    departure_time: string;
-  };
-  error?: string;
-}
-
 interface RouteRequest {
   origin: {
     name: string;
@@ -116,29 +79,22 @@ interface RouteRequest {
     lat: number;
     lon: number;
   };
-  algorithm: "dijkstra";
   departure_time?: string;
 }
 
 // Component to fit map bounds
 function MapBounds({
-  routeResults,
-  selectedRoute,
+  activeRoute,
   routeRequest,
 }: {
-  routeResults: ApiResponse | null;
-  selectedRoute: "dijkstra" | "dfs" | null;
+  activeRoute: Route | null;
   routeRequest: RouteRequest;
 }) {
   const map = useMap();
 
   useEffect(() => {
-    if (
-      routeResults &&
-      selectedRoute &&
-      routeResults.results[selectedRoute]?.success
-    ) {
-      const route = routeResults.results[selectedRoute]!.route!;
+    if (activeRoute) {
+      const route = activeRoute;
       const coordinates: [number, number][] = [];
 
       // Add origin and destination
@@ -175,36 +131,40 @@ function MapBounds({
       ]);
       map.fitBounds(bounds, { padding: [20, 20] });
     }
-  }, [map, routeResults, selectedRoute, routeRequest]);
+  }, [map, activeRoute, routeRequest]);
 
   return null;
 }
 
 export default function MapComponent({
-  routeResults,
-  selectedRoute,
+  activeRoute,
   routeRequest,
 }: {
-  routeResults: ApiResponse | null;
-  selectedRoute: "dijkstra" | "dfs" | null;
+  activeRoute: Route | null;
   routeRequest: RouteRequest;
 }) {
   // State for route waypoints (from KMZ)
   const [routeWaypoints, setRouteWaypoints] = React.useState<
     Record<string, Array<[number, number]>>
   >({});
+  // [lat, lon, waypoint_index] per halte asli -- dicatat backend saat
+  // polyline dibuat. Dipakai utk cari indeks awal/akhir tiap segmen
+  // TANPA nearest-search di seluruh polyline: koridor berbentuk loop
+  // bisa lewat berdekatan dgn dirinya sendiri di titik yg beda, jadi
+  // "titik terdekat" di polyline penuh bisa salah nyasar ke bagian lain
+  // dari loop. Anchor ini himpunan kecil (cuma sebanyak halte asli) yg
+  // semuanya representasi halte sungguhan, jauh lebih aman dicocokkan.
+  const [routeStopAnchors, setRouteStopAnchors] = React.useState<
+    Record<string, Array<[number, number, number]>>
+  >({});
 
   // Fetch waypoints for routes used in segments
   React.useEffect(() => {
-    if (
-      !routeResults ||
-      !selectedRoute ||
-      !routeResults.results[selectedRoute]?.success
-    ) {
+    if (!activeRoute) {
       return;
     }
 
-    const route = routeResults.results[selectedRoute]!.route!;
+    const route = activeRoute;
     const uniqueRoutes = new Set(
       route.segments
         .filter(
@@ -231,6 +191,10 @@ export default function MapComponent({
               ...prev,
               [routeName]: data.waypoints,
             }));
+            setRouteStopAnchors((prev) => ({
+              ...prev,
+              [routeName]: data.stop_anchors ?? [],
+            }));
           }
         }
       } catch {
@@ -238,19 +202,15 @@ export default function MapComponent({
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeResults, selectedRoute]);
+  }, [activeRoute]);
 
   // Get route segments for visualization - with waypoints if available
   const getRouteSegments = () => {
-    if (
-      !routeResults ||
-      !selectedRoute ||
-      !routeResults.results[selectedRoute]?.success
-    ) {
+    if (!activeRoute) {
       return [];
     }
 
-    const route = routeResults.results[selectedRoute]!.route!;
+    const route = activeRoute;
     return route.segments
       .filter(
         (segment) =>
@@ -278,33 +238,37 @@ export default function MapComponent({
           segment.mode !== "PRIVATE_VEHICLE"
         ) {
           const waypoints = routeWaypoints[segment.route_name];
+          const anchors = routeStopAnchors[segment.route_name] ?? [];
           const fromLat = segment.from_coords.lat;
           const fromLon = segment.from_coords.lon;
           const toLat = segment.to_coords.lat;
           const toLon = segment.to_coords.lon;
 
-          // Find closest waypoint to from and to
+          // Cocokkan ke daftar ANCHOR (halte asli, himpunan kecil), bukan
+          // cari "titik terdekat" di seluruh polyline -- utk koridor loop,
+          // polyline penuh bisa lewat berdekatan dgn dirinya sendiri di
+          // bagian yg berbeda, jadi nearest-search di situ rawan salah
+          // nyasar jauh dari halte yg dimaksud.
           let fromIdx = 0;
           let toIdx = waypoints.length - 1;
           let minFromDist = Infinity;
           let minToDist = Infinity;
 
-          for (let i = 0; i < waypoints.length; i++) {
-            const wp = waypoints[i];
+          for (const [aLat, aLon, aIdx] of anchors) {
             const distFrom = Math.sqrt(
-              Math.pow(wp[0] - fromLat, 2) + Math.pow(wp[1] - fromLon, 2)
+              Math.pow(aLat - fromLat, 2) + Math.pow(aLon - fromLon, 2)
             );
             const distTo = Math.sqrt(
-              Math.pow(wp[0] - toLat, 2) + Math.pow(wp[1] - toLon, 2)
+              Math.pow(aLat - toLat, 2) + Math.pow(aLon - toLon, 2)
             );
 
             if (distFrom < minFromDist) {
               minFromDist = distFrom;
-              fromIdx = i;
+              fromIdx = aIdx;
             }
             if (distTo < minToDist) {
               minToDist = distTo;
-              toIdx = i;
+              toIdx = aIdx;
             }
           }
 
@@ -359,8 +323,7 @@ export default function MapComponent({
 
         {/* Fit bounds to route */}
         <MapBounds
-          routeResults={routeResults}
-          selectedRoute={selectedRoute}
+          activeRoute={activeRoute}
           routeRequest={routeRequest}
         />
 
@@ -408,7 +371,7 @@ export default function MapComponent({
           const isOwnLeg = segment.mode === "WALK" || segment.mode === "PRIVATE_VEHICLE";
           return (
             <Polyline
-              key={`${selectedRoute}-${index}`}
+              key={`${activeRoute?.route_id ?? "route"}-${index}`}
               positions={segment.coordinates}
               color={modeColor(segment.mode)}
               weight={isOwnLeg ? 3 : 5}
