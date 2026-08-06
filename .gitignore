@@ -8,3 +8,5 @@ node_modules/
 # Skrip deploy berisi kredensial server -- jangan pernah ikut ter-commit.
 # Pola lama ".sh" salah: itu hanya cocok utk file bernama persis ".sh".
 *.sh
+# Memuat kredensial root SSH server, sama seperti skrip deploy di atas.
+DEPLOYMENT.md
