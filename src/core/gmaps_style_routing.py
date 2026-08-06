@@ -99,7 +99,8 @@ def gmaps_style_route(
     dest_coords: Tuple[float, float],
     optimization_mode: str = "time",
     departure_time: Optional[datetime] = None,
-    max_walking_km: float = FIRST_LAST_MILE_SEARCH_KM
+    max_walking_km: float = FIRST_LAST_MILE_SEARCH_KM,
+    avoid_routes: Optional[set] = None
 ) -> Optional[Route]:
     """
     Complete Google Maps style routing
@@ -167,7 +168,7 @@ def gmaps_style_route(
     print(f"STEP 2: Finding optimal transit route (Dijkstra algorithm)")
     print(f"{'─'*90}")
     
-    router = DijkstraRouter(graph, optimization_mode)
+    router = DijkstraRouter(graph, optimization_mode, avoid_routes=avoid_routes)
     
     best_route = None
     best_score = float('inf')
@@ -203,7 +204,20 @@ def gmaps_style_route(
                     # padahal yang diinginkan cuma transfer-nya yg dihemat.
                     score = total_time
                 elif optimization_mode == "cost":
-                    score = transit_route.total_cost  # Walking is free
+                    # Ongkos dulu, TAPI di antara yang ongkosnya sama pilih yang
+                    # tercepat. Tarif di jaringan ini sangat kasar (Feeder GRATIS,
+                    # Teman Bus & LRT tarif rata Rp5.000), jadi SANGAT banyak rute
+                    # berbeda punya ongkos PERSIS SAMA. Dulu skor di sini cuma
+                    # total_cost, sehingga di antara yang seri terpilih rute mana
+                    # saja -- akibatnya tab "Termurah" menyajikan rute yang
+                    # ongkosnya sama persis dgn "Tercepat" tapi 2-3x lebih lama
+                    # (terukur: Rp5.000/38 menit vs Rp5.000/93 menit).
+                    #
+                    # 0.01 per menit: rute terlama sekalipun (~300 menit) cuma
+                    # menambah 3, jauh di bawah satuan rupiah terkecil (Rp5.000),
+                    # jadi TIDAK PERNAH bisa mengalahkan selisih ongkos yang
+                    # nyata -- murni pemecah seri.
+                    score = transit_route.total_cost + 0.01 * total_time
                 else:
                     score = total_time + transit_route.total_cost / 1000
                 
@@ -331,6 +345,40 @@ def find_route_alternatives(
             continue  # sama persis dengan alternatif yang sudah ada, skip
         seen_signatures.add(sig)
         alternatives.append({"label": label, "optimized_for": mode, "route": route})
+
+    # Rute lewat KORIDOR LAIN.
+    #
+    # Ketiga pencarian di atas sering bermuara ke rute yang sama persis lalu
+    # digabung penyaring duplikat -- terukur: 9 dari 14 pencarian cuma
+    # menyisakan SATU alternatif. Akibatnya tab "Sesuai Preferensi Saya"
+    # tidak punya apa pun untuk dipilih dan selalu sama dgn "Tercepat".
+    #
+    # Jadi dicari sekali lagi dgn koridor yang dipakai rute terbaik DIHUKUM,
+    # meniru cara Google Maps menyodorkan jalan lain. Hasilnya pilihan yang
+    # benar-benar berbeda (mis. naik Feeder gratis alih-alih LRT berbayar),
+    # bukan variasi tipis. Hukumannya lunak: kalau memang tidak ada jalan
+    # lain, koridor yang sama tetap dipakai dan hasilnya tersaring sbg
+    # duplikat -- tidak pernah bikin pencarian gagal.
+    if alternatives:
+        used = {
+            s.route_name
+            for s in alternatives[0]["route"].segments
+            if s.mode not in (TransportationMode.WALK,
+                              TransportationMode.PRIVATE_VEHICLE,
+                              TransportationMode.TRANSFER)
+        }
+        if used:
+            other = gmaps_style_route(
+                graph, origin_name, origin_coords, dest_name, dest_coords,
+                optimization_mode="time", departure_time=departure_time,
+                max_walking_km=max_walking_km, avoid_routes=used,
+            )
+            if other is not None and _route_signature(other) not in seen_signatures:
+                alternatives.append({
+                    "label": "Lewat rute lain",
+                    "optimized_for": "alternative",
+                    "route": other,
+                })
 
     return alternatives
 

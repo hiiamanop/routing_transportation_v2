@@ -14,6 +14,7 @@ import {
   NavigationIcon,
   ChevronDownIcon,
   SlidersIcon,
+  MapIcon,
   modeIcon,
   modeLabel,
   modeColor,
@@ -580,6 +581,14 @@ export default function Home() {
               Rute angkutan umum tercepat
             </p>
           </div>
+          <Link
+            href="/jaringan"
+            title="Lihat peta jaringan"
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--gmaps-border)] px-3 py-1.5 text-xs font-medium text-[var(--gmaps-text-secondary)] hover:bg-[var(--gmaps-surface-hover)] hover:text-[var(--gmaps-blue)]"
+          >
+            <MapIcon width={14} height={14} />
+            Jaringan
+          </Link>
           <Link
             href="/preferensi"
             title="Atur preferensi saya"

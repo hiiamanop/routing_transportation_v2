@@ -127,6 +127,13 @@ export const SlidersIcon = (props: IconProps) => (
   </svg>
 );
 
+export const MapIcon = (props: IconProps) => (
+  <svg {...base(props)}>
+    <path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z" />
+    <path d="M9 3v16M15 5v16" />
+  </svg>
+);
+
 export const ChevronDownIcon = (props: IconProps) => (
   <svg {...base(props)}>
     <path d="M6 9l6 6 6-6" />
@@ -183,7 +190,7 @@ export function modeColor(mode: string): string {
     case "TEMAN_BUS":
       return "#1a73e8"; // biru Google
     case "FEEDER_ANGKOT":
-      return "#f9ab00"; // kuning/oranye
+      return "#d93025"; // merah (senada --gmaps-red)
     case "LRT":
       return "#8430ce"; // ungu
     default:

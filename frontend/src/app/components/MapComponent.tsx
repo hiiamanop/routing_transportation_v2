@@ -7,11 +7,14 @@ import {
   Marker,
   Popup,
   Polyline,
+  CircleMarker,
+  Tooltip,
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { modeColor, modeLabel } from "./icons";
+import { offsetPolyline } from "./geo";
 
 // Pin ala Google Maps: lingkaran biru (asal) & tetesan merah (tujuan),
 // dibuat lewat divIcon inline SVG -- lebih mirip Maps drpd marker default Leaflet.
@@ -51,6 +54,8 @@ interface RouteSegment {
   // Jalur trotoar/jalan asli utk segmen jalan kaki (dari OSRM), kalau
   // berhasil didapat backend. undefined/null = pakai garis lurus.
   path?: [number, number][] | null;
+  // Nama halte yang dilewati di antara titik naik dan titik turun.
+  via_stops?: string[];
 }
 
 interface Route {
@@ -221,6 +226,8 @@ export default function MapComponent({
       )
       .map((segment) => {
         let coordinates: Array<[number, number]> = [];
+        // Titik halte yang dilewati segmen ini (naik, lewat, turun).
+        let stopPoints: Array<{ lat: number; lon: number; name?: string }> = [];
 
         // Segmen jalan kaki: pakai jalur trotoar asli dari backend kalau ada,
         // supaya tidak digambar sebagai garis lurus menembus bangunan.
@@ -291,6 +298,37 @@ export default function MapComponent({
             coordinates[0] = [fromLat, fromLon];
             coordinates[coordinates.length - 1] = [toLat, toLon];
           }
+
+          // Geser ke sisi jalan sesuai arah tempuh. Untuk arah pulang,
+          // koordinatnya sudah dibalik di atas, jadi "sisi kiri arah jalan"
+          // otomatis jatuh di seberang -- dua arah tidak lagi bertumpuk
+          // jadi satu garis.
+          coordinates = offsetPolyline(coordinates);
+
+          // Halte sepanjang segmen ini diambil dari anchor yang indeksnya
+          // berada di antara titik naik dan titik turun -- jadi ikut
+          // menandai halte yang cuma DILEWATI, bukan cuma ujung-ujungnya.
+          const lo = Math.min(fromIdx, toIdx);
+          const hi = Math.max(fromIdx, toIdx);
+          const between = anchors
+            .filter(([, , aIdx]) => aIdx >= lo && aIdx <= hi)
+            .sort((a, b) => a[2] - b[2]);
+          if (fromIdx > toIdx) between.reverse();
+
+          stopPoints = between.map(([aLat, aLon]) => ({ lat: aLat, lon: aLon }));
+          // Nama: ujung-ujungnya sudah pasti; yang di tengah dinamai dari
+          // via_stops HANYA kalau jumlahnya cocok -- kalau tidak, biarkan
+          // tanpa nama drpd salah memberi label.
+          if (stopPoints.length > 0) {
+            stopPoints[0].name = segment.from_stop;
+            stopPoints[stopPoints.length - 1].name = segment.to_stop;
+            const via = segment.via_stops ?? [];
+            if (via.length === stopPoints.length - 2) {
+              via.forEach((nm, k) => {
+                stopPoints[k + 1].name = nm;
+              });
+            }
+          }
         } else {
           // No waypoints available - use straight line
           coordinates = [
@@ -299,9 +337,29 @@ export default function MapComponent({
           ];
         }
 
+        // Segmen transit tanpa data anchor (mis. koridor yang waypoint-nya
+        // gagal dimuat) tetap ditandai titik naik & turunnya.
+        const isOwnLeg =
+          segment.mode === "WALK" || segment.mode === "PRIVATE_VEHICLE";
+        if (stopPoints.length === 0 && !isOwnLeg) {
+          stopPoints = [
+            {
+              lat: segment.from_coords.lat,
+              lon: segment.from_coords.lon,
+              name: segment.from_stop,
+            },
+            {
+              lat: segment.to_coords.lat,
+              lon: segment.to_coords.lon,
+              name: segment.to_stop,
+            },
+          ];
+        }
+
         return {
           ...segment,
           coordinates,
+          stopPoints,
         };
       });
   };
@@ -371,15 +429,52 @@ export default function MapComponent({
           const isOwnLeg = segment.mode === "WALK" || segment.mode === "PRIVATE_VEHICLE";
           return (
             <Polyline
-              key={`${activeRoute?.route_id ?? "route"}-${index}`}
+              // Key HARUS ikut berubah saat alternatif rute diganti. Dulu
+              // key-nya `${route_id}-${index}`, padahal SEMUA alternatif
+              // (Tercepat/Termurah/Preferensi) memakai route_id yang sama
+              // yaitu 1 -- jadi saat pindah tab React memakai ulang objek
+              // garis Leaflet yang lama dan warnanya tidak ikut diperbarui.
+              key={`${segment.mode}|${segment.route_name}|${segment.from_stop}|${segment.to_stop}|${index}`}
               positions={segment.coordinates}
               color={modeColor(segment.mode)}
               weight={isOwnLeg ? 3 : 5}
               opacity={isOwnLeg ? 0.7 : 0.9}
-              {...(isOwnLeg ? { dashArray: "1, 8" } : {})}
+              // Selalu dikirim eksplisit (string kosong utk garis tegas),
+              // bukan dipasang bersyarat. Kalau prop-nya cuma dihilangkan,
+              // Leaflet tidak menghapus gaya putus-putus yang menempel
+              // sebelumnya pada objek garis yang dipakai ulang.
+              dashArray={isOwnLeg ? "1, 8" : ""}
             />
           );
         })}
+
+        {/* Titik halte sepanjang rute. Digambar setelah garis supaya tidak
+            tertimpa. Titik naik & turun dibuat lebih besar drpd halte yang
+            hanya dilewati, supaya mudah dibedakan sekilas. */}
+        {routeSegments.flatMap((segment, si) =>
+          (segment.stopPoints ?? []).map((sp, k, arr) => {
+            const isEnd = k === 0 || k === arr.length - 1;
+            return (
+              <CircleMarker
+                key={`stop-${si}-${k}-${sp.lat}-${sp.lon}`}
+                center={[sp.lat, sp.lon]}
+                radius={isEnd ? 6 : 3.5}
+                pathOptions={{
+                  color: "#ffffff",
+                  weight: 2,
+                  fillColor: modeColor(segment.mode),
+                  fillOpacity: 1,
+                }}
+              >
+                {sp.name && (
+                  <Tooltip direction="top" offset={[0, -4]}>
+                    {sp.name}
+                  </Tooltip>
+                )}
+              </CircleMarker>
+            );
+          })
+        )}
       </MapContainer>
 
       {/* Legend -- hanya moda yang benar-benar dipakai di rute saat ini */}

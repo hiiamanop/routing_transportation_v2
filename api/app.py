@@ -435,10 +435,30 @@ def route_alternatives():
         )
 
         if not alternatives:
+            # Halte ada di kedua titik tapi jaringan transit tidak
+            # menghubungkannya (atau titik terlalu jauh dari halte manapun) --
+            # drpd berhenti di "no route found", tawarkan estimasi kendaraan
+            # pribadi (sama persis pola & fungsi yg dipakai utk kasus di luar
+            # jam operasional di atas) supaya user tetap dapat jawaban yang
+            # bisa ditindaklanjuti, bukan jalan buntu.
             reason = describe_no_route_reason(
                 graph, (origin['lat'], origin['lon']), (destination['lat'], destination['lon'])
             )
-            return jsonify({"success": False, "error": reason}), 200
+            estimate = service_model.driving_estimate(
+                (origin['lat'], origin['lon']),
+                (destination['lat'], destination['lon']),
+                departure_time,
+            )
+            return jsonify({
+                "success": True,
+                "public_transport_available": False,
+                "reason": reason,
+                "suggested_mode": "PRIVATE_VEHICLE",
+                "private_vehicle": estimate,
+                "origin": origin,
+                "destination": destination,
+                "departure_time": departure_time.isoformat(),
+            }), 200
 
         if preferences is not None:
             preferred = select_preferred_route(alternatives, preferences)

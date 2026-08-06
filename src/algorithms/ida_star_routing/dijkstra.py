@@ -93,16 +93,29 @@ class DijkstraRouter:
     Dijkstra's algorithm with multi-modal support and automatic transfer detection
     """
     
-    def __init__(self, graph: TransportationGraph, optimization_mode: str = "time"):
+    def __init__(self, graph: TransportationGraph, optimization_mode: str = "time",
+                 avoid_routes: Optional[set] = None,
+                 avoid_penalty_minutes: float = 25.0):
         """
         Initialize Dijkstra router
-        
+
         Args:
             graph: Transportation network
             optimization_mode: "time", "cost", "transfers", or "balanced"
+            avoid_routes: nama koridor yang ingin DIHINDARI. Dipakai untuk
+                mencari rute alternatif yang benar-benar lewat jalan lain:
+                pencarian kedua dijalankan dgn koridor rute pertama dihukum,
+                sehingga hasilnya bukan variasi tipis melainkan pilihan lain
+                (mis. naik Feeder gratis alih-alih LRT berbayar).
+            avoid_penalty_minutes: besar hukuman, dikenakan SEKALI setiap kali
+                naik koridor yang dihindari. Ini hukuman LUNAK, bukan larangan
+                -- kalau memang tidak ada jalan lain, koridor itu tetap dipakai
+                drpd gagal menemukan rute sama sekali.
         """
         self.graph = graph
         self.optimization_mode = optimization_mode
+        self.avoid_routes = set(avoid_routes or ())
+        self.avoid_penalty_minutes = avoid_penalty_minutes
         self.transfer_map = self._build_transfer_map()
         
         print(f"\n🔧 Dijkstra Router initialized")
@@ -181,6 +194,14 @@ class DijkstraRouter:
         wait = self._boarding_wait_minutes(edge, current_route, when)
         travel = self._edge_travel_minutes(edge, when)
 
+        # Hukuman koridor yang dihindari -- dikenakan SEKALI saat naik
+        # kendaraan baru (sama seperti tarif & waktu tunggu), bukan per ruas.
+        # Kalau dikenakan per ruas, koridor panjang jadi terhukum berkali
+        # lipat cuma karena banyak haltenya.
+        avoid = (self.avoid_penalty_minutes
+                 if (self.avoid_routes and edge.route != current_route
+                     and edge.route in self.avoid_routes) else 0.0)
+
         if self.optimization_mode == "cost":
             # Tarif dikenakan SEKALI per naik kendaraan baru (edge.route
             # beda dari current_route), bukan per ruas/halte yg dilewati --
@@ -190,17 +211,23 @@ class DijkstraRouter:
             # banyak halte, padahal tarif nyata (lihat calculate_route_cost)
             # cuma sekali per perjalanan.
             fare = float(edge.cost) if edge.route != current_route else 0.0
-            return fare + COST_TIEBREAK_PER_MINUTE * travel
+            # Pemecah seri memakai WAKTU NYATA = tempuh + tunggu. Dulu cuma
+            # `travel`, sehingga waktu tunggu (bisa 12+ menit tiap kali naik
+            # kendaraan) tak terlihat sama sekali -- akibatnya di antara rute
+            # yang ongkosnya sama, yang terpilih justru yang sedikit jalannya
+            # tapi lama menunggunya. Terukur: "Termurah" Rp5.000/75 menit
+            # padahal ada Rp5.000/38 menit dgn ongkos identik.
+            return fare + COST_TIEBREAK_PER_MINUTE * (travel + wait)
 
         if self.optimization_mode == "time":
-            return travel + wait
+            return travel + wait + avoid
         elif self.optimization_mode == "transfers":
             # Penalti tambahan untuk pindah moda, di atas waktu tunggu yang
             # sudah nyata menangkap "ongkos" transfer.
             transfer_penalty = 20.0 if (current_mode and edge.mode != current_mode) else 0.0
-            return travel + wait + transfer_penalty
+            return travel + wait + transfer_penalty + avoid
         else:  # balanced
-            return travel + wait + edge.cost / 1000
+            return travel + wait + edge.cost / 1000 + avoid
     
     def _calculate_walking_cost(self, distance_km: float) -> float:
         """Calculate cost for walking segment"""
@@ -214,7 +241,12 @@ class DijkstraRouter:
             tiebreak = min(distance_km, TRANSFER_TIEBREAK_CAP_KM) * TRANSFER_TIEBREAK_PER_KM
             return real_time + tiebreak
         elif self.optimization_mode == "cost":
-            return 0.0  # Walking is free
+            # Jalan kaki memang GRATIS dari sisi rupiah, tapi kalau biayanya
+            # dibuat 0 mutlak, pencarian "termurah" sama sekali tidak punya
+            # alasan menghindari transfer jalan kaki yang jauh -- padahal
+            # semua rute yang seri ongkosnya jadi dibedakan cuma oleh waktu.
+            # Dipakai pemecah seri yang sama (jauh di bawah satuan rupiah).
+            return COST_TIEBREAK_PER_MINUTE * (walking_time + TRANSFER_TIME_PENALTY)
         elif self.optimization_mode == "transfers":
             return walking_time + TRANSFER_TIME_PENALTY
         else:  # balanced
