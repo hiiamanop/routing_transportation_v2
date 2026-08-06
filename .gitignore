@@ -5,3 +5,6 @@ venv/
 *.tsbuildinfo
 node_modules/
 .next/
+# Skrip deploy berisi kredensial server -- jangan pernah ikut ter-commit.
+# Pola lama ".sh" salah: itu hanya cocok utk file bernama persis ".sh".
+*.sh
