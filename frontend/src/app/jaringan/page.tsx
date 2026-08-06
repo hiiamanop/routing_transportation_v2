@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { NavigationIcon, modeColor, modeLabel } from "../components/icons";
-import type { NetworkRoute, NetworkStop } from "../components/NetworkMapComponent";
+import type { NetworkRoute } from "../components/NetworkMapComponent";
 
 const NetworkMapComponent = dynamic(
   () => import("../components/NetworkMapComponent"),
@@ -27,11 +27,6 @@ interface StopApiResponse {
 export default function JaringanPage() {
   const router = useRouter();
   const [routes, setRoutes] = useState<NetworkRoute[]>([]);
-  // Seluruh halte disimpan (bukan cuma nama koridornya) supaya titik halte
-  // koridor yang dipilih bisa ditandai di peta.
-  const [allStops, setAllStops] = useState<
-    Array<NetworkStop & { route: string }>
-  >([]);
   // Nama koridor yang sedang dipilih. null = belum ada yang diklik, dan
   // peta memang sengaja dibiarkan kosong sampai user memilih koridor.
   const [selectedName, setSelectedName] = useState<string | null>(null);
@@ -56,14 +51,6 @@ export default function JaringanPage() {
         setRoutes(
           Array.from(seen.entries()).map(([name, mode]) => ({ name, mode }))
         );
-        setAllStops(
-          data.stops.map((s) => ({
-            name: s.name,
-            lat: s.lat,
-            lon: s.lon,
-            route: s.route,
-          }))
-        );
       })
       .catch(() => setError("Gagal memuat daftar koridor."))
       .finally(() => setLoading(false));
@@ -81,12 +68,6 @@ export default function JaringanPage() {
 
   const selectedRoute =
     routes.find((route) => route.name === selectedName) ?? null;
-
-  const selectedStops = useMemo(
-    () =>
-      selectedName ? allStops.filter((s) => s.route === selectedName) : [],
-    [allStops, selectedName]
-  );
 
   return (
     <div className="flex min-h-screen flex-col bg-white lg:h-screen lg:flex-row lg:overflow-hidden">
@@ -156,7 +137,7 @@ export default function JaringanPage() {
       </aside>
 
       <main className="relative h-[60vh] w-full lg:h-full lg:flex-1">
-        <NetworkMapComponent selectedRoute={selectedRoute} stops={selectedStops} />
+        <NetworkMapComponent selectedRoute={selectedRoute} />
 
         {/* Peta sengaja kosong sampai koridor dipilih -- tanpa petunjuk ini
             peta kosong terlihat seperti gagal memuat. */}

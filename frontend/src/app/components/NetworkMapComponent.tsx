@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { modeColor } from "./icons";
 import { offsetPolyline } from "./geo";
@@ -9,12 +9,6 @@ import { offsetPolyline } from "./geo";
 export interface NetworkRoute {
   name: string;
   mode: string;
-}
-
-export interface NetworkStop {
-  name: string;
-  lat: number;
-  lon: number;
 }
 
 // Peta jaringan: menampilkan SATU koridor yang dipilih user (bukan satu
@@ -27,10 +21,8 @@ export interface NetworkStop {
 // memanggil API lagi.
 export default function NetworkMapComponent({
   selectedRoute,
-  stops = [],
 }: {
   selectedRoute: NetworkRoute | null;
-  stops?: NetworkStop[];
 }) {
   const [waypoints, setWaypoints] = useState<
     Record<string, Array<[number, number]>>
@@ -95,27 +87,6 @@ export default function NetworkMapComponent({
           />
         </>
       )}
-
-      {/* Titik halte di sepanjang koridor terpilih. Digambar SETELAH garis
-          supaya tidak tertimpa; namanya muncul saat kursor diarahkan. */}
-      {selectedRoute &&
-        stops.map((s) => (
-          <CircleMarker
-            key={`${s.name}|${s.lat}|${s.lon}`}
-            center={[s.lat, s.lon]}
-            radius={4}
-            pathOptions={{
-              color: "#ffffff",
-              weight: 2,
-              fillColor: modeColor(selectedRoute.mode),
-              fillOpacity: 1,
-            }}
-          >
-            <Tooltip direction="top" offset={[0, -4]}>
-              {s.name}
-            </Tooltip>
-          </CircleMarker>
-        ))}
     </MapContainer>
   );
 }
