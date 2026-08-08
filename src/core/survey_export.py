@@ -5,16 +5,27 @@ satu sumber kebenaran, supaya format keduanya tidak diam-diam mencar.
 """
 
 import json
+import sys
 from pathlib import Path
 from typing import Dict, Iterable, List, Union
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from core.gmaps_style_routing import PREFERENCE_CRITERIA  # noqa: E402
 
 ATTRIBUTE_KEYS = ("time_minutes", "cost_rupiah", "transfers", "access_km", "comfort", "reliability")
 RESPONDENT_KEYS = ("age", "gender", "occupation", "income", "vehicle_ownership",
                    "trip_purpose", "transit_frequency")
+# "preferences" (skala 1-5 dari /preferensi) -- SATU nilai per observasi
+# (bukan per alternatif, sama utk semua baris observasi yg sama). Dipakai
+# scripts/estimate_mnl.py utk interaction term (perkalian dgn atribut ybs),
+# BUKAN sbg efek utama berdiri sendiri -- lihat komentar di estimate_mnl.py
+# kenapa variabel yg tidak berbeda antar alternatif tidak bisa masuk MNL
+# begitu saja (otomatis coret sendiri di rumus softmax).
+PREFERENCE_KEYS = tuple(f"pref_{c}" for c in PREFERENCE_CRITERIA)
 
 COLUMNS = (
     "observation_id", "respondent_id", "alternative_index", "label", "optimized_for",
-    *ATTRIBUTE_KEYS, *RESPONDENT_KEYS, "chosen",
+    *ATTRIBUTE_KEYS, *RESPONDENT_KEYS, *PREFERENCE_KEYS, "chosen",
 )
 
 
@@ -45,6 +56,12 @@ def _to_long_rows(observation: dict, observation_id: int, respondents: Dict[str,
     respondent_id = observation.get("respondent_id", "")
     respondent_traits = respondents.get(respondent_id, {k: "" for k in RESPONDENT_KEYS})
 
+    # preferences: null kalau responden belum pernah isi /preferensi (opsional
+    # sejak awal, divalidasi all-or-nothing di app.py -- tidak ada kasus
+    # sebagian kriteria terisi sebagian tidak).
+    preferences = observation.get("preferences") or {}
+    preference_values = {f"pref_{c}": preferences.get(c, "") for c in PREFERENCE_CRITERIA}
+
     for i, alt in enumerate(observation["choice_set"]):
         row = {
             "observation_id": observation_id,
@@ -54,6 +71,7 @@ def _to_long_rows(observation: dict, observation_id: int, respondents: Dict[str,
             "optimized_for": alt.get("optimized_for", ""),
             "chosen": 1 if i == chosen_index else 0,
             **respondent_traits,
+            **preference_values,
         }
         attrs = alt.get("attributes", {})
         for key in ATTRIBUTE_KEYS:
