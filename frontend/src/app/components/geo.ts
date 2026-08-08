@@ -20,6 +20,21 @@ export function offsetPolyline(
   points: Array<[number, number]>,
   meters: number = LANE_OFFSET_M
 ): Array<[number, number]> {
+  // Buang titik duplikat berturutan dulu -- data waypoint koridor (dari
+  // OSRM/KMZ) banyak yang punya ini (mis. Teman Bus Koridor 5: 147 dari 357
+  // titik adalah duplikat langsung). Titik kembar bikin arah tangensial di
+  // bawah (dari tetangga depan-belakang) jadi nyaris nol/tidak stabil pas
+  // titik itu sendiri, menghasilkan pergeseran salah arah -- tampak sbg
+  // "duri" segitiga menonjol keluar jalan pada render.
+  const deduped: Array<[number, number]> = [];
+  for (const p of points) {
+    const last = deduped[deduped.length - 1];
+    if (!last || last[0] !== p[0] || last[1] !== p[1]) {
+      deduped.push(p);
+    }
+  }
+  points = deduped;
+
   if (points.length < 2 || meters === 0) return points;
 
   const M_PER_DEG_LAT = 111320;

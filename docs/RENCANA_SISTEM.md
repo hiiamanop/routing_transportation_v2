@@ -6,7 +6,7 @@ Sasarannya: sistem informasi integrasi tiga moda angkutan publik Kota Palembang 
 
 > **Catatan arah penelitian.** Fokus bukan lagi perbandingan algoritma. Dijkstra sudah final sebagai mesin pencarian rute. Kontribusi yang sedang dibangun ada di sisi perencanaan transportasi: pemodelan preferensi dan pemilihan moda.
 
-> **📍 Checkpoint 2026-08-08.** S-1, S-2, S-3, S-4 selesai dibangun & diuji (lihat detail di tiap bagian). S-6 (kumpulkan ±200 observasi) **baru mulai** -- 1 observasi asli terkumpul. S-5, S-7, S-8 belum dikerjakan, menunggu data S-6 cukup dulu. Lihat bagian 7 untuk urutan pengerjaan terbaru.
+> **📍 Checkpoint 2026-08-08.** S-1, S-2, S-3, S-4 selesai dibangun & diuji. **Aplikasi sudah live di https://transportasi.meetsin.id** -- siap disebar ke responden. S-6 (kumpulkan ±200 observasi) **baru mulai**, 1 observasi asli terkumpul. S-5/S-7 sudah diputuskan **diganti penuh** (bukan dipertahankan berdampingan), tapi implementasinya **sengaja ditunda** sampai data S-6 cukup -- menampilkan probabilitas dari β yang belum matang ke pengguna asli berisiko mempengaruhi pilihan mereka sendiri, mencemari data yang sedang dikumpulkan. S-8 belum dikerjakan. Lihat bagian 7 untuk urutan pengerjaan terbaru.
 
 ---
 
