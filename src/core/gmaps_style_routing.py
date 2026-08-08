@@ -6,16 +6,25 @@ Works with ANY coordinates in Palembang
 
 import json
 import sys
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Optional, Tuple, Dict, List
 
-from algorithms.ida_star_routing.data_loader import load_network_data
-from algorithms.ida_star_routing.dijkstra import DijkstraRouter, haversine_distance_km
-from algorithms.ida_star_routing.data_structures import (
+from algorithms.routing.data_loader import load_network_data
+from algorithms.routing.dijkstra import DijkstraRouter, haversine_distance_km
+from algorithms.routing.data_structures import (
     TransportationGraph, Route, RouteSegment, TransportationMode, Stop
 )
-from algorithms.ida_star_routing.door_to_door import Location
 from core import service_model
+
+
+@dataclass
+class Location:
+    """Titik mana pun di peta -- belum tentu sebuah halte (mis. titik asal
+    dan tujuan yang diketik pengguna)."""
+    name: str
+    lat: float
+    lon: float
 
 WALKING_SPEED_KMH = 5.0
 # Di atas jarak ini, first/last-mile jalan kaki diganti "kendaraan pribadi"
@@ -453,6 +462,29 @@ def _route_accessibility_km(route: Route) -> float:
         s.distance_km for s in route.segments
         if s.mode in (TransportationMode.WALK, TransportationMode.PRIVATE_VEHICLE)
     )
+
+
+def route_attributes(route: Route) -> Dict[str, float]:
+    """
+    Atribut X_ij satu alternatif rute, dalam SATUAN ASLI (menit, rupiah, km,
+    skor 0-5) -- bukan hasil normalisasi.
+
+    Dipakai dua hal: ditampilkan bersama tiap alternatif, dan direkam sbg
+    variabel bebas saat pengguna memilih rute (lihat POST /api/choice).
+    Satuan asli dipertahankan karena estimasi parameter model pemilihan
+    (MNL) butuh nilai apa adanya -- normalisasi min-max hanya relevan utk
+    perbandingan antar kandidat dalam SATU query, dan koefisiennya tidak
+    akan bisa ditafsirkan (mis. "per menit") kalau skalanya berubah-ubah
+    tiap perjalanan.
+    """
+    return {
+        "time_minutes": float(route.total_time_minutes),
+        "cost_rupiah": float(route.total_cost),
+        "transfers": float(route.num_transfers),
+        "access_km": _route_accessibility_km(route),
+        "comfort": _route_comfort_score(route),
+        "reliability": _route_reliability_score(route),
+    }
 
 
 def score_route_by_preference(route: Route, weights: Dict[str, float],

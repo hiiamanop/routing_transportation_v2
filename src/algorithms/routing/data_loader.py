@@ -286,7 +286,7 @@ if __name__ == "__main__":
         graph = load_network_data(str(json_path))
         
         # Export summary
-        output_path = base_dir / "ida_star_routing" / "graph_summary.json"
+        output_path = base_dir / "routing" / "graph_summary.json"
         export_graph_summary(graph, str(output_path))
         
         # Test search

@@ -166,7 +166,7 @@ class DijkstraRouter:
         return transfer_map
     
     def _edge_travel_minutes(self, edge: Edge, when: Optional[datetime] = None) -> float:
-        """Waktu tempuh nyata dari survei 30 hari, sama dengan yang dipakai IDA*."""
+        """Waktu tempuh nyata dari survei 30 hari."""
         if edge.mode in (TransportationMode.WALK, TransportationMode.TRANSFER):
             return edge.base_time_minutes
         return service_model.travel_minutes(

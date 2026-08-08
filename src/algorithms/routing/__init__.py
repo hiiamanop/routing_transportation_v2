@@ -1,5 +1,5 @@
 """
-IDA* Multi-Modal Route Planning System
+Sistem pencarian rute antar moda -- struktur data, pemuat jaringan, dan Dijkstra.
 Palembang Public Transportation Network
 """
 

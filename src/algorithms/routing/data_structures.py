@@ -1,5 +1,5 @@
 """
-Data Structures for IDA* Multi-Modal Route Planning System
+Struktur data sistem pencarian rute antar moda
 Palembang Public Transportation Network
 """
 
@@ -415,7 +415,7 @@ class TransferPoint:
 
 @dataclass
 class SearchNode:
-    """Node for IDA* search"""
+    """Simpul pencarian rute"""
     stop: Stop
     parent: Optional['SearchNode'] = None
     g_cost: float = 0.0  # Cost from start

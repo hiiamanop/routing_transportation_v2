@@ -1,16 +1,18 @@
 # Palembang Public Transport Routing System
 
-Sistem routing transportasi umum Palembang menggunakan algoritma Dijkstra dan Optimized DFS dengan visualisasi peta interaktif.
+Sistem informasi integrasi tiga moda angkutan umum Kota Palembang (LRT Sumsel, Teman Bus, Angkutan Feeder): pencarian rute antar moda, alternatif perjalanan, dan pemodelan preferensi pengguna.
+
+Rencana pembangunan sistem selengkapnya: [docs/RENCANA_SISTEM.md](docs/RENCANA_SISTEM.md).
 
 **Repository**: https://github.com/hiiamanop/routing_transportation_v2.git
 
 ## 🚀 Features
 
 - **Multi-modal Routing**: Mendukung Angkot Feeder, Teman Bus, dan LRT
-- **Dual Algorithms**: Dijkstra dan Optimized DFS untuk perbandingan
+- **Alternatif Rute**: Tercepat, termurah, transfer paling sedikit, dan lewat rute lain
+- **Preferensi Pengguna**: Rekomendasi personal dari penilaian 5 kriteria
+- **Survei Pemilihan Moda**: Perekaman pilihan responden untuk estimasi model
 - **Interactive Map**: Visualisasi rute dengan Leaflet.js
-- **Real-time Comparison**: Perbandingan performa algoritma
-- **Google Maps Style Output**: Format output yang mudah dipahami
 
 ## 📁 Project Structure
 
@@ -29,12 +31,11 @@ routing_transportation_v2/
 ├── src/                   # Core routing algorithms
 │   ├── core/              # Dijkstra + gmaps-style output formatting
 │   └── algorithms/
-│       ├── ida_star_routing/  # IDA* + Dijkstra (production)
-│       └── dfs_routing/       # DFS variants (pure, optimized, comparison)
-├── experiments/           # Paper verification scripts (ground truth, baselines, scenarios)
+│       └── routing/       # Struktur data, pemuat jaringan, Dijkstra
+├── experiments/           # Skrip verifikasi ground truth dari data survei
 ├── scripts/               # One-off data processing scripts (KMZ extraction, etc.)
 ├── dataset/               # Network data
-└── docs/                  # Research paper drafts + reviewer notes
+└── docs/                  # Rencana sistem + naskah penelitian
 ```
 
 ## 🚀 Quick Deployment
@@ -129,23 +130,12 @@ GET /api/stops
   - 🟣 Purple: LRT
 - **Stop Markers**: Marker kecil untuk semua halte
 
-## 🔧 Algorithms
+## 🔧 Pencarian Rute
 
-### Dijkstra Algorithm
-
-- **Type**: Shortest path algorithm
-- **Use Case**: Optimal route finding
-- **Performance**: Fast and reliable
-
-### Optimized DFS Algorithm
-
-- **Type**: Depth-First Search with heuristics
-- **Features**:
-  - A\* style heuristics
-  - Iterative deepening
-  - Best-first ordering
-  - Cost-based pruning
-- **Use Case**: Research comparison
+Memakai **Dijkstra** sebagai satu-satunya mesin pencarian rute — hasilnya optimal
+dan terjamin. Pemilihan algoritma bukan lagi bahan penelitian; fokusnya ada pada
+pemodelan preferensi dan pemilihan moda (lihat
+[docs/RENCANA_SISTEM.md](docs/RENCANA_SISTEM.md)).
 
 ## 💰 Fare System
 
@@ -161,17 +151,18 @@ GET /api/stops
 1. **Open Frontend**: Navigate to `http://localhost:3000`
 2. **Enter Origin**: Input name and coordinates
 3. **Enter Destination**: Input name and coordinates
-4. **Select Algorithm**: Choose Dijkstra, DFS, or Both
-5. **Find Route**: Click "Find Route" button
-6. **View Results**:
-   - Route summary in sidebar
-   - Interactive map visualization
-   - Algorithm comparison (if both selected)
+4. **Find Route**: Klik tombol cari rute
+5. **View Results**:
+   - Ringkasan rute di panel samping
+   - Visualisasi peta interaktif
+   - Tab alternatif: tercepat, termurah, transfer paling sedikit
 
 ## 🔍 Research Context
 
 Sistem ini dikembangkan untuk penelitian:
-**"PERANCANGAN SISTEM INFORMASI INTEGRASI OPERASIONAL ANTAR MODA ANGKUTAN UMUM MENGGUNAKAN ALGORITMA DEPTH FIRST SEARCH (DFS) DI KOTA PALEMBANG"**
+**"Sistem Informasi Integrasi Tiga Moda Transportasi Publik Kota Palembang (LRT Sumsel, Teman Bus, dan Angkutan Feeder)"** — Warta Penelitian Perhubungan (P-ISSN 0852-1824).
+
+Latar masalah: mode share angkutan umum Palembang hanya 4,9%.
 
 ## 📊 Network Data
 
@@ -217,11 +208,11 @@ open http://localhost:3000
 2. Modify fare calculation in `api/app.py`
 3. Add color mapping in `frontend/src/app/components/MapComponent.tsx`
 
-### Customizing Algorithms
+### Menyesuaikan Pencarian Rute
 
-1. Modify `optimized_dfs_test.py` for DFS improvements
-2. Update `src/core/gmaps_style_routing.py` for Dijkstra changes
-3. Test with `src/interactive_routing.py`
+1. Ubah `src/algorithms/routing/dijkstra.py` untuk biaya per-ruas
+2. Ubah `src/core/service_model.py` untuk parameter layanan (headway, kecepatan)
+3. Ubah `src/core/gmaps_style_routing.py` untuk alternatif & preferensi
 
 ## 📝 Notes
 

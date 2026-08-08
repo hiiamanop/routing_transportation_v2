@@ -1,6 +1,8 @@
 """
-Flask API for Public Transport Routing System
-Provides endpoints for Dijkstra and Optimized DFS routing algorithms
+Flask API sistem informasi integrasi antar moda Kota Palembang.
+
+Menyediakan pencarian rute (Dijkstra), alternatif rute beserta atributnya,
+dan perekaman pilihan pengguna sebagai data survei pemilihan moda.
 """
 
 from flask import Flask, request, jsonify
@@ -14,14 +16,11 @@ import json
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 
-from algorithms.ida_star_routing.data_loader import load_network_data
+from algorithms.routing.data_loader import load_network_data
 from core.gmaps_style_routing import (
     gmaps_style_route, find_route_alternatives, select_preferred_route, PREFERENCE_CRITERIA,
-    describe_no_route_reason
+    describe_no_route_reason, route_attributes
 )
-from algorithms.dfs_routing.optimized_dfs_test import gmaps_style_route_optimized_dfs
-from algorithms.ida_star_routing.ida_star_balanced import gmaps_style_route_balanced_ida_star
-from algorithms.ida_star_routing.ida_star_with_fallback import gmaps_style_route_ida_star_with_fallback
 from core import service_model
 
 app = Flask(__name__)
@@ -124,187 +123,6 @@ def network_info():
         "stops_by_mode": mode_counts,
         "modes": list(mode_counts.keys())
     })
-
-@app.route('/api/route', methods=['POST'])
-def route_request():
-    """
-    Main routing endpoint
-    Expected JSON payload:
-    {
-        "origin": {
-            "name": "Origin Name",
-            "lat": -2.985256,
-            "lon": 104.732880
-        },
-        "destination": {
-            "name": "Destination Name", 
-            "lat": -2.95115,
-            "lon": 104.76090
-        },
-        "algorithm": "dijkstra" | "dfs" | "both",
-        "departure_time": "2025-01-01T10:00:00" (optional)
-    }
-    """
-    try:
-        data = request.get_json()
-        
-        # Validate required fields
-        required_fields = ['origin', 'destination', 'algorithm']
-        for field in required_fields:
-            if field not in data:
-                return jsonify({
-                    "error": f"Missing required field: {field}"
-                }), 400
-        
-        origin = data['origin']
-        destination = data['destination']
-        algorithm = data['algorithm'].lower()
-        
-        # Validate coordinates
-        if not all(key in origin for key in ['lat', 'lon']):
-            return jsonify({"error": "Origin must have lat and lon"}), 400
-        if not all(key in destination for key in ['lat', 'lon']):
-            return jsonify({"error": "Destination must have lat and lon"}), 400
-        
-        # Parse departure time (GMT+7)
-        departure_time = datetime.now(WIB_TZ)
-        if 'departure_time' in data and data['departure_time']:
-            try:
-                departure_time = parse_departure_time(data['departure_time'])
-            except ValueError as e:
-                return jsonify({"error": str(e)}), 400
-
-        # Di luar jam operasional angkutan umum: tidak ada rute yang bisa
-        # dijalani, jadi berikan estimasi kendaraan pribadi + alasannya
-        # (seperti Google Maps yang beralih ke moda menyetir).
-        if not service_model.any_service_available(departure_time):
-            estimate = service_model.driving_estimate(
-                (origin['lat'], origin['lon']),
-                (destination['lat'], destination['lon']),
-                departure_time,
-            )
-            return jsonify({
-                "success": True,
-                "public_transport_available": False,
-                "reason": (
-                    f"Di luar jam operasional angkutan umum "
-                    f"({departure_time.strftime('%H:%M')} WIB). "
-                    f"Jam layanan: {service_model.service_window_text()}."
-                ),
-                "suggested_mode": "PRIVATE_VEHICLE",
-                "private_vehicle": estimate,
-                "origin": origin,
-                "destination": destination,
-                "departure_time": departure_time.isoformat(),
-            }), 200
-
-        # Load network
-        graph = load_network()
-
-        results = {}
-
-        # Run Dijkstra
-        if algorithm in ['dijkstra', 'both']:
-            try:
-                dijkstra_route = gmaps_style_route(
-                    graph=graph,
-                    origin_name=origin['name'],
-                    origin_coords=(origin['lat'], origin['lon']),
-                    dest_name=destination['name'],
-                    dest_coords=(destination['lat'], destination['lon']),
-                    optimization_mode="time",
-                    departure_time=departure_time
-                )
-                
-                if dijkstra_route:
-                    results['dijkstra'] = {
-                        "success": True,
-                        "route": serialize_route(dijkstra_route, origin['name'], destination['name'], (origin['lat'], origin['lon']), (destination['lat'], destination['lon']))
-                    }
-                else:
-                    results['dijkstra'] = {
-                        "success": False,
-                        "error": "No route found"
-                    }
-            except Exception as e:
-                results['dijkstra'] = {
-                    "success": False,
-                    "error": str(e)
-                }
-        
-        # Run DFS using IDA* (Iterative Deepening A*)
-        # IDA* is a DFS-based algorithm that explores paths using depth-first manner
-        if algorithm in ['dfs', 'both']:
-            try:
-                # Use BALANCED IDA* which is truly a DFS-based algorithm
-                dfs_route = gmaps_style_route_balanced_ida_star(
-                    graph=graph,
-                    origin_name=origin['name'],
-                    origin_coords=(origin['lat'], origin['lon']),
-                    dest_name=destination['name'],
-                    dest_coords=(destination['lat'], destination['lon']),
-                    optimization_mode="time",
-                    departure_time=departure_time
-                )
-                
-                if dfs_route:
-                    results['dfs'] = {
-                        "success": True,
-                        "route": serialize_route(dfs_route, origin['name'], destination['name'], (origin['lat'], origin['lon']), (destination['lat'], destination['lon'])),
-                        "algorithm_info": {
-                            "algorithm": "BALANCED IDA* (Iterative Deepening A*) - DFS-Based Search",
-                            "description": "Balanced IDA* uses reasonable bounds, efficient heuristics, and smart pruning for reliable DFS-based optimal routing",
-                            "iterations": dfs_route.get('iterations', 0) if hasattr(dfs_route, 'get') else 0,
-                            "max_depth": dfs_route.get('max_depth', 0) if hasattr(dfs_route, 'get') else 0
-                        }
-                    }
-                else:
-                    results['dfs'] = {
-                        "success": False,
-                        "error": "No route found using IDA* (DFS-based search)"
-                    }
-            except Exception as e:
-                print(f"Error in DFS (IDA*): {e}")
-                import traceback
-                traceback.print_exc()
-                results['dfs'] = {
-                    "success": False,
-                    "error": str(e)
-                }
-        
-        # Add comparison if both algorithms were run
-        if algorithm == 'both' and 'dijkstra' in results and 'dfs' in results:
-            if results['dijkstra']['success'] and results['dfs']['success']:
-                dijkstra_route = results['dijkstra']['route']
-                dfs_route = results['dfs']['route']
-                
-                results['comparison'] = {
-                    "dijkstra_time": dijkstra_route['summary']['total_time_minutes'],
-                    "dfs_time": dfs_route['summary']['total_time_minutes'],
-                    "dijkstra_cost": dijkstra_route['summary']['total_cost'],
-                    "dfs_cost": dfs_route['summary']['total_cost'],
-                    "dijkstra_segments": len(dijkstra_route['segments']),
-                    "dfs_segments": len(dfs_route['segments']),
-                    "fastest": "dijkstra" if dijkstra_route['summary']['total_time_minutes'] < dfs_route['summary']['total_time_minutes'] else "dfs",
-                    "cheapest": "dijkstra" if dijkstra_route['summary']['total_cost'] < dfs_route['summary']['total_cost'] else "dfs"
-                }
-        
-        return jsonify({
-            "success": True,
-            "results": results,
-            "request_info": {
-                "origin": origin,
-                "destination": destination,
-                "algorithm": algorithm,
-                "departure_time": departure_time.isoformat()
-            }
-        })
-        
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": f"Internal server error: {str(e)}"
-        }), 500
 
 def serialize_route(route, origin_name, destination_name, origin_coords=None, dest_coords=None):
     """Convert route object to JSON-serializable format"""
@@ -474,6 +292,10 @@ def route_alternatives():
                 {
                     "label": alt["label"],
                     "optimized_for": alt["optimized_for"],
+                    # Atribut X_ij dalam satuan asli, ikut dikirim supaya
+                    # himpunan pilihan bisa direkam apa adanya saat pengguna
+                    # memilih salah satu (POST /api/choice).
+                    "attributes": route_attributes(alt["route"]),
                     "route": serialize_route(
                         alt["route"], origin.get('name', 'Origin'),
                         destination.get('name', 'Destination'),
@@ -490,192 +312,128 @@ def route_alternatives():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/route/presentation', methods=['POST'])
-def route_request_presentation():
+# Satu observasi = satu baris JSON. Formatnya sengaja "tabel panjang" (satu
+# baris memuat SELURUH himpunan pilihan + mana yang dipilih), krn itu bentuk
+# yang dibutuhkan estimasi model pemilihan diskret -- bukan satu baris per
+# rute yang ditampilkan.
+CHOICE_LOG_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), 'dataset', 'survey', 'choices.jsonl'
+)
+
+ATTRIBUTE_KEYS = ("time_minutes", "cost_rupiah", "transfers", "access_km", "comfort", "reliability")
+
+MAX_CHOICE_SET = 10
+
+
+def _validate_choice_payload(data):
     """
-    Presentation routing endpoint with Dijkstra fallback
-    If DFS-IDA* takes more than 1 minute, it automatically falls back to Dijkstra.
-    
-    Expected JSON payload:
-    {
-        "origin": {
-            "name": "Origin Name",
-            "lat": -2.985256,
-            "lon": 104.732880
-        },
-        "destination": {
-            "name": "Destination Name", 
-            "lat": -2.95115,
-            "lon": 104.76090
-        },
-        "algorithm": "dfs" | "both",
-        "departure_time": "2025-01-01T10:00:00" (optional),
-        "timeout_seconds": 60.0 (optional, default 60 seconds)
-    }
+    Kembalikan (observasi, None) kalau valid, atau (None, pesan_error).
+
+    Divalidasi ketat: isinya datang dari browser (trust boundary), dan file
+    ini adalah DATA PENELITIAN -- satu baris rusak yang lolos bisa membiaskan
+    estimasi parameter tanpa ketahuan.
+    """
+    if not isinstance(data, dict):
+        return None, "payload must be a JSON object"
+
+    choice_set = data.get('choice_set')
+    if not isinstance(choice_set, list) or not 1 <= len(choice_set) <= MAX_CHOICE_SET:
+        return None, f"choice_set must be a list of 1..{MAX_CHOICE_SET} alternatives"
+
+    chosen_index = data.get('chosen_index')
+    if not isinstance(chosen_index, int) or isinstance(chosen_index, bool):
+        return None, "chosen_index must be an integer"
+    if not 0 <= chosen_index < len(choice_set):
+        return None, "chosen_index is out of range for choice_set"
+
+    clean_set = []
+    for alt in choice_set:
+        if not isinstance(alt, dict):
+            return None, "each alternative must be an object"
+        attrs = alt.get('attributes')
+        if not isinstance(attrs, dict) or set(attrs.keys()) != set(ATTRIBUTE_KEYS):
+            return None, f"each alternative needs attributes with exactly: {list(ATTRIBUTE_KEYS)}"
+        try:
+            numeric = {k: float(attrs[k]) for k in ATTRIBUTE_KEYS}
+        except (TypeError, ValueError):
+            return None, "attribute values must be numbers"
+        # Nilai negatif/tak-hingga tidak punya arti fisik utk menit, rupiah,
+        # jumlah transfer, maupun jarak akses -- tolak drpd mencemari data.
+        if any(v != v or v in (float('inf'), float('-inf')) or v < 0 for v in numeric.values()):
+            return None, "attribute values must be finite and non-negative"
+        clean_set.append({
+            "label": str(alt.get('label', ''))[:80],
+            "optimized_for": str(alt.get('optimized_for', ''))[:40],
+            "attributes": numeric,
+        })
+
+    prefs = data.get('preferences')
+    clean_prefs = None
+    if prefs is not None:
+        if not isinstance(prefs, dict) or set(prefs.keys()) != set(PREFERENCE_CRITERIA):
+            return None, f"preferences must have exactly these keys: {list(PREFERENCE_CRITERIA)}"
+        try:
+            clean_prefs = {k: float(prefs[k]) for k in PREFERENCE_CRITERIA}
+        except (TypeError, ValueError):
+            return None, "preferences values must be numbers"
+        if any(not 1 <= v <= 5 for v in clean_prefs.values()):
+            return None, "preferences values must be between 1 and 5"
+
+    def clean_place(raw):
+        if not isinstance(raw, dict):
+            return None
+        try:
+            return {
+                "name": str(raw.get('name', ''))[:200],
+                "lat": float(raw['lat']),
+                "lon": float(raw['lon']),
+            }
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    return {
+        "timestamp": datetime.now(WIB_TZ).isoformat(),
+        "respondent_id": str(data.get('respondent_id', ''))[:64],
+        "preferences": clean_prefs,
+        "origin": clean_place(data.get('origin')),
+        "destination": clean_place(data.get('destination')),
+        "departure_time": str(data.get('departure_time', ''))[:40],
+        "choice_set": clean_set,
+        "chosen_index": chosen_index,
+    }, None
+
+
+@app.route('/api/choice', methods=['POST'])
+def record_choice():
+    """
+    Rekam satu observasi pemilihan rute: himpunan alternatif yang ditawarkan
+    beserta atributnya, penilaian preferensi responden, dan alternatif mana
+    yang dipilih.
+
+    Inilah bagian "pilihan moda aktual" pada input survei -- penilaian
+    atribut saja (skala 1-5 di halaman /preferensi) tidak cukup untuk
+    mengestimasi parameter model pemilihan; yang dibutuhkan adalah pasangan
+    (himpunan pilihan -> yang dipilih).
     """
     try:
-        data = request.get_json()
-        
-        # Validate required fields
-        required_fields = ['origin', 'destination', 'algorithm']
-        for field in required_fields:
-            if field not in data:
-                return jsonify({
-                    "error": f"Missing required field: {field}"
-                }), 400
-        
-        origin = data['origin']
-        destination = data['destination']
-        algorithm = data['algorithm'].lower()
-        timeout_seconds = data.get('timeout_seconds', 60.0)
-        
-        # Validate coordinates
-        if not all(key in origin for key in ['lat', 'lon']):
-            return jsonify({"error": "Origin must have lat and lon"}), 400
-        if not all(key in destination for key in ['lat', 'lon']):
-            return jsonify({"error": "Destination must have lat and lon"}), 400
-        
-        # Parse departure time (GMT+7)
-        departure_time = datetime.now(WIB_TZ)
-        if 'departure_time' in data and data['departure_time']:
-            try:
-                departure_time = parse_departure_time(data['departure_time'])
-            except ValueError as e:
-                return jsonify({"error": str(e)}), 400
+        observation, error = _validate_choice_payload(request.get_json())
+        if error:
+            return jsonify({"success": False, "error": error}), 400
 
-        # Di luar jam operasional angkutan umum: tidak ada rute yang bisa
-        # dijalani, jadi berikan estimasi kendaraan pribadi + alasannya
-        # (seperti Google Maps yang beralih ke moda menyetir).
-        if not service_model.any_service_available(departure_time):
-            estimate = service_model.driving_estimate(
-                (origin['lat'], origin['lon']),
-                (destination['lat'], destination['lon']),
-                departure_time,
-            )
-            return jsonify({
-                "success": True,
-                "public_transport_available": False,
-                "reason": (
-                    f"Di luar jam operasional angkutan umum "
-                    f"({departure_time.strftime('%H:%M')} WIB). "
-                    f"Jam layanan: {service_model.service_window_text()}."
-                ),
-                "suggested_mode": "PRIVATE_VEHICLE",
-                "private_vehicle": estimate,
-                "origin": origin,
-                "destination": destination,
-                "departure_time": departure_time.isoformat(),
-            }), 200
+        os.makedirs(os.path.dirname(CHOICE_LOG_PATH), exist_ok=True)
+        # ponytail: append baris tunggal ke JSONL, tanpa basis data & tanpa
+        # kunci file. Satu baris << 4KB sehingga append O_APPEND praktis atomik
+        # di POSIX. Kalau nanti dipakai banyak responden serentak di banyak
+        # proses, barulah pindah ke SQLite.
+        with open(CHOICE_LOG_PATH, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(observation, ensure_ascii=False) + "\n")
 
-        # Load network
-        graph = load_network()
-
-        results = {}
-
-        # Run Dijkstra
-        if algorithm in ['dijkstra', 'both']:
-            try:
-                dijkstra_route = gmaps_style_route(
-                    graph=graph,
-                    origin_name=origin['name'],
-                    origin_coords=(origin['lat'], origin['lon']),
-                    dest_name=destination['name'],
-                    dest_coords=(destination['lat'], destination['lon']),
-                    optimization_mode="time",
-                    departure_time=departure_time
-                )
-                
-                if dijkstra_route:
-                    results['dijkstra'] = {
-                        "success": True,
-                        "route": serialize_route(dijkstra_route, origin['name'], destination['name'], (origin['lat'], origin['lon']), (destination['lat'], destination['lon']))
-                    }
-                else:
-                    results['dijkstra'] = {
-                        "success": False,
-                        "error": "No route found"
-                    }
-            except Exception as e:
-                results['dijkstra'] = {
-                    "success": False,
-                    "error": str(e)
-                }
-        
-        # Run DFS using IDA* with Dijkstra fallback
-        if algorithm in ['dfs', 'both']:
-            try:
-                dfs_route, metadata = gmaps_style_route_ida_star_with_fallback(
-                    graph=graph,
-                    origin_name=origin['name'],
-                    origin_coords=(origin['lat'], origin['lon']),
-                    dest_name=destination['name'],
-                    dest_coords=(destination['lat'], destination['lon']),
-                    optimization_mode="time",
-                    departure_time=departure_time,
-                    timeout_seconds=timeout_seconds
-                )
-                
-                if dfs_route:
-                    results['dfs'] = {
-                        "success": True,
-                        "route": serialize_route(dfs_route, origin['name'], destination['name'], (origin['lat'], origin['lon']), (destination['lat'], destination['lon'])),
-                        "algorithm_info": {
-                            "algorithm": metadata['algorithm_used'].upper(),
-                            "description": f"DFS-IDA* with Dijkstra fallback (fallback used: {metadata['fallback_used']})",
-                            "search_time_seconds": metadata['search_time_seconds'],
-                            "timeout_reached": metadata['timeout_reached'],
-                            "fallback_used": metadata['fallback_used']
-                        }
-                    }
-                else:
-                    results['dfs'] = {
-                        "success": False,
-                        "error": "No route found using IDA* or Dijkstra fallback"
-                    }
-            except Exception as e:
-                print(f"Error in DFS (IDA* with fallback): {e}")
-                import traceback
-                traceback.print_exc()
-                results['dfs'] = {
-                    "success": False,
-                    "error": str(e)
-                }
-        
-        # Add comparison if both algorithms were run
-        if algorithm == 'both' and 'dijkstra' in results and 'dfs' in results:
-            if results['dijkstra']['success'] and results['dfs']['success']:
-                dijkstra_route = results['dijkstra']['route']
-                dfs_route = results['dfs']['route']
-                
-                results['comparison'] = {
-                    "dijkstra_time": dijkstra_route['summary']['total_time_minutes'],
-                    "dfs_time": dfs_route['summary']['total_time_minutes'],
-                    "dijkstra_cost": dijkstra_route['summary']['total_cost'],
-                    "dfs_cost": dfs_route['summary']['total_cost'],
-                    "dijkstra_segments": len(dijkstra_route['segments']),
-                    "dfs_segments": len(dfs_route['segments']),
-                    "fastest": "dijkstra" if dijkstra_route['summary']['total_time_minutes'] < dfs_route['summary']['total_time_minutes'] else "dfs",
-                    "cheapest": "dijkstra" if dijkstra_route['summary']['total_cost'] < dfs_route['summary']['total_cost'] else "dfs"
-                }
-        
-        return jsonify({
-            "success": True,
-            "results": results,
-            "request_info": {
-                "origin": origin,
-                "destination": destination,
-                "algorithm": algorithm,
-                "departure_time": departure_time.isoformat(),
-                "presentation_mode": True,
-                "timeout_seconds": timeout_seconds
-            }
-        })
-        
+        return jsonify({"success": True}), 201
     except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": f"Internal server error: {str(e)}"
-        }), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 @app.route('/api/route/waypoints/<route_name>', methods=['GET'])
 def get_route_waypoints(route_name):
@@ -749,18 +507,15 @@ if __name__ == '__main__':
     load_network()
     
     print("="*60)
-    print("🚀 Starting Public Transport Routing API")
+    print("🚀 Sistem Informasi Integrasi Antar Moda - Kota Palembang")
     print("="*60)
-    print("📡 Available endpoints:")
-    print("   GET  /api/health - Health check")
-    print("   GET  /api/network/info - Network information")
-    print("   POST /api/route - Route planning (pure DFS, no fallback)")
-    print("   POST /api/route/presentation - Route planning with fallback (for presentation)")
-    print("   GET  /api/route/waypoints/<route_name> - Get route waypoints from KMZ")
-    print("   GET  /api/stops - Get all stops")
-    print("="*60)
-    print("📝 Note: /api/route uses pure DFS-IDA*")
-    print("📝 Note: /api/route/presentation uses DFS-IDA* with Dijkstra fallback (60s timeout)")
+    print("📡 Endpoint tersedia:")
+    print("   GET  /api/health - Cek status layanan")
+    print("   GET  /api/network/info - Informasi jaringan")
+    print("   POST /api/route/alternatives - Alternatif rute + atributnya")
+    print("   POST /api/choice - Rekam pilihan rute (data survei)")
+    print("   GET  /api/route/waypoints/<route_name> - Jalur koridor")
+    print("   GET  /api/stops - Daftar halte")
     print("="*60)
     
     app.run(debug=True, host='0.0.0.0', port=5001)

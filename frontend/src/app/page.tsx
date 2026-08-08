@@ -101,6 +101,10 @@ interface Route {
 interface Alternative {
   label: string;
   optimized_for: string;
+  // Atribut X_ij dalam satuan asli (menit, rupiah, km, skor) -- dikirim
+  // balik apa adanya saat responden memilih rute, jadi himpunan pilihan
+  // terekam utuh, bukan cuma yang menang.
+  attributes: Record<string, number>;
   route: Route;
 }
 
@@ -163,6 +167,11 @@ export default function Home() {
     null
   );
   const [selectedIndex, setSelectedIndex] = useState(0);
+  // Pencatatan pilihan responden (data survei) -- terpisah dari state rute
+  // supaya kegagalan merekam tidak pernah menghalangi tampilan rutenya.
+  const [savingChoice, setSavingChoice] = useState(false);
+  const [choiceSaved, setChoiceSaved] = useState(false);
+  const [choiceError, setChoiceError] = useState(false);
   // Sequence segmen yg dropdown "halte yang dilewati"-nya sedang terbuka.
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
   const toggleStepExpanded = (sequence: number) => {
@@ -489,6 +498,8 @@ export default function Home() {
     setAlternativesResponse(null);
     setSelectedIndex(0);
     setExpandedSteps(new Set());
+    setChoiceSaved(false);
+    setChoiceError(false);
 
     try {
       // Convert datetime-local to ISO string with GMT+7 timezone
@@ -562,6 +573,53 @@ export default function Home() {
   const alternatives = alternativesResponse?.alternatives ?? [];
   const activeAlternative = alternatives[selectedIndex] ?? null;
   const activeRoute = activeAlternative?.route ?? null;
+
+  // Rekam pilihan responden: himpunan alternatif yang ditawarkan beserta
+  // atributnya + mana yang dipilih. Penilaian 1-5 di halaman /preferensi
+  // saja tidak cukup utk mengestimasi parameter model pemilihan -- yang
+  // dibutuhkan justru pasangan (himpunan pilihan -> yang dipilih) ini.
+  const recordChoice = async () => {
+    if (!alternativesResponse || alternatives.length === 0 || savingChoice) return;
+    setSavingChoice(true);
+    try {
+      // ID responden anonim & tetap per browser, supaya beberapa perjalanan
+      // dari orang yang sama bisa dikenali tanpa menyimpan identitas apa pun.
+      let respondentId = localStorage.getItem("transit_respondent_v1");
+      if (!respondentId) {
+        respondentId = crypto.randomUUID();
+        localStorage.setItem("transit_respondent_v1", respondentId);
+      }
+
+      let preferences: Record<string, number> | undefined;
+      try {
+        const stored = localStorage.getItem("transit_preferences_v1");
+        if (stored) preferences = JSON.parse(stored);
+      } catch {
+        preferences = undefined;
+      }
+
+      await axios.post(`${ROUTE_API_BASE_URL}/choice`, {
+        respondent_id: respondentId,
+        ...(preferences ? { preferences } : {}),
+        origin: alternativesResponse.origin,
+        destination: alternativesResponse.destination,
+        departure_time: alternativesResponse.departure_time,
+        choice_set: alternatives.map((alt) => ({
+          label: alt.label,
+          optimized_for: alt.optimized_for,
+          attributes: alt.attributes,
+        })),
+        chosen_index: selectedIndex,
+      });
+      setChoiceSaved(true);
+    } catch {
+      // Gagal merekam TIDAK boleh mengganggu perjalanan pengguna -- rutenya
+      // tetap tampil; yang hilang cuma satu observasi survei.
+      setChoiceError(true);
+    } finally {
+      setSavingChoice(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-white lg:h-screen lg:flex-row lg:overflow-hidden">
@@ -828,6 +886,37 @@ export default function Home() {
                   <span className="rounded-full bg-[var(--gmaps-surface-hover)] px-2.5 py-1 text-xs text-[var(--gmaps-text-secondary)]">
                     {activeRoute.summary.num_transfers} transfer
                   </span>
+                </div>
+
+                {/* Perekaman pilihan responden. Tombol eksplisit, BUKAN
+                    sekadar klik tab: berpindah tab itu perilaku menjelajah,
+                    sedangkan yang perlu direkam adalah keputusan akhir. */}
+                <div className="mt-3">
+                  {choiceSaved ? (
+                    <p className="text-xs text-[var(--gmaps-text-secondary)]">
+                      Terima kasih, pilihan Anda sudah tercatat untuk penelitian ini.
+                    </p>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={recordChoice}
+                        disabled={savingChoice}
+                        className="w-full rounded-full bg-[var(--gmaps-blue)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--gmaps-blue-hover)] disabled:opacity-60"
+                      >
+                        {savingChoice ? "Menyimpan..." : "Saya pilih rute ini"}
+                      </button>
+                      <p className="mt-1.5 text-[11px] leading-snug text-[var(--gmaps-text-secondary)]">
+                        Pilihan Anda dicatat secara anonim untuk penelitian
+                        pemilihan moda. Tidak ada identitas pribadi yang disimpan.
+                      </p>
+                      {choiceError && (
+                        <p className="mt-1 text-[11px] text-[var(--gmaps-red)]">
+                          Pilihan gagal dicatat, tapi rute Anda tetap bisa dipakai.
+                        </p>
+                      )}
+                    </>
+                  )}
                 </div>
 
                 {alternativesResponse?.departure_time && (
