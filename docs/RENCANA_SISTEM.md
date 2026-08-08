@@ -100,6 +100,12 @@ Keluaran yang **wajib** dilaporkan di naskah -- semua sudah diimplementasikan:
 
 **Riwayat re-estimasi (S-8) sudah tersiapkan sekalian**: tiap run **ditambahkan** (bukan menimpa) ke `dataset/survey/beta_history.jsonl`.
 
+**Perluasan: interaction term preferensi (`--interactions`).** Data "Penilaian Atribut" dari `/preferensi` (skala 1-5) ditelaah ulang terhadap Gambar 4 -- sudah sejak rancangan awal dimaksudkan masuk ke cabang estimasi MNL, bukan cuma fitur UX. Tapi rating itu **sama nilainya utk semua alternatif** dlm satu observasi, jadi tidak bisa masuk sbg efek utama berdiri sendiri (otomatis coret sendiri di rumus $P_{ij}$ krn pembilang & penyebut sama-sama kena kali angka yg sama). Solusinya: **interaction term**, dikalikan dgn atribut rute yg memang beda-beda antar alternatif --
+
+$$U_{ij} = \sum_{k=1}^{6} \beta_k X_{kij} + \sum_{k=1}^{5} \gamma_k \big(X_{kij} \times p_{k,n}\big)$$
+
+tetap rumus $U_{ij}=\sum\beta_k X_{kij}$ yang SAMA PERSIS dgn di flowchart, cuma $X_{kij}$-nya diperkaya (11 kolom, bukan 6) -- bukan model/metode baru. "Jumlah transfer" tidak punya pasangan interaksi krn `/preferensi` tidak punya kriteria itu. Preferensi yang belum diisi (`respondent_id` belum pernah buka `/preferensi`) diimputasi netral (3, titik tengah skala) drpd dibuang -- data masih sedikit selama S-6 berjalan. Diverifikasi dgn self-check terpisah (data sintetis dgn efek interaksi yg SUDAH DIKETAHUI, termasuk skenario preferensi hilang).
+
 ### S-5. Perhitungan utilitas dan probabilitas saat melayani permintaan
 
 Setelah β tersedia, hitung $U_{ij}$ dan $P_{ij}$ untuk setiap alternatif pada setiap pencarian, lalu sertakan dalam respons.
