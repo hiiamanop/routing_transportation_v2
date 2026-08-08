@@ -4,7 +4,9 @@ services:
       context: .
       dockerfile: api/Dockerfile
     ports:
-      - "5001:5001"
+      # 127.0.0.1 saja -- server produksi ini melayani banyak app lain lewat
+      # nginx di host, cuma nginx yang perlu menjangkau container ini.
+      - "127.0.0.1:5001:5001"
     volumes:
       # Data survei (pilihan responden) HARUS di luar image: tanpa mount ini
       # setiap `--build` menghapus seluruh observasi yang sudah terkumpul.
@@ -20,6 +22,8 @@ services:
         # Next.js di-bake saat `npm run build`, dibaca ulang saat `next start`.
         API_INTERNAL_URL: http://api:5001
     ports:
-      - "3000:3000"
+      # Port 3000 dipakai app lain di server ini (meetsin-leads-frontend) --
+      # 3030 dipilih krn bebas, dan 127.0.0.1 krn cuma nginx yg perlu akses.
+      - "127.0.0.1:3030:3000"
     depends_on:
       - api
