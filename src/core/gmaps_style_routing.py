@@ -307,6 +307,58 @@ def gmaps_style_route(
     return complete_route
 
 
+def private_vehicle_route(
+    origin_name: str, origin_coords: Tuple[float, float],
+    dest_name: str, dest_coords: Tuple[float, float],
+    departure_time: datetime,
+) -> Route:
+    """
+    Rute kendaraan pribadi (motor) door-to-door, satu segmen, sbg pembanding
+    dlm himpunan alternatif -- BUKAN cuma fallback saat transit gagal.
+
+    Alasan: jaringan ini jarang (sparse) -- banyak pasangan asal-tujuan cuma
+    punya SATU jalur multi-moda yang layak dlm radius transfer jalan kaki
+    500m (dibuktikan lewat pengujian: menghukum koridor yg dipakai sampai
+    100.000 menit tetap balik ke koridor yg sama). Menambah "alternatif ke-4
+    lewat koridor lain" tidak akan pernah membantu di kasus itu krn jalur
+    lain memang tidak ada secara topologis. Kendaraan pribadi selalu tersedia
+    sbg pembanding, dan ini pas dgn topik penelitian: yg sesungguhnya
+    diperebutkan adalah perpindahan dari kendaraan pribadi ke angkutan umum.
+    """
+    estimate = service_model.driving_estimate(origin_coords, dest_coords, departure_time)
+    dist_km = estimate["distance_km"]
+    duration_min = estimate["duration_minutes"]
+
+    from_stop = Stop(-1, "private_vehicle_from", origin_name, origin_coords[0], origin_coords[1],
+                     "Kendaraan Pribadi", TransportationMode.PRIVATE_VEHICLE)
+    to_stop = Stop(-2, "private_vehicle_to", dest_name, dest_coords[0], dest_coords[1],
+                   "Kendaraan Pribadi", TransportationMode.PRIVATE_VEHICLE)
+
+    segment = RouteSegment(
+        sequence=1,
+        mode=TransportationMode.PRIVATE_VEHICLE,
+        route_name="Kendaraan Pribadi",
+        from_stop=from_stop,
+        to_stop=to_stop,
+        departure_time=departure_time,
+        arrival_time=departure_time + timedelta(minutes=duration_min),
+        duration_minutes=duration_min,
+        cost=estimate["cost_rupiah"],
+        distance_km=dist_km,
+    )
+
+    route = Route(route_id=1, segments=[segment])
+    route.calculate_metrics()
+    # calculate_route_cost() sengaja mengabaikan biaya segmen PRIVATE_VEHICLE
+    # (konvensinya selama ini: PRIVATE_VEHICLE cuma konektor first/last-mile
+    # GRATIS, lihat create_first_last_mile_segment()) -- di sini seluruh rute
+    # adalah PRIVATE_VEHICLE, jadi total_cost harus ditimpa manual, kalau
+    # tidak selalu tercatat Rp0 (data riset yg keliru: kendaraan pribadi
+    # tampak gratis).
+    route.total_cost = estimate["cost_rupiah"]
+    return route
+
+
 def _route_signature(route: Route) -> tuple:
     """Sidik jari rute berdasarkan urutan halte transit - dipakai untuk
     membuang alternatif yang sebetulnya rute yang sama persis."""
@@ -389,6 +441,20 @@ def find_route_alternatives(
                     "route": other,
                 })
 
+    # Kendaraan pribadi selalu ditambahkan (bukan cuma saat transit gagal
+    # total) -- lihat docstring private_vehicle_route() kenapa "lewat rute
+    # lain" di atas tidak cukup utk banyak pasangan asal-tujuan di jaringan
+    # yang jarang ini. Ini menjamin himpunan pilihan MINIMAL 2 alternatif
+    # bila departure_time berada dlm jam operasional (kalau di luar jam
+    # operasional, endpoint sudah short-circuit sebelum sampai ke sini).
+    alternatives.append({
+        "label": "Kendaraan Pribadi",
+        "optimized_for": "private_vehicle",
+        "route": private_vehicle_route(
+            origin_name, origin_coords, dest_name, dest_coords, departure_time,
+        ),
+    })
+
     return alternatives
 
 
@@ -456,8 +522,24 @@ def _route_reliability_score(route: Route) -> float:
 
 
 def _route_accessibility_km(route: Route) -> float:
-    """Total jarak first/last-mile (jalan kaki + kendaraan pribadi) -- makin
-    pendek makin mudah diakses."""
+    """
+    Total jarak first/last-mile (jalan kaki + kendaraan pribadi SBG
+    CONNECTOR ke halte) -- makin pendek makin mudah diakses.
+
+    Rute kendaraan pribadi UTUH (lihat private_vehicle_route()) dikecualikan
+    -- itu bukan "akses ke halte", itu keseluruhan perjalanan. Kalau tidak
+    dikecualikan, atribut ini keliru menjumlahkan seluruh jarak tempuh sbg
+    "access_km", membuat kendaraan pribadi selalu tampak SANGAT tidak
+    mudah-diakses padahal sebaliknya (pintu-ke-pintu, tanpa jalan kaki sama
+    sekali) -- membiaskan data yang direkam utk estimasi model pemilihan.
+    """
+    has_transit = any(
+        s.mode not in (TransportationMode.WALK, TransportationMode.PRIVATE_VEHICLE,
+                       TransportationMode.TRANSFER)
+        for s in route.segments
+    )
+    if not has_transit:
+        return 0.0
     return sum(
         s.distance_km for s in route.segments
         if s.mode in (TransportationMode.WALK, TransportationMode.PRIVATE_VEHICLE)

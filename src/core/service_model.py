@@ -94,6 +94,11 @@ ROAD_DETOUR_FACTOR = 1.3
 PRIVATE_VEHICLE_SPEED_FACTOR = 1.4
 # Dipakai kalau data survei tidak tersedia sama sekali.
 FALLBACK_ROAD_SPEED_KMH = 25.0
+# Biaya bahan bakar motor: ~40 km/liter, harga BBM ~Rp10.000/liter -> Rp250/km.
+# Motor dipilih sbg acuan (bukan mobil) krn itu kendaraan pribadi dominan di
+# konteks penelitian ini -- lihat RENCANA_SISTEM.md soal kepemilikan kendaraan.
+# Knob kalibrasi: sesuaikan kalau harga BBM/konsumsi berubah.
+MOTORBIKE_FUEL_COST_PER_KM = 250
 
 # --- Kecepatan tetap Feeder & Teman Bus, per jam sibuk/normal --------------
 # Survei per-jam ternyata berlubang (banyak ruas cuma punya data 1 arah/1 jam),
@@ -453,11 +458,13 @@ def driving_estimate(origin: Tuple[float, float], dest: Tuple[float, float],
         "distance_km": round(road_km, 2),
         "straight_line_km": round(straight_km, 2),
         "duration_minutes": round(road_km / speed * 60, 1),
+        "cost_rupiah": round(road_km * MOTORBIKE_FUEL_COST_PER_KM),
         "assumed_speed_kmh": round(speed, 1),
         "is_estimate": True,
         "note": ("Estimasi jarak & waktu berdasarkan kecepatan jalan hasil survei "
                  "30 hari. Bukan rute belok-per-belok - sistem ini tidak memuat "
-                 "jaringan jalan raya."),
+                 "jaringan jalan raya. Biaya = estimasi BBM motor saja, tidak "
+                 "termasuk parkir/penyusutan."),
     }
 
 
@@ -510,6 +517,7 @@ def demo():
     est = driving_estimate((-2.9852, 104.7328), (-2.9511, 104.7609),
                            datetime(2026, 1, 1, 3, 0))
     assert est["duration_minutes"] > 0 and est["distance_km"] > 0
+    assert est["cost_rupiah"] == round(est["distance_km"] * MOTORBIKE_FUEL_COST_PER_KM)
 
     print(f"OK - {data.n_rows:,} baris survei, {len(data.by_edge):,} ruas LRT")
     print(f"   Feeder K1 5km jam 08 vs 13: {peak:.2f} vs {normal:.2f} menit")
