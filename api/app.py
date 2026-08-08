@@ -435,6 +435,65 @@ def record_choice():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+# Data karakteristik responden (S-1), terpisah dari choices.jsonl krn
+# ini satu baris per ORANG (sekali isi), bukan per observasi pilihan.
+# Dihubungkan lewat respondent_id yang sama dgn /api/choice.
+RESPONDENT_LOG_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), 'dataset', 'survey', 'respondents.jsonl'
+)
+
+RESPONDENT_FIELDS = (
+    "age", "gender", "occupation", "income", "vehicle_ownership",
+    "trip_purpose", "transit_frequency",
+)
+
+
+def _validate_respondent_payload(data):
+    """Kembalikan (record, None) kalau valid, atau (None, pesan_error)."""
+    if not isinstance(data, dict):
+        return None, "payload must be a JSON object"
+
+    respondent_id = str(data.get('respondent_id', ''))[:64]
+    if not respondent_id:
+        return None, "respondent_id is required"
+
+    clean = {}
+    for field in RESPONDENT_FIELDS:
+        value = data.get(field)
+        if not isinstance(value, str) or not value.strip():
+            return None, f"field '{field}' is required"
+        clean[field] = value.strip()[:80]
+
+    return {
+        "timestamp": datetime.now(WIB_TZ).isoformat(),
+        "respondent_id": respondent_id,
+        **clean,
+    }, None
+
+
+@app.route('/api/respondent', methods=['POST'])
+def record_respondent():
+    """Rekam karakteristik responden (sekali per orang, anonim -- tidak ada
+    autentikasi, respondent_id cukup UUID yang dibuat & disimpan di browser)."""
+    try:
+        record, error = _validate_respondent_payload(request.get_json())
+        if error:
+            return jsonify({"success": False, "error": error}), 400
+
+        os.makedirs(os.path.dirname(RESPONDENT_LOG_PATH), exist_ok=True)
+        # ponytail: sama seperti choices.jsonl -- append JSONL polos, cukup
+        # utk skala survei tunggal ini. Pindah ke SQLite kalau nanti butuh
+        # query/dedup di sisi server.
+        with open(RESPONDENT_LOG_PATH, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+        return jsonify({"success": True}), 201
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.route('/api/route/waypoints/<route_name>', methods=['GET'])
 def get_route_waypoints(route_name):
     """Get route waypoints from KMZ for accurate visualization"""

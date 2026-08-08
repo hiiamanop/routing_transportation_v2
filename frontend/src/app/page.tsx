@@ -15,6 +15,7 @@ import {
   ChevronDownIcon,
   SlidersIcon,
   MapIcon,
+  UserIcon,
   modeIcon,
   modeLabel,
   modeColor,
@@ -627,7 +628,7 @@ export default function Home() {
           mobile, fixed-width & internally scrollable on desktop -- mirrors
           Google Maps' directions sidebar. */}
       <aside className="flex w-full flex-col border-b border-[var(--gmaps-border)] bg-white lg:h-full lg:w-[420px] lg:border-b-0 lg:border-r">
-        <div className="flex items-center gap-3 px-4 py-3">
+        <div className="flex items-center gap-3 px-4 pt-3 pb-2">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--gmaps-blue)] text-white">
             <NavigationIcon width={18} height={18} />
           </div>
@@ -639,26 +640,44 @@ export default function Home() {
               Rute angkutan umum tercepat
             </p>
           </div>
+        </div>
+
+        {/* Tab strip: "Rute" mewakili halaman ini sendiri (bukan link),
+            tiga lainnya berpindah halaman. Dipisah jadi baris sendiri biar
+            tidak berebut ruang dgn judul di sidebar sempit (420px). */}
+        <nav className="grid grid-cols-4 gap-1 border-b border-[var(--gmaps-border)] px-2 pb-2">
+          <div className="flex flex-col items-center gap-1 rounded-lg bg-[var(--gmaps-blue-tint)] py-1.5 text-[var(--gmaps-blue)]">
+            <SearchIcon width={16} height={16} />
+            <span className="text-[11px] font-medium">Rute</span>
+          </div>
           <Link
             href="/jaringan"
             title="Lihat peta jaringan"
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--gmaps-border)] px-3 py-1.5 text-xs font-medium text-[var(--gmaps-text-secondary)] hover:bg-[var(--gmaps-surface-hover)] hover:text-[var(--gmaps-blue)]"
+            className="flex flex-col items-center gap-1 rounded-lg py-1.5 text-[var(--gmaps-text-secondary)] hover:bg-[var(--gmaps-surface-hover)] hover:text-[var(--gmaps-blue)]"
           >
-            <MapIcon width={14} height={14} />
-            Jaringan
+            <MapIcon width={16} height={16} />
+            <span className="text-[11px] font-medium">Jaringan</span>
           </Link>
           <Link
             href="/preferensi"
             title="Atur preferensi saya"
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--gmaps-border)] px-3 py-1.5 text-xs font-medium text-[var(--gmaps-text-secondary)] hover:bg-[var(--gmaps-surface-hover)] hover:text-[var(--gmaps-blue)]"
+            className="flex flex-col items-center gap-1 rounded-lg py-1.5 text-[var(--gmaps-text-secondary)] hover:bg-[var(--gmaps-surface-hover)] hover:text-[var(--gmaps-blue)]"
           >
-            <SlidersIcon width={14} height={14} />
-            Preferensi
+            <SlidersIcon width={16} height={16} />
+            <span className="text-[11px] font-medium">Preferensi</span>
           </Link>
-        </div>
+          <Link
+            href="/responden"
+            title="Isi karakteristik responden"
+            className="flex flex-col items-center gap-1 rounded-lg py-1.5 text-[var(--gmaps-text-secondary)] hover:bg-[var(--gmaps-surface-hover)] hover:text-[var(--gmaps-blue)]"
+          >
+            <UserIcon width={16} height={16} />
+            <span className="text-[11px] font-medium">Responden</span>
+          </Link>
+        </nav>
 
         <div className="gmaps-scroll lg:flex-1 lg:overflow-y-auto">
-          <form onSubmit={handleSubmit} className="px-4 pb-4">
+          <form onSubmit={handleSubmit} className="px-4 pt-3 pb-4">
             <div className="flex items-start gap-2">
               <div className="min-w-0 flex-1 space-y-2">
                 {/* Origin with OSM Autocomplete */}
