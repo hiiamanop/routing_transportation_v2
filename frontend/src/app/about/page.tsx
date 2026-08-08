@@ -18,7 +18,7 @@ const SECTIONS: Section[] = [
           402 halte dan 11 koridor (8 Feeder Angkot, 2 Teman Bus, 1 LRT).
           Setiap ruas (dua halte bersebelahan di satu koridor) punya bobot
           waktu tempuh + waktu tunggu, dan pencarian menemukan jalur dengan
-          total bobot terkecil -- termasuk kemungkinan pindah koridor/moda di
+          total bobot terkecil, termasuk kemungkinan pindah koridor/moda di
           tengah jalan (transfer jalan kaki, radius 500m).
         </p>
         <p>
@@ -36,20 +36,20 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          Feeder Angkot &amp; Teman Bus: kecepatan tetap per jam -- 25 km/jam
-          saat jam sibuk (07:00-09:00, 12:00-14:00 saat ,
+          Feeder Angkot &amp; Teman Bus: kecepatan tetap per jam, 25 km/jam
+          saat jam sibuk (07:00-09:00, 12:00-14:00 saat anak pulang sekolah,
           &amp; 16:00-19:00), 32,5 km/jam di luar itu. Ini asumsi kota, bukan
           kecepatan per ruas jalan yang diukur.
         </p>
         <p>
-          LRT: memakai jadwal resmi (bukan asumsi kecepatan) -- waktu tempuh
+          LRT: memakai jadwal resmi (bukan asumsi kecepatan). Waktu tempuh
           antar stasiun dan jadwal keberangkatan diambil langsung dari data
           jadwal DJKA.
         </p>
         <p>
           Waktu tunggu kendaraan baru: LRT memakai selisih ke keberangkatan
           terdekat di jadwal resmi. Feeder &amp; Teman Bus memakai asumsi
-          headway (12 menit Feeder, 15 menit Teman Bus) -- <strong>bukan data
+          headway (12 menit Feeder, 15 menit Teman Bus), <strong>bukan data
           pengamatan lapangan</strong>, karena tidak ada data headway nyata
           untuk angkutan informal ini.
         </p>
@@ -63,14 +63,14 @@ const SECTIONS: Section[] = [
         <p>
           Jarak &amp; jalur digambar dari <strong>OSRM</strong> (mesin
           routing jalan raya publik, profil &quot;driving&quot;) kalau
-          tersedia -- jalur jalan nyata, bukan garis lurus. Kalau OSRM gagal
+          tersedia, jalur jalan nyata, bukan garis lurus. Kalau OSRM gagal
           dihubungi, sistem jatuh ke estimasi garis lurus × 1,3 (faktor
           kelokan jalan).
         </p>
         <p>
           Waktu tempuh <strong>tidak</strong> memakai durasi bawaan OSRM
           (itu mengasumsikan jalan lengang sesuai batas kecepatan, terlalu
-          optimis untuk lalu lintas kota) -- dihitung sendiri dari asumsi
+          optimis untuk lalu lintas kota), dihitung sendiri dari asumsi
           kecepatan motor efektif: 20 km/jam jam sibuk, 28 km/jam di luar
           itu.
         </p>
@@ -98,7 +98,7 @@ const SECTIONS: Section[] = [
       <p>
         Diberi nilai 1-5 <strong>secara editorial</strong> per moda (LRT
         dinilai paling nyaman &amp; andal karena berjadwal resmi; Feeder
-        Angkot paling rendah karena angkutan informal tanpa data headway) --
+        Angkot paling rendah karena angkutan informal tanpa data headway),
         bukan hasil pengukuran atau survei kepuasan penumpang. Dipakai untuk
         fitur &quot;Sesuai Preferensi Saya&quot; dan rekomendasi personal.
       </p>
@@ -111,7 +111,7 @@ const SECTIONS: Section[] = [
         Halaman <em>Preferensi</em> membiarkan Anda menilai 5 kriteria
         (waktu, biaya, kenyamanan, aksesibilitas, keandalan) skala 1-5.
         Sistem menimbang ulang alternatif yang <strong>sudah dihitung</strong>{" "}
-        sesuai penilaian itu -- bukan pencarian baru, dan tidak memengaruhi
+        sesuai penilaian itu, bukan pencarian baru, dan tidak memengaruhi
         rekomendasi umum (Rekomendasi/Termurah/dst. selalu sama untuk semua
         orang).
       </p>
@@ -121,7 +121,7 @@ const SECTIONS: Section[] = [
     title: "Keterbatasan yang perlu diketahui",
     body: (
       <ul className="list-disc space-y-1 pl-5">
-        <li>Bukan rute belok-per-belok untuk kendaraan pribadi -- OSRM dipakai untuk jarak &amp; jalur, bukan navigasi turn-by-turn lengkap</li>
+        <li>Bukan rute belok-per-belok untuk kendaraan pribadi, OSRM dipakai untuk jarak &amp; jalur, bukan navigasi turn-by-turn lengkap</li>
         <li>Headway Feeder/Teman Bus adalah taksiran, bukan data pengamatan</li>
         <li>Kecepatan angkutan umum seragam per koridor, bukan per ruas jalan</li>
         <li>Skor kenyamanan/keandalan bersifat editorial, bukan hasil pengukuran</li>
