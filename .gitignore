@@ -10,3 +10,7 @@ node_modules/
 *.sh
 # Memuat kredensial root SSH server, sama seperti skrip deploy di atas.
 DEPLOYMENT.md
+# Data sintetis (scripts/generate_dummy_survey_data.py) -- HANYA utk uji pipa
+# data, bukan data riset. Jangan pernah ter-commit tercampur data asli.
+*.dummy.jsonl
+*_long.dummy.csv

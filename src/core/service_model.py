@@ -86,14 +86,19 @@ SERVICE_HOURS = {
 }
 
 # --- Kendaraan pribadi ----------------------------------------------------
-# Jarak garis lurus dikali faktor ini untuk memperkirakan jarak jalan nyata.
+# Fallback KALAU OSRM gagal/timeout: jarak garis lurus dikali faktor ini
+# utk memperkirakan jarak jalan. Kalau OSRM berhasil, jarak JALAN NYATA
+# dari OSRM dipakai langsung (biasanya lebih jauh & lebih akurat dari ini).
 ROAD_DETOUR_FACTOR = 1.3
-# Kecepatan survei sudah termasuk waktu berhenti menaik-turunkan penumpang;
-# kendaraan pribadi tidak berhenti, jadi diberi faktor pengali. Knob kalibrasi:
-# naikkan kalau estimasi mobil terasa terlalu lambat dibanding kenyataan.
-PRIVATE_VEHICLE_SPEED_FACTOR = 1.4
-# Dipakai kalau data survei tidak tersedia sama sekali.
-FALLBACK_ROAD_SPEED_KMH = 25.0
+# Kecepatan motor efektif di lalu lintas kota (BUKAN kecepatan jalan bebas
+# hambatan) -- dipakai utk menghitung waktu tempuh dari JARAK JALAN (dari
+# OSRM atau fallback di atas). Sengaja TIDAK memakai durasi bawaan OSRM:
+# profil "driving" OSRM demo mengasumsikan jalan lengang sesuai batas
+# kecepatan (~50+ km/jam utk jalan kota), jauh lebih optimis dari kondisi
+# macet nyata. Knob kalibrasi: turunkan kalau estimasi masih terasa
+# terlalu cepat dibanding kenyataan lapangan.
+PRIVATE_VEHICLE_PEAK_KMH = 20.0
+PRIVATE_VEHICLE_OFFPEAK_KMH = 28.0
 # Biaya bahan bakar motor: ~40 km/liter, harga BBM ~Rp10.000/liter -> Rp250/km.
 # Motor dipilih sbg acuan (bukan mobil) krn itu kendaraan pribadi dominan di
 # konteks penelitian ini -- lihat RENCANA_SISTEM.md soal kepemilikan kendaraan.
@@ -107,7 +112,11 @@ MOTORBIKE_FUEL_COST_PER_KM = 250
 # bergantung pada data per-jam. LRT TIDAK memakai ini -- rel sendiri, tidak
 # kena macet, tetap statis dari jadwal resmi (headway 17 menit yang menandai
 # jam sibuk, bukan kecepatannya).
-PEAK_WINDOWS = [(time(7, 0), time(9, 0)), (time(16, 0), time(19, 0))]
+PEAK_WINDOWS = [
+    (time(7, 0), time(9, 0)),    # berangkat kerja/sekolah
+    (time(12, 0), time(14, 0)),  # 
+    (time(16, 0), time(19, 0)),  # pulang kerja
+]
 PEAK_SPEED_KMH = 25.0
 OFFPEAK_SPEED_KMH = 32.5
 
@@ -367,6 +376,7 @@ def service_window_text() -> str:
 
 import json as _json
 import ssl as _ssl
+import time as _time
 import urllib.request as _req
 
 OSRM_BASE = "https://router.project-osrm.org/route/v1"
@@ -375,7 +385,16 @@ WALKING_PATH_TIMEOUT_SECONDS = 3.0
 # ini jadi sumber error/lambat di produksi, ganti ke OSRM self-hosted atau
 # naikkan timeout. Gagal/timeout SELALU fallback diam-diam ke garis lurus,
 # jadi tidak pernah membuat pencarian rute gagal total.
-_walking_path_disabled = False  # dimatikan otomatis setelah kegagalan pertama
+#
+# Cooldown, BUKAN mati permanen: proses API ini hidup berhari-hari (Flask
+# tidak restart tiap request), jadi kalau satu kegagalan/timeout OSRM yang
+# transient mematikan flag ini selamanya, SEMUA request sesudahnya di sisa
+# umur proses itu kehilangan jalur OSRM tanpa pernah coba lagi -- padahal
+# OSRM-nya sendiri sudah pulih detik berikutnya. Ditemukan lewat kejadian
+# nyata (2026-08-08): satu blip saat pengujian bertubi-tubi bikin SEMUA
+# request sesudahnya (termasuk punya pengguna asli) balik ke garis lurus.
+_OSRM_COOLDOWN_SECONDS = 30.0
+_osrm_disabled_until: float = 0.0  # monotonic timestamp, 0 = tidak sedang cooldown
 _cached_ssl_context: Optional[_ssl.SSLContext] = None
 
 
@@ -396,30 +415,57 @@ def _ssl_context() -> Optional[_ssl.SSLContext]:
     return _cached_ssl_context or None
 
 
-def walking_path(from_lat: float, from_lon: float,
-                 to_lat: float, to_lon: float) -> Optional[list]:
+def _osrm_route(profile: str, from_lat: float, from_lon: float,
+                to_lat: float, to_lon: float) -> Optional[dict]:
     """
-    Polyline jalan kaki asli dari OSRM (profil foot), sbg list [lat, lon]
-    (format yang sama dengan route_waypoints koridor transit). None kalau
-    OSRM gagal/timeout -- pemanggil harus fallback ke garis lurus [from, to].
+    Panggil OSRM (dipakai bareng oleh walking_path & driving_route -- profil
+    beda, mekanisme sama). Return {"path": [[lat,lon],...], "distance_km":}
+    atau None kalau OSRM gagal/timeout -- pemanggil harus fallback sendiri
+    (garis lurus [from, to] utk path, haversine utk jarak).
     """
-    global _walking_path_disabled
-    if _walking_path_disabled:
+    global _osrm_disabled_until
+    if _time.monotonic() < _osrm_disabled_until:
         return None
-    url = (f"{OSRM_BASE}/foot/{from_lon},{from_lat};{to_lon},{to_lat}"
+    url = (f"{OSRM_BASE}/{profile}/{from_lon},{from_lat};{to_lon},{to_lat}"
           f"?overview=full&geometries=geojson")
     try:
         with _req.urlopen(url, timeout=WALKING_PATH_TIMEOUT_SECONDS, context=_ssl_context()) as resp:
             data = _json.loads(resp.read())
         if data.get("code") != "Ok":
             return None
-        return [[c[1], c[0]] for c in data["routes"][0]["geometry"]["coordinates"]]
+        route = data["routes"][0]
+        return {
+            "path": [[c[1], c[0]] for c in route["geometry"]["coordinates"]],
+            "distance_km": route["distance"] / 1000,
+        }
     except Exception:
-        # Satu kegagalan (mis. timeout/offline) cukup untuk mematikan sisa
-        # request di proses ini -- jangan bikin SETIAP jalan kaki di rute yang
-        # sama menunggu timeout satu-satu kalau OSRM sedang tidak bisa dihubungi.
-        _walking_path_disabled = True
+        # Satu kegagalan (mis. timeout/offline) menunda SEMUA panggilan OSRM
+        # (WALK & PRIVATE_VEHICLE berbagi cooldown ini) selama
+        # _OSRM_COOLDOWN_SECONDS -- jangan bikin SETIAP request menunggu
+        # timeout satu-satu selama OSRM benar2 tidak bisa dihubungi, tapi
+        # tetap coba lagi otomatis sesudah cooldown, bukan mati permanen.
+        _osrm_disabled_until = _time.monotonic() + _OSRM_COOLDOWN_SECONDS
         return None
+
+
+def walking_path(from_lat: float, from_lon: float,
+                 to_lat: float, to_lon: float) -> Optional[list]:
+    """Polyline jalan kaki asli dari OSRM (profil foot), sbg list [lat, lon]
+    (format yang sama dengan route_waypoints koridor transit). None kalau
+    OSRM gagal/timeout -- pemanggil harus fallback ke garis lurus [from, to]."""
+    route = _osrm_route("foot", from_lat, from_lon, to_lat, to_lon)
+    return route["path"] if route else None
+
+
+def driving_route(from_lat: float, from_lon: float,
+                  to_lat: float, to_lon: float) -> Optional[dict]:
+    """
+    Jarak & polyline jalan NYATA dari OSRM (profil driving) -- utk kendaraan
+    pribadi. SENGAJA tidak memakai durasi bawaan OSRM (lihat komentar
+    PRIVATE_VEHICLE_PEAK_KMH), cuma jarak & geometrinya. None kalau OSRM
+    gagal/timeout -- pemanggil fallback ke haversine x ROAD_DETOUR_FACTOR.
+    """
+    return _osrm_route("driving", from_lat, from_lon, to_lat, to_lon)
 
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -434,37 +480,42 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 def driving_estimate(origin: Tuple[float, float], dest: Tuple[float, float],
                      when: Optional[datetime] = None) -> dict:
     """
-    Estimasi kendaraan pribadi, dipakai saat di luar jam operasional angkutan umum.
+    Estimasi kendaraan pribadi -- dipakai sbg alternatif pembanding di
+    find_route_alternatives() DAN saat di luar jam operasional angkutan umum.
 
-    CATATAN KETERBATASAN: repo ini tidak punya jaringan jalan raya (graf hanya
-    berisi 402 halte di koridor angkutan umum), jadi ini estimasi jarak & waktu,
-    BUKAN rute belok-per-belok. Butuh data OSM untuk rute jalan sebenarnya.
+    Jarak & polyline: dari OSRM (jalan NYATA), fallback ke garis lurus x
+    ROAD_DETOUR_FACTOR kalau OSRM gagal/timeout. Waktu tempuh: dihitung
+    sendiri dari kecepatan motor efektif (PEAK/OFFPEAK), BUKAN dari durasi
+    bawaan OSRM -- lihat komentar PRIVATE_VEHICLE_PEAK_KMH kenapa.
     """
-    data = get_data()
     straight_km = haversine_km(origin[0], origin[1], dest[0], dest[1])
-    road_km = straight_km * ROAD_DETOUR_FACTOR
 
-    speed = None
-    if when is not None:
-        speed = data.road_speed_by_hour.get(when.hour)
-    if speed is None and data.road_speed_by_hour:
-        speed = sum(data.road_speed_by_hour.values()) / len(data.road_speed_by_hour)
-    if not speed:
-        speed = FALLBACK_ROAD_SPEED_KMH
-    speed *= PRIVATE_VEHICLE_SPEED_FACTOR
+    route = driving_route(origin[0], origin[1], dest[0], dest[1])
+    if route is not None:
+        road_km = route["distance_km"]
+        path = route["path"]
+    else:
+        road_km = straight_km * ROAD_DETOUR_FACTOR
+        path = None
+
+    speed = (PRIVATE_VEHICLE_PEAK_KMH if (when is not None and is_peak_hour(when))
+             else PRIVATE_VEHICLE_OFFPEAK_KMH)
+    road_km = round(road_km, 2)  # bulatkan dulu -- duration/cost dihitung dari
+                                  # angka yg SAMA persis dgn yg ditampilkan sbg distance_km
 
     return {
         "mode": "PRIVATE_VEHICLE",
-        "distance_km": round(road_km, 2),
+        "distance_km": road_km,
         "straight_line_km": round(straight_km, 2),
         "duration_minutes": round(road_km / speed * 60, 1),
         "cost_rupiah": round(road_km * MOTORBIKE_FUEL_COST_PER_KM),
         "assumed_speed_kmh": round(speed, 1),
+        "path": path,
         "is_estimate": True,
-        "note": ("Estimasi jarak & waktu berdasarkan kecepatan jalan hasil survei "
-                 "30 hari. Bukan rute belok-per-belok - sistem ini tidak memuat "
-                 "jaringan jalan raya. Biaya = estimasi BBM motor saja, tidak "
-                 "termasuk parkir/penyusutan."),
+        "note": ("Jarak & jalur dari OSRM (kalau tersedia) atau estimasi garis lurus. "
+                 "Waktu tempuh pakai asumsi kecepatan motor efektif di lalu lintas "
+                 "kota (bukan durasi bawaan OSRM, yg mengasumsikan jalan lengang). "
+                 "Biaya = estimasi BBM motor saja, tidak termasuk parkir/penyusutan."),
     }
 
 
@@ -474,19 +525,25 @@ def demo():
     assert data.n_rows > 0, "tidak ada baris survei yang terbaca"
 
     # Feeder/Teman Bus: kecepatan tetap, jam sibuk harus lebih lambat.
+    # Jam 22:00 dipakai sbg acuan "normal" krn genuinely di luar SEMUA
+    # jendela PEAK_WINDOWS (07-09, 12-14 , 16-19) --
+    # dulu dipakai jam 13:00, sekarang itu masuk jendela siang yang baru.
     peak = travel_minutes("Feeder Koridor 1", "Feeder_Koridor_1_1",
                           "Feeder_Koridor_1_2", 5.0, datetime(2026, 1, 1, 8))
     normal = travel_minutes("Feeder Koridor 1", "Feeder_Koridor_1_1",
-                            "Feeder_Koridor_1_2", 5.0, datetime(2026, 1, 1, 13))
+                            "Feeder_Koridor_1_2", 5.0, datetime(2026, 1, 1, 22))
+    siang = travel_minutes("Feeder Koridor 1", "Feeder_Koridor_1_1",
+                           "Feeder_Koridor_1_2", 5.0, datetime(2026, 1, 1, 13))
     assert peak > normal, "jam sibuk harusnya lebih lambat"
     assert peak == 5.0 / PEAK_SPEED_KMH * 60
     assert normal == 5.0 / OFFPEAK_SPEED_KMH * 60
+    assert siang == peak, "jam 13:00 () harusnya sama lambatnya dgn jam sibuk"
 
     # LRT statis -- sama jam sibuk atau tidak, pakai jadwal resmi.
     lrt_peak = travel_minutes("LRT Sumsel", "LRT_Sumsel_1", "LRT_Sumsel_2",
                               3.0, datetime(2026, 1, 1, 8))
     lrt_normal = travel_minutes("LRT Sumsel", "LRT_Sumsel_1", "LRT_Sumsel_2",
-                                3.0, datetime(2026, 1, 1, 13))
+                                3.0, datetime(2026, 1, 1, 22))
     assert lrt_peak == lrt_normal, "LRT harusnya tidak berubah krn jam sibuk"
 
     # Feeder/Teman Bus: masih headway penuh sesuai WAIT_MODEL (tidak ada
@@ -513,15 +570,22 @@ def demo():
     assert not any_service_available(datetime(2026, 1, 1, 3, 0))
     assert any_service_available(datetime(2026, 1, 1, 8, 0))
 
-    # Estimasi kendaraan pribadi.
+    # Estimasi kendaraan pribadi -- jam 03:00 = offpeak.
     est = driving_estimate((-2.9852, 104.7328), (-2.9511, 104.7609),
                            datetime(2026, 1, 1, 3, 0))
     assert est["duration_minutes"] > 0 and est["distance_km"] > 0
     assert est["cost_rupiah"] == round(est["distance_km"] * MOTORBIKE_FUEL_COST_PER_KM)
+    assert est["assumed_speed_kmh"] == PRIVATE_VEHICLE_OFFPEAK_KMH
+
+    est_peak = driving_estimate((-2.9852, 104.7328), (-2.9511, 104.7609),
+                                datetime(2026, 1, 1, 8, 0))
+    assert est_peak["assumed_speed_kmh"] == PRIVATE_VEHICLE_PEAK_KMH
+    assert est_peak["duration_minutes"] > est["duration_minutes"], \
+        "jam sibuk harusnya lebih lambat drpd offpeak"
 
     print(f"OK - {data.n_rows:,} baris survei, {len(data.by_edge):,} ruas LRT")
-    print(f"   Feeder K1 5km jam 08 vs 13: {peak:.2f} vs {normal:.2f} menit")
-    print(f"   LRT Punti Kayu->RSUD jam 08 vs 13: {lrt_peak:.2f} vs {lrt_normal:.2f} menit (statis)")
+    print(f"   Feeder K1 5km jam 08 vs 22: {peak:.2f} vs {normal:.2f} menit (jam 13 siang: {siang:.2f}, sama sibuknya)")
+    print(f"   LRT Punti Kayu->RSUD jam 08 vs 22: {lrt_peak:.2f} vs {lrt_normal:.2f} menit (statis)")
     print(f"   estimasi kendaraan pribadi: {est['distance_km']} km, "
           f"{est['duration_minutes']} menit @ {est['assumed_speed_kmh']} km/h")
 

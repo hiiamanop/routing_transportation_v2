@@ -958,22 +958,30 @@ export default function Home() {
                       })}
                     </div>
                     {(() => {
-                      const hour = new Date(
-                        alternativesResponse.departure_time
-                      ).getHours();
+                      // Jam WIB eksplisit (bukan getHours() lokal browser) --
+                      // dan jendela jam sibuk HARUS sama persis dgn
+                      // PEAK_WINDOWS di service_model.py (07:00-09:00,
+                      // 12:00-14:00 , 16:00-19:00).
+                      const hour = Number(
+                        new Intl.DateTimeFormat("en-GB", {
+                          timeZone: "Asia/Jakarta",
+                          hour: "2-digit",
+                          hourCycle: "h23",
+                        }).format(new Date(alternativesResponse.departure_time))
+                      );
                       let phase = "";
                       let color = "";
-                      if (6 <= hour && hour <= 9) {
-                        phase = "Peak Hour - Pagi (06:00-09:00)";
+                      if (7 <= hour && hour <= 9) {
+                        phase = "Jam Sibuk - Pagi (07:00-09:00)";
                         color = "text-orange-700 bg-orange-50";
                       } else if (12 <= hour && hour <= 14) {
-                        phase = "Peak Hour - Siang (12:00-14:00)";
+                        phase = "Jam Sibuk - Siang,  (12:00-14:00)";
                         color = "text-orange-700 bg-orange-50";
-                      } else if (17 <= hour && hour <= 19) {
-                        phase = "Peak Hour - Sore (17:00-19:00)";
+                      } else if (16 <= hour && hour <= 19) {
+                        phase = "Jam Sibuk - Sore (16:00-19:00)";
                         color = "text-orange-700 bg-orange-50";
                       } else {
-                        phase = "Normal Hour";
+                        phase = "Jam Normal";
                         color = "text-green-700 bg-green-50";
                       }
                       return (
@@ -1074,6 +1082,16 @@ export default function Home() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Footer sidebar -- di luar area scroll, jadi selalu terlihat. */}
+        <div className="shrink-0 border-t border-[var(--gmaps-border)] px-4 py-2.5 text-center">
+          <Link
+            href="/about"
+            className="text-xs font-medium text-[var(--gmaps-text-secondary)] hover:text-[var(--gmaps-blue)] hover:underline"
+          >
+            Tentang sistem ini
+          </Link>
         </div>
       </aside>
 

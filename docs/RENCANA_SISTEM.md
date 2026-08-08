@@ -6,6 +6,8 @@ Sasarannya: sistem informasi integrasi tiga moda angkutan publik Kota Palembang 
 
 > **Catatan arah penelitian.** Fokus bukan lagi perbandingan algoritma. Dijkstra sudah final sebagai mesin pencarian rute. Kontribusi yang sedang dibangun ada di sisi perencanaan transportasi: pemodelan preferensi dan pemilihan moda.
 
+> **📍 Checkpoint 2026-08-08.** S-1, S-2, S-3, S-4 selesai dibangun & diuji (lihat detail di tiap bagian). S-6 (kumpulkan ±200 observasi) **baru mulai** -- 1 observasi asli terkumpul. S-5, S-7, S-8 belum dikerjakan, menunggu data S-6 cukup dulu. Lihat bagian 7 untuk urutan pengerjaan terbaru.
+
 ---
 
 ## 1. Peta status
@@ -15,11 +17,11 @@ Flowchart terdiri dari dua cabang paralel yang bertemu di tengah.
 | Cabang | Isi | Status |
 |---|---|---|
 | **Kiri (penyediaan / _supply_)** | Graf jaringan → pencarian rute → enumerasi alternatif → hitung atribut | ✅ Selesai |
-| **Kanan (pemilihan / _demand_)** | Survei → estimasi β → utilitas → probabilitas | 🔶 Baru pengumpulan datanya |
-| **Integrasi & keluaran** | Gabungkan alternatif dengan probabilitas → rekomendasi | 🔶 Sebagian |
-| **Umpan balik** | Simpan hasil → re-estimasi berkala | ❌ Belum |
+| **Kanan (pemilihan / _demand_)** | Survei → estimasi β → utilitas → probabilitas | 🔶 Alat siap (S-1..S-4), data belum cukup (S-6) |
+| **Integrasi & keluaran** | Gabungkan alternatif dengan probabilitas → rekomendasi | 🔶 Sebagian (S-7 menunggu S-6) |
+| **Umpan balik** | Simpan hasil → re-estimasi berkala | 🔶 Skema riwayat β sudah ada, penjadwalan belum (S-8) |
 
-Ringkasnya: **separuh kiri sudah berdiri, separuh kanan baru diletakkan pondasinya.**
+Ringkasnya: **cabang kiri sudah berdiri, cabang kanan sekarang punya alat lengkap (formulir, ekspor data, estimator) -- tinggal menunggu data cukup untuk dipakai sungguhan.**
 
 ---
 
@@ -33,19 +35,13 @@ Ringkasnya: **separuh kiri sudah berdiri, separuh kanan baru diletakkan pondasin
 | **Data Preferensi Pengguna (Survei)** | | | |
 | — penilaian atribut | skala 1–5 lima kriteria | ✅ | halaman `/preferensi` |
 | — **pilihan moda aktual** | alternatif mana yang dipilih | ✅ | `POST /api/choice` → `dataset/survey/choices.jsonl` |
-| — **karakteristik responden** | usia, pekerjaan, pendapatan, kepemilikan kendaraan, frekuensi perjalanan | ❌ **belum ada** | — |
+| — **karakteristik responden** | usia, pekerjaan, pendapatan, kepemilikan kendaraan, frekuensi perjalanan | ✅ | halaman `/responden` → `POST /api/respondent` → `dataset/survey/respondents.jsonl` |
 
-### Yang harus dibangun
+### S-1. Formulir karakteristik responden -- ✅ Selesai
 
-**S-1. Formulir karakteristik responden.** Tanpa ini, model tidak bisa memuat variabel sosio-ekonomi, padahal justru variabel itu yang menjelaskan **mengapa** kelompok berbeda memilih berbeda. Cukup satu halaman, diisi sekali, disimpan bersama `respondent_id` yang sudah ada.
+Halaman `/responden`, tanpa autentikasi (`respondent_id` = UUID anonim di localStorage, sama dgn yg dipakai `/api/choice`). Field: usia, jenis kelamin, pekerjaan, rentang pendapatan, kepemilikan kendaraan pribadi, maksud perjalanan, frekuensi pakai angkutan umum. Digabung otomatis ke data pilihan lewat `respondent_id` saat ekspor (lihat S-3).
 
-Variabel minimal yang lazim pada studi pemilihan moda:
-
-- usia, jenis kelamin
-- pekerjaan dan rentang pendapatan
-- kepemilikan kendaraan pribadi (motor/mobil) — **paling menentukan**
-- maksud perjalanan (kerja, sekolah, lainnya)
-- frekuensi memakai angkutan umum
+**Belum dikerjakan (perluasan lanjutan, bukan bagian wajib S-1/S-4):** karakteristik responden belum dipakai sbg *interaction term* di model MNL (S-4) -- kolomnya sudah tersedia di hasil ekspor, tinggal dipetakan jadi variabel model kalau β dasar sudah stabil.
 
 ---
 
@@ -61,44 +57,48 @@ Semua sudah berjalan. Didaftar agar dokumen ini utuh.
 | Hitung atribut tiap alternatif | ✅ | `route_attributes()` |
 | Simpan himpunan $A_i$ + atribut $X_{ij}$ | ✅ | field `attributes` pada respons |
 
-### Yang masih harus diperbaiki
+### S-2. Perbanyak alternatif per perjalanan -- ✅ Selesai
 
-**S-2. Perbanyak alternatif per perjalanan.** Ini **penghambat nyata**, bukan penyempurnaan. Pengujian pada tiga pasang asal–tujuan menghasilkan **hanya satu alternatif** setiap kali. Model pemilihan diskret memerlukan **himpunan pilihan berisi lebih dari satu opsi** — bila hanya ada satu, maka $P_{ij} = 1$ dengan sendirinya dan tidak ada yang bisa diestimasi.
+**Diagnosis** (dibuktikan lewat pengujian langsung, bukan dugaan): mekanisme "cari jalur lain dgn koridor terbaik dihukum" (`avoid_routes`) sudah ada duluan tapi tidak berdaya -- hukuman sampai 100.000 menit tetap balik ke koridor yang sama. Kesimpulan: jaringan 11 koridor ini **jarang secara topologis**, banyak pasangan titik cuma punya SATU jalur multi-moda dlm radius transfer 500m. Melonggarkan penalti tidak akan pernah cukup di kasus ini.
 
-Arah penanganan:
+**Solusi**: alternatif **"Kendaraan Pribadi"** ditambahkan sbg anggota TETAP himpunan pilihan (`private_vehicle_route()` di `gmaps_style_routing.py`), bukan cuma fallback saat transit gagal total. Jarak & jalur dari OSRM (profil driving, real road), waktu dihitung dari asumsi kecepatan motor efektif (bukan durasi bawaan OSRM yg terlalu optimis). Sekaligus relevan dgn topik penelitian: yg diperebutkan memang perpindahan dari kendaraan pribadi.
 
-- longgarkan penalti koridor pada pencarian alternatif ke-4
-- pertimbangkan memasukkan "kendaraan pribadi" sebagai alternatif pembanding di dalam himpunan pilihan — ini justru sesuai dengan masalah penelitian (_mode share_ 4,9%), karena yang sesungguhnya diperebutkan adalah perpindahan dari kendaraan pribadi ke angkutan umum
-- ukur berapa persen perjalanan yang menghasilkan ≥2 alternatif, jadikan itu indikator kesiapan data
+**Hasil ukur**: 10 pasang asal-tujuan acak, sebelumnya 0/10 hasilkan ≥2 alternatif, sekarang **10/10**.
 
 ---
 
 ## 4. Cabang kanan — model pemilihan
 
-Belum ada satu pun. Inilah inti pekerjaan berikutnya.
+Alat sudah lengkap (S-3, S-4). Yang masih kurang murni **data** (S-6).
 
-### S-3. Berkas data pilihan siap-estimasi
+### S-3. Berkas data pilihan siap-estimasi -- ✅ Selesai
 
-Ubah `choices.jsonl` menjadi tabel format panjang (_long format_): satu baris per **pasangan (observasi × alternatif)**, dengan penanda `dipilih` bernilai 0/1. Ini bentuk baku yang diterima semua perkakas estimasi.
+`scripts/export_long_format.py` (CLI) dan `GET /api/survey/export` (unduh langsung dari server) -- keduanya pakai satu sumber logika yang sama, `src/core/survey_export.py`. Ubah `choices.jsonl` jadi tabel long-format (satu baris per observasi × alternatif, kolom `chosen` 0/1), **digabung otomatis** dgn karakteristik responden (`respondents.jsonl`) lewat `respondent_id`. Melaporkan % observasi yang berhasil ter-*join* sbg indikator kesiapan data.
 
-| observasi | alternatif | waktu | biaya | transfer | akses_km | nyaman | andal | dipilih |
-|---|---|---|---|---|---|---|---|---|
-| 1 | Tercepat | 42,0 | 8000 | 1 | 0,40 | 3,2 | 3,5 | 0 |
-| 1 | Termurah | 55,0 | 5000 | 0 | 1,10 | 2,4 | 2,2 | 1 |
+| observation_id | label | time_minutes | cost_rupiah | ... | vehicle_ownership | chosen |
+|---|---|---|---|---|---|---|
+| 0 | Rekomendasi | 42,0 | 8000 | ... | Motor | 0 |
+| 0 | Termurah | 55,0 | 5000 | ... | Motor | 1 |
 
-### S-4. Estimasi parameter β
+Diuji dgn 200 observasi sintetis (ditandai `synthetic: true`, file terpisah `*.dummy.jsonl`, di-gitignore) -- setiap observasi tepat 1 baris `chosen=1`, tidak ada yg hilang.
 
-Estimasi kemungkinan maksimum (_maximum likelihood_) atas fungsi log-likelihood model logit multinomial:
+### S-4. Estimasi parameter β -- ✅ Skrip siap, menunggu data
+
+`scripts/estimate_mnl.py` -- Newton-Raphson murni (cukup `numpy`, dependency terpisah `scripts/requirements.txt`, tidak membebani image API). Koefisien generic (satu β per atribut, standar utk pemilihan rute/moda).
 
 $$L(\beta) = \sum_{n}\sum_{j} y_{nj} \ln P_{nj}, \qquad P_{nj} = \frac{e^{U_{nj}}}{\sum_{m} e^{U_{nm}}}, \qquad U_{nj} = \beta^{\top} X_{nj}$$
 
-Keluaran yang **wajib** dilaporkan di naskah:
+Keluaran yang **wajib** dilaporkan di naskah -- semua sudah diimplementasikan:
 
 - nilai $\beta$ tiap atribut beserta galat bakunya
 - **statistik t** tiap koefisien (signifikan atau tidak)
 - $\rho^2$ McFadden (kecocokan model)
-- **tanda koefisien harus masuk akal**: waktu dan biaya negatif, kenyamanan dan keandalan positif. Tanda yang terbalik adalah pertanda ada yang salah pada data, bukan temuan.
-- nilai waktu (_value of time_) = $\beta_{\text{waktu}} / \beta_{\text{biaya}}$ — besaran yang punya arti langsung bagi perencanaan tarif
+- **tanda koefisien harus masuk akal**: waktu dan biaya negatif, kenyamanan dan keandalan positif. Tanda yang terbalik adalah pertanda ada yang salah pada data, bukan temuan -- skrip mendeteksi & memperingatkan otomatis.
+- nilai waktu (_value of time_) = $\beta_{\text{waktu}} / \beta_{\text{biaya}}$ — **cuma dilaporkan kalau kedua koefisien bertanda benar**, kalau tidak ditulis eksplisit "tidak dilaporkan" (drpd angka yg menyesatkan)
+
+**Verifikasi yang sudah dilakukan**: gradien & Hessian analitik dicocokkan dgn *finite-difference* numerik (cocok sampai presisi ~5×10⁻⁵); self-check bawaan (`--demo`) membangkitkan data dgn β yg SUDAH DIKETAHUI dan membuktikan estimator berhasil memulihkannya; diuji juga dgn 1 observasi asli utk pastikan gagal dgn pesan jelas (Hessian singular), bukan crash, saat data belum cukup.
+
+**Riwayat re-estimasi (S-8) sudah tersiapkan sekalian**: tiap run **ditambahkan** (bukan menimpa) ke `dataset/survey/beta_history.jsonl`.
 
 ### S-5. Perhitungan utilitas dan probabilitas saat melayani permintaan
 
@@ -149,18 +149,18 @@ Tidak mendesak sampai S-4 selesai, tetapi **skema penyimpanannya harus disiapkan
 
 Berurutan menurut ketergantungan, bukan menurut kemudahan.
 
-| # | Pekerjaan | Menghambat apa | Prioritas |
+| # | Pekerjaan | Status | Menghambat apa |
 |---|---|---|---|
-| S-2 | Perbanyak alternatif per perjalanan | **seluruh cabang kanan** | Mendesak |
-| S-1 | Formulir karakteristik responden | mutu model, harus ada sebelum survei berjalan | Mendesak |
-| S-6 | Kumpulkan ±200 observasi | S-4 | Berjalan terus |
-| S-3 | Ekspor data siap-estimasi | S-4 | Setelah data masuk |
-| S-4 | Estimasi β | S-5, S-7 | Inti |
-| S-5 | Utilitas & probabilitas saat melayani | S-7 | Setelah S-4 |
-| S-7 | Tampilkan probabilitas, alihkan rekomendasi | — | Setelah S-5 |
-| S-8 | Re-estimasi berkala | — | Terakhir |
+| S-2 | Perbanyak alternatif per perjalanan | ✅ Selesai | — |
+| S-1 | Formulir karakteristik responden | ✅ Selesai | — |
+| S-3 | Ekspor data siap-estimasi | ✅ Selesai | — |
+| S-4 | Estimasi β (skrip) | ✅ Selesai | — |
+| **S-6** | **Kumpulkan ±200 observasi** | 🔶 **Baru 1 observasi asli** | **S-5, S-7 — blocker satu-satunya sekarang** |
+| S-5 | Utilitas & probabilitas saat melayani | ❌ Belum | Setelah S-6 cukup + S-4 dijalankan di data asli |
+| S-7 | Tampilkan probabilitas, alihkan rekomendasi | ❌ Belum | Setelah S-5 |
+| S-8 | Re-estimasi berkala (penjadwalan) | 🔶 Riwayat β (S-4) sudah tersimpan otomatis, penjadwalannya belum | — |
 
-**S-2 dan S-1 harus dikerjakan lebih dulu.** Selama satu perjalanan hanya menghasilkan satu alternatif, setiap observasi yang terkumpul tidak bernilai untuk estimasi — dan waktu pengumpulan data terbuang percuma.
+**Satu-satunya pekerjaan mendesak sekarang: sebar aplikasi & kumpulkan data nyata (S-6).** Semua alat (formulir, pencarian alternatif, ekspor, estimator) sudah teruji dan siap pakai -- begitu ±200 observasi terkumpul, tinggal jalankan `scripts/export_long_format.py` lalu `scripts/estimate_mnl.py` (atau unduh lewat `GET /api/survey/export`), tanpa perlu sentuh kode lagi.
 
 ---
 
@@ -169,8 +169,10 @@ Berurutan menurut ketergantungan, bukan menurut kemudahan.
 Bukan cacat yang perlu disembunyikan, melainkan syarat kejujuran ilmiah.
 
 1. **Headway armada belum terukur.** Feeder 12 menit dan Teman Bus 15 menit adalah taksiran; tidak ada data headway nyata pada dataset manapun. Hanya LRT yang memakai jadwal resmi.
-2. **Kecepatan operasi disederhanakan.** 25 km/jam jam sibuk dan 32,5 km/jam di luar itu, seragam per koridor, bukan per ruas jalan.
+2. **Kecepatan operasi disederhanakan.** 25 km/jam jam sibuk (07:00-09:00, 12:00-14:00, 16:00-19:00) dan 32,5 km/jam di luar itu, seragam per koridor, bukan per ruas jalan. Jendela jam sibuk sendiri berdasarkan pengetahuan lokal pemilik penelitian (bukan data pengukuran lalu lintas), termasuk jendela siang (anak pulang sekolah).
 3. **Skor kenyamanan dan keandalan bersifat redaksional.** Ditetapkan per moda berdasarkan pertimbangan, bukan hasil pengukuran. Idealnya kelak diganti dengan penilaian responden.
 4. **Sepuluh halte masih menyimpang >50 m** dari jalur terekam dan perlu survei ulang lapangan.
 5. **Responden bersifat swa-pilih** (siapa pun yang memakai aplikasi), bukan sampel acak — sehingga hasilnya belum tentu mewakili seluruh penduduk kota.
 6. **Perilaku terungkap di dalam aplikasi belum tentu sama dengan perjalanan nyata**: memilih rute pada layar tidak sama dengan benar-benar menempuhnya.
+7. **Estimasi kendaraan pribadi bukan navigasi belok-per-belok.** Jarak & jalur dari OSRM (mesin publik, tanpa SLA, ada cooldown 30 detik kalau gagal) kalau tersedia, kalau tidak jatuh ke estimasi garis lurus × 1,3. Waktu tempuh dari asumsi kecepatan motor efektif (20/28 km/jam sibuk/normal) -- bukan hasil pengukuran GPS kendaraan nyata, dan biaya cuma estimasi BBM motor (tidak termasuk parkir/penyusutan, tidak memodelkan mobil).
+8. **Karakteristik responden belum dipakai sbg interaction term di model (S-4).** Datanya sudah terkumpul & tergabung di ekspor, tapi β saat ini murni dari 6 atribut rute -- variabel sosio-ekonomi baru bisa menjelaskan variasi antar kelompok kalau ditambahkan sbg perluasan lanjutan.

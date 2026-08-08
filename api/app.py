@@ -5,7 +5,7 @@ Menyediakan pencarian rute (Dijkstra), alternatif rute beserta atributnya,
 dan perekaman pilihan pengguna sebagai data survei pemilihan moda.
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import sys
 import os
@@ -22,6 +22,7 @@ from core.gmaps_style_routing import (
     describe_no_route_reason, route_attributes
 )
 from core import service_model
+from core.survey_export import build_long_format_rows, rows_to_csv
 
 app = Flask(__name__)
 # Enable CORS for all routes with explicit configuration
@@ -488,6 +489,36 @@ def record_respondent():
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
         return jsonify({"success": True}), 201
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/survey/export', methods=['GET'])
+def export_survey_data():
+    """
+    Unduh seluruh observasi pilihan (S-3, long-format) sbg CSV -- gabungan
+    choices.jsonl + respondents.jsonl, format sama persis dgn
+    scripts/export_long_format.py (satu sumber logika, lihat
+    core/survey_export.py). TIDAK menerima path dari request -- selalu file
+    survei baku, supaya tidak bisa dipakai baca file sembarang di server.
+    """
+    try:
+        if not os.path.exists(CHOICE_LOG_PATH):
+            return jsonify({"success": False, "error": "Belum ada data observasi."}), 404
+
+        rows = build_long_format_rows(CHOICE_LOG_PATH, RESPONDENT_LOG_PATH)
+        csv_text = rows_to_csv(rows)
+
+        timestamp = datetime.now(WIB_TZ).strftime('%Y%m%d_%H%M%S')
+        return Response(
+            csv_text,
+            mimetype='text/csv',
+            headers={
+                'Content-Disposition': f'attachment; filename="choices_long_{timestamp}.csv"'
+            },
+        )
     except Exception as e:
         import traceback
         traceback.print_exc()

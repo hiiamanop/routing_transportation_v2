@@ -223,9 +223,14 @@ export default function MapComponent({
       .map((segment) => {
         let coordinates: Array<[number, number]> = [];
 
-        // Segmen jalan kaki: pakai jalur trotoar asli dari backend kalau ada,
-        // supaya tidak digambar sebagai garis lurus menembus bangunan.
-        if (segment.mode === "WALK" && segment.path && segment.path.length > 1) {
+        // Segmen jalan kaki/kendaraan pribadi: pakai jalur asli dari OSRM
+        // (dikirim backend sbg segment.path) kalau ada, supaya tidak
+        // digambar sbg garis lurus menembus bangunan/danau.
+        if (
+          (segment.mode === "WALK" || segment.mode === "PRIVATE_VEHICLE") &&
+          segment.path &&
+          segment.path.length > 1
+        ) {
           coordinates = [...segment.path];
           coordinates[0] = [segment.from_coords.lat, segment.from_coords.lon];
           coordinates[coordinates.length - 1] = [

@@ -345,6 +345,7 @@ def private_vehicle_route(
         duration_minutes=duration_min,
         cost=estimate["cost_rupiah"],
         distance_km=dist_km,
+        path=estimate.get("path"),
     )
 
     route = Route(route_id=1, segments=[segment])
@@ -386,7 +387,7 @@ def find_route_alternatives(
     karena tarif & jumlah transfer nyata berbeda antar rute.
     """
     candidates = [
-        ("Tercepat", "time"),
+        ("Rekomendasi", "time"),
         ("Termurah", "cost"),
         ("Paling sedikit transfer", "transfers"),
     ]
