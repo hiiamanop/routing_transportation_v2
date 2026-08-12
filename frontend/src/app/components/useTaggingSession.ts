@@ -36,7 +36,7 @@ export function useTaggingSession(routeName: string | null) {
   const [hasSavedSession, setHasSavedSession] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [trackedRouteName, setTrackedRouteName] = useState<string | null>(routeName);
+  const [trackedRouteName, setTrackedRouteName] = useState<string | null | undefined>(undefined);
   const watchIdRef = useRef<number | null>(null);
 
   // Reset dilakukan SAAT render (bukan di useEffect terpisah) -- pola resmi
