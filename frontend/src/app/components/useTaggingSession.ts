@@ -36,23 +36,24 @@ export function useTaggingSession(routeName: string | null) {
   const [hasSavedSession, setHasSavedSession] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [trackedRouteName, setTrackedRouteName] = useState<string | null>(routeName);
   const watchIdRef = useRef<number | null>(null);
 
-  // Cek localStorage tiap kali koridor berganti -- tawarkan resume kalau ada
-  // sesi tersimpan sebelumnya utk koridor itu.
-  useEffect(() => {
+  // Reset dilakukan SAAT render (bukan di useEffect terpisah) -- pola resmi
+  // React utk "adjust state when a prop changes". Effect terpisah rentan
+  // race: effect persist di bawah bisa jalan di commit yg SAMA sebelum state
+  // hasil reset ini ke-apply, menimpa localStorage koridor baru dgn points
+  // dari koridor lama. Reset di render dieksekusi sebelum React commit apa
+  // pun, jadi tidak ada window race.
+  if (routeName !== trackedRouteName) {
+    setTrackedRouteName(routeName);
     setStatus("idle");
     setPoints([]);
     setCurrentPosition(null);
     setGeoError(null);
     setSaveError(null);
-    if (!routeName) {
-      setHasSavedSession(false);
-      return;
-    }
-    const raw = localStorage.getItem(storageKey(routeName));
-    setHasSavedSession(!!raw);
-  }, [routeName]);
+    setHasSavedSession(routeName ? !!localStorage.getItem(storageKey(routeName)) : false);
+  }
 
   // Simpan progres ke localStorage tiap kali daftar titik berubah, SELAMA
   // sesi berjalan/direview -- supaya refresh/HP terkunci di tengah
