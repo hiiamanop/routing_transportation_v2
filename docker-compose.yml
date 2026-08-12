@@ -8,10 +8,11 @@ services:
       # nginx di host, cuma nginx yang perlu menjangkau container ini.
       - "127.0.0.1:5001:5001"
     volumes:
-      # Data survei (pilihan responden) HARUS di luar image: tanpa mount ini
-      # setiap `--build` menghapus seluruh observasi yang sudah terkumpul.
-      # Hanya subfolder survey yang di-mount -- dataset lain tetap dari image.
-      - ./dataset/survey:/app/dataset/survey
+      # Seluruh dataset/ HARUS di luar image, bukan cuma survey/: tanpa mount
+      # ini setiap `--build` menghapus seluruh observasi survei DAN hasil
+      # tagging GPS halte (network_data_complete.json,
+      # network_data_correct_bidirectional.json) beserta file backup-nya.
+      - ./dataset:/app/dataset
 
   web:
     build:

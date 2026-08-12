@@ -23,6 +23,8 @@ from core.gmaps_style_routing import (
 )
 from core import service_model
 from core.survey_export import build_long_format_rows, rows_to_csv
+import shutil
+from core.network_edit import replace_corridor_stops
 
 app = Flask(__name__)
 # Enable CORS for all routes with explicit configuration
@@ -495,6 +497,14 @@ def record_respondent():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+NETWORK_COMPLETE_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), 'dataset', 'network_data_complete.json'
+)
+NETWORK_BIDIR_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), 'dataset', 'network_data_correct_bidirectional.json'
+)
+
+
 @app.route('/api/survey/export', methods=['GET'])
 def export_survey_data():
     """
@@ -591,6 +601,101 @@ def get_stops():
             "success": False,
             "error": str(e)
         }), 500
+
+def _validate_stops_payload(data):
+    """Kembalikan (list_titik_bersih, None) kalau valid, atau (None, pesan_error)."""
+    if not isinstance(data, dict):
+        return None, "payload must be a JSON object"
+
+    stops = data.get('stops')
+    if not isinstance(stops, list) or len(stops) < 2:
+        return None, "stops must be a list of at least 2 points"
+
+    clean = []
+    for stop in stops:
+        if not isinstance(stop, dict):
+            return None, "each stop must be an object"
+        name = str(stop.get('name', '')).strip()[:120]
+        if not name:
+            return None, "each stop needs a non-empty name"
+        try:
+            lat = float(stop['lat'])
+            lon = float(stop['lon'])
+        except (KeyError, TypeError, ValueError):
+            return None, "each stop needs numeric lat/lon"
+        # Kotak Palembang/Sumatera Selatan (margin longgar, bukan presisi):
+        # rentang se-Indonesia terlalu lebar utk melindungi data produksi --
+        # satu salah klik di peta bisa memindahkan halte ratusan km.
+        if not (-4.5 <= lat <= -2.0) or not (103.5 <= lon <= 105.5):
+            return None, "lat/lon out of range for Palembang/Sumatera Selatan"
+        clean.append({"name": name, "lat": lat, "lon": lon})
+
+    return clean, None
+
+
+@app.route('/api/network/corridor/<route_name>/stops', methods=['PUT'])
+def update_corridor_stops(route_name):
+    """
+    Ganti seluruh data halte satu koridor (hasil sesi tagging GPS lapangan).
+    Menulis KEDUA file network JSON (lihat network_edit.py utk alasannya),
+    backup dulu sebelum overwrite, lalu reload graf routing in-memory
+    supaya pencarian rute langsung pakai data baru tanpa restart container.
+    """
+    try:
+        stops, error = _validate_stops_payload(request.get_json())
+        if error:
+            return jsonify({"success": False, "error": error}), 400
+
+        with open(NETWORK_COMPLETE_PATH, 'r', encoding='utf-8') as f:
+            complete_data = json.load(f)
+        with open(NETWORK_BIDIR_PATH, 'r', encoding='utf-8') as f:
+            bidir_data = json.load(f)
+
+        existing_routes = {n['route'] for n in complete_data['nodes']}
+        if route_name not in existing_routes:
+            return jsonify({"success": False, "error": f"Koridor '{route_name}' tidak dikenal"}), 404
+
+        timestamp = datetime.now(WIB_TZ).strftime('%Y%m%d%H%M%S')
+
+        def _backup(path):
+            base, ext = os.path.splitext(path)
+            backup_path = f"{base}.backup-{timestamp}{ext}"
+            shutil.copy2(path, backup_path)
+            return backup_path
+
+        complete_backup = _backup(NETWORK_COMPLETE_PATH)
+        bidir_backup = _backup(NETWORK_BIDIR_PATH)
+
+        result = replace_corridor_stops(complete_data, bidir_data, route_name, stops)
+
+        # Tulis lewat file sementara + os.replace (atomik di filesystem yg
+        # sama): kalau proses mati di tengah json.dump, file asli tetap utuh
+        # -- bukan JSON terpotong yg bikin load_network() gagal saat restart.
+        def _atomic_write_json(path, data):
+            tmp_path = f"{path}.tmp"
+            with open(tmp_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            os.replace(tmp_path, path)
+
+        _atomic_write_json(NETWORK_COMPLETE_PATH, result["complete_data"])
+        _atomic_write_json(NETWORK_BIDIR_PATH, result["bidir_data"])
+
+        global network_graph
+        network_graph = None
+        load_network()
+
+        return jsonify({
+            "success": True,
+            "route": route_name,
+            "old_stop_count": result["old_count"],
+            "new_stop_count": result["new_count"],
+            "backups": [complete_backup, bidir_backup],
+        }), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 if __name__ == '__main__':
     # Load network at startup
