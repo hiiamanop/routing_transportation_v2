@@ -5,9 +5,23 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { NavigationIcon, modeColor, modeLabel } from "../components/icons";
 import type { NetworkRoute } from "../components/NetworkMapComponent";
+import { useTaggingSession } from "../components/useTaggingSession";
+import TaggingPanel from "../components/TaggingPanel";
 
 const NetworkMapComponent = dynamic(
   () => import("../components/NetworkMapComponent"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full w-full items-center justify-center bg-[var(--gmaps-surface-hover)] text-sm text-[var(--gmaps-text-secondary)]">
+        Memuat peta...
+      </div>
+    ),
+  }
+);
+
+const TaggingMapComponent = dynamic(
+  () => import("../components/TaggingMapComponent"),
   {
     ssr: false,
     loading: () => (
@@ -32,6 +46,8 @@ export default function JaringanPage() {
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const tagging = useTaggingSession(editMode ? selectedName : null);
 
   useEffect(() => {
     fetch("/api/stops")
@@ -134,14 +150,44 @@ export default function JaringanPage() {
             </div>
           ))}
         </div>
+
+        {selectedRoute && !editMode && (
+          <div className="border-t border-[var(--gmaps-border)] px-4 py-3">
+            <button
+              type="button"
+              onClick={() => setEditMode(true)}
+              className="w-full rounded-md bg-[var(--gmaps-blue)] px-3 py-2 text-sm font-medium text-white hover:opacity-90"
+            >
+              Mode Edit: Tagging GPS Halte
+            </button>
+          </div>
+        )}
+
+        {editMode && selectedRoute && (
+          <div className="border-t border-[var(--gmaps-border)] px-4 py-3">
+            <TaggingPanel routeName={selectedRoute.name} tagging={tagging} onExit={() => setEditMode(false)} />
+          </div>
+        )}
       </aside>
 
       <main className="relative h-[60vh] w-full lg:h-full lg:flex-1">
-        <NetworkMapComponent selectedRoute={selectedRoute} />
+        {editMode ? (
+          <TaggingMapComponent
+            points={tagging.points}
+            currentPosition={tagging.currentPosition}
+            onMapClick={(lat, lon) => {
+              if (tagging.status === "session" || tagging.status === "review") {
+                tagging.addManualPoint(lat, lon);
+              }
+            }}
+          />
+        ) : (
+          <NetworkMapComponent selectedRoute={selectedRoute} />
+        )}
 
         {/* Peta sengaja kosong sampai koridor dipilih -- tanpa petunjuk ini
             peta kosong terlihat seperti gagal memuat. */}
-        {!selectedRoute && (
+        {!editMode && !selectedRoute && (
           <div className="pointer-events-none absolute inset-x-0 top-4 z-[1000] flex justify-center px-4">
             <p className="rounded-full bg-white/95 px-4 py-2 text-sm text-[var(--gmaps-text-secondary)] shadow-md">
               Pilih koridor di daftar untuk menampilkan rutenya di peta
@@ -149,7 +195,7 @@ export default function JaringanPage() {
           </div>
         )}
 
-        {selectedRoute && (
+        {!editMode && selectedRoute && (
           <div className="pointer-events-none absolute inset-x-0 top-4 z-[1000] flex justify-center px-4">
             <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-full bg-white/95 px-4 py-2 text-sm font-medium text-[var(--gmaps-text)] shadow-md">
               <span
