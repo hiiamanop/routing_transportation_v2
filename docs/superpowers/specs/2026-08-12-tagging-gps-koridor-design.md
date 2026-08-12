@@ -46,15 +46,16 @@ Fitur ini ditambahkan ke tab **Jaringan** yang sudah ada di `frontend/src/app/ja
 
 Body: `{"stops": [{"name": str, "lat": float, "lon": float}, ...]}` (terurut sesuai urutan fisik di koridor).
 
+**Koreksi penting ditemukan saat penyusunan rencana implementasi**: API (`load_network()` di `api/app.py`) ternyata memuat graf routing dari `dataset/network_data_correct_bidirectional.json`, BUKAN `network_data_complete.json`. File itu adalah turunan: `scripts/create_correct_bidirectional.py` membaca `network_data_complete.json`, menambah edge balik hanya untuk 2 koridor linear (`Feeder Koridor 5`, `LRT Sumsel` — daftar `linear_routes` di baris ~30 skrip itu), lalu menyimpan hasilnya sebagai file terpisah. File turunan itu juga punya 2 key tambahan (`route_waypoints`, `route_stop_anchors`) yang TIDAK ada di `network_data_complete.json` — dipakai endpoint `GET /api/route/waypoints/<route>` untuk polyline jalan di peta. Konsekuensinya: endpoint tagging harus memperbarui **kedua file**, dan tidak boleh regenerasi penuh `network_data_correct_bidirectional.json` dari nol (itu akan menghapus `route_waypoints`/`route_stop_anchors`) — cukup ganti isi `nodes`/`edges` koridor terkait di kedua file, key lain dibiarkan apa adanya.
+
 Perilaku:
 1. Validasi: `route_name` harus cocok salah satu nilai `route` yang sudah ada di `nodes`/`routes`; minimal 2 titik; tiap titik punya lat/lon valid (rentang koordinat masuk akal untuk area Palembang, cek longgar).
-2. **Backup dulu**: salin `dataset/network_data_complete.json` ke `dataset/network_data_complete.backup-<YYYYMMDDHHMMSS>.json` sebelum menulis apa pun (jaring pengaman murah karena tidak ada auth/login di fitur ini).
-3. Hapus semua entri di `nodes` yang `route == route_name`, dan semua entri di `edges` yang `from`/`to` merujuk ke node-node yang baru dihapus itu.
-4. Buat node baru: `id` lanjut dari `max(existing id) + 1`, `stop_id` pola `<route_slug>_<index>` (meniru pola lama, mis. `Feeder_Koridor_1_1`), `name`, `lat`, `lon`, `route`.
-5. Buat edge baru berurutan (`stop[i] -> stop[i+1]`) dengan `distance` dihitung haversine — meniru persis logika `build_network_data()` di `scripts/extract_kmz_improved.py` (satu arah saja, konsisten dengan perilaku live sekarang; tidak menyentuh mekanisme bidirectional terpisah yang sudah ada).
-6. Tulis `network_data_complete.json` yang sudah diperbarui.
-7. **Reload graf routing in-memory** (panggil ulang fungsi loader yang sama dipakai saat startup Flask) supaya endpoint pencarian rute langsung pakai data baru tanpa perlu restart container.
-8. Response: jumlah node lama vs baru, dan path file backup yang dibuat (untuk transparansi/manual rollback kalau perlu).
+2. **Backup dulu**: salin `dataset/network_data_complete.json` DAN `dataset/network_data_correct_bidirectional.json` masing-masing ke `<nama>.backup-<YYYYMMDDHHMMSS>.json` sebelum menulis apa pun (jaring pengaman murah karena tidak ada auth/login di fitur ini).
+3. Untuk `network_data_complete.json`: hapus semua entri `nodes` yang `route == route_name` dan semua entri `edges` yang `from`/`to` merujuk ke node yang dihapus. Buat node baru (`id` lanjut dari `max(existing id) + 1` di seluruh file, `stop_id` pola `<route_slug>_<index>` meniru pola lama mis. `Feeder_Koridor_1_1`, `name`, `lat`, `lon`, `route`). Buat edge baru berurutan (`stop[i] -> stop[i+1]`), `distance` haversine — meniru `build_network_data()` di `scripts/extract_kmz_improved.py`, satu arah saja.
+4. Untuk `network_data_correct_bidirectional.json`: lakukan penggantian `nodes`/`edges` koridor yang SAMA PERSIS seperti langkah 3 (id node sama, supaya kedua file tetap konsisten), lalu — HANYA kalau `route_name` termasuk `linear_routes = {"Feeder Koridor 5", "LRT Sumsel"}` — tambahkan juga edge balik (`is_reverse: True`) meniru logika `create_correct_bidirectional_network()`. Key `route_waypoints`/`route_stop_anchors` tidak disentuh sama sekali.
+5. Tulis kedua file yang sudah diperbarui.
+6. **Reload graf routing in-memory** (panggil ulang `load_network_data("dataset/network_data_correct_bidirectional.json")` dan timpa `network_graph` global di `api/app.py`) supaya endpoint pencarian rute langsung pakai data baru tanpa perlu restart container.
+7. Response: jumlah node lama vs baru, dan path kedua file backup yang dibuat (untuk transparansi/manual rollback kalau perlu).
 
 ### Yang sengaja tidak disentuh
 
