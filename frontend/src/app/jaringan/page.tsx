@@ -85,6 +85,12 @@ export default function JaringanPage() {
   const selectedRoute =
     routes.find((route) => route.name === selectedName) ?? null;
 
+  // Sidebar mengizinkan "deselect" koridor yg sedang dipilih. Kalau itu
+  // terjadi saat mode edit, blok "Mode Edit" maupun TaggingPanel sama-sama
+  // tidak dirender (dua-duanya dijaga `selectedRoute &&`) -- user terjebak
+  // di peta tagging tanpa tombol keluar. Paksa keluar mode edit.
+  if (editMode && !selectedRoute) setEditMode(false);
+
   return (
     <div className="flex min-h-screen flex-col bg-white lg:h-screen lg:flex-row lg:overflow-hidden">
       <aside className="flex w-full flex-col border-b border-[var(--gmaps-border)] bg-white lg:h-full lg:w-[360px] lg:border-b-0 lg:border-r">

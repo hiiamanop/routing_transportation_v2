@@ -74,6 +74,10 @@ export function useTaggingSession(routeName: string | null) {
   useEffect(() => stopWatch, [stopWatch]);
 
   const beginWatch = useCallback(() => {
+    // Bersihkan watch lama dulu: tanpa ini, mulai sesi kedua (mis. ganti
+    // koridor tanpa keluar mode edit) menimpa watchIdRef dan meninggalkan
+    // watch lama tetap jalan -- boros baterai sampai komponen unmount.
+    stopWatch();
     if (!("geolocation" in navigator)) {
       setGeoError("Browser ini tidak mendukung geolocation.");
       return;
@@ -90,7 +94,7 @@ export function useTaggingSession(routeName: string | null) {
       (err) => setGeoError(`Gagal mengakses lokasi: ${err.message}`),
       { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
     );
-  }, []);
+  }, [stopWatch]);
 
   const startSession = useCallback(() => {
     setPoints([]);
@@ -102,10 +106,17 @@ export function useTaggingSession(routeName: string | null) {
     if (!routeName) return;
     const raw = localStorage.getItem(storageKey(routeName));
     if (!raw) return;
-    const stored: StoredSession = JSON.parse(raw);
-    setPoints(stored.points);
-    setStatus(stored.status);
-    if (stored.status === "session") beginWatch();
+    try {
+      const stored: StoredSession = JSON.parse(raw);
+      setPoints(stored.points);
+      setStatus(stored.status);
+      if (stored.status === "session") beginWatch();
+    } catch {
+      // Entri rusak: perlakukan seperti tidak ada sesi tersimpan, jangan
+      // lempar error yg bikin halaman blank.
+      localStorage.removeItem(storageKey(routeName));
+      setHasSavedSession(false);
+    }
   }, [routeName, beginWatch]);
 
   const discardSession = useCallback(() => {

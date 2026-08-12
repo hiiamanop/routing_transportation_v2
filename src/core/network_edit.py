@@ -5,20 +5,22 @@ gampang diuji tanpa I/O nyata dan dipakai ulang dari mana saja.
 
 Konteks kenapa ada 2 struktur data (complete_data & bidir_data): API live
 (`api/app.py`) memuat graf routing dari network_data_correct_bidirectional.json,
-BUKAN network_data_complete.json. File itu turunan: scripts/create_correct_bidirectional.py
-membaca network_data_complete.json, menambah edge balik HANYA utk koridor
-linear (LINEAR_ROUTES di bawah), lalu simpan sbg file terpisah yg juga
-punya key route_waypoints/route_stop_anchors yg TIDAK ada di file asal.
-Makanya replace_corridor_stops() harus dipanggil utk KEDUA dict, dan tidak
-boleh membangun ulang bidir_data dari nol (akan menghapus 2 key itu).
+BUKAN network_data_complete.json. File itu turunan dari network_data_complete.json,
+tapi juga punya key route_waypoints/route_stop_anchors yg TIDAK ada di file
+asal. Makanya replace_corridor_stops() harus dipanggil utk KEDUA dict, dan
+tidak boleh membangun ulang bidir_data dari nol (akan menghapus 2 key itu).
+
+Semua koridor di file bidir live SUDAH dua-arah (diverifikasi langsung thd
+data produksi: 747/748 edge di network_data_correct_bidirectional.json
+punya pasangan balik) -- BUKAN cuma 2 koridor "linear" seperti asumsi awal
+scripts/create_correct_bidirectional.py (skrip itu ternyata tidak
+mencerminkan cara file live ini sebenarnya dibuat). Makanya
+replace_corridor_stops() SELALU menambah edge balik utk bidir_data, utk
+koridor mana pun yg ditag ulang -- supaya konsisten dgn koridor lain yg
+tidak disentuh.
 """
 
 from math import radians, sin, cos, sqrt, atan2
-
-# Sinkron dengan scripts/create_correct_bidirectional.py -- HANYA 2 koridor
-# ini yg diberi edge balik (linear/point-to-point), sisanya koridor
-# memutar (circuit) jadi tetap satu arah.
-LINEAR_ROUTES = {"Feeder Koridor 5", "LRT Sumsel"}
 
 
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -106,7 +108,7 @@ def replace_corridor_stops(complete_data: dict, bidir_data: dict, route_name: st
     # sudah "memakai" list yg sama sbg referensi data["nodes"]).
     bidir_new_nodes = [dict(n) for n in new_nodes]
     _apply_replacement(bidir_data, route_name, bidir_new_nodes, new_edges,
-                        add_reverse=route_name in LINEAR_ROUTES)
+                        add_reverse=True)
 
     return {
         "complete_data": complete_data,
@@ -161,11 +163,16 @@ def demo():
     expected_dist = haversine_distance(-2.905, 104.705, -2.915, 104.715)
     assert abs(fk1_edges[0]["distance"] - expected_dist) < 0.01
 
+    fk1_bidir_edges = [e for e in bidir["edges"] if e["route"] == "Feeder Koridor 1"]
+    assert len(fk1_bidir_edges) == 4, "3 halte -> 2 edge forward + 2 edge reverse di bidir_data (semua koridor sekarang dua-arah)"
+    assert sum(1 for e in fk1_bidir_edges if e.get("is_reverse")) == 2, "semua koridor (bukan cuma yg dulu di LINEAR_ROUTES) harus dpt edge balik di bidir_data"
+
     # bidir_data: route_waypoints/route_stop_anchors TIDAK boleh hilang
     assert "route_waypoints" in bidir and bidir["route_waypoints"]
     assert "route_stop_anchors" in bidir and bidir["route_stop_anchors"]
 
-    # Koridor linear (LRT Sumsel): tag ulang harus MENGHASILKAN edge balik di bidir_data
+    # Koridor kedua (LRT Sumsel) -- tag ulang juga harus MENGHASILKAN edge
+    # balik di bidir_data, sama seperti semua koridor lain sekarang
     lrt_stops = [
         {"name": "Stasiun 1", "lat": -3.00, "lon": 104.80},
         {"name": "Stasiun 2", "lat": -3.01, "lon": 104.81},

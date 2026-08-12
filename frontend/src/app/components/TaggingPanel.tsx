@@ -67,9 +67,29 @@ export default function TaggingPanel({
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-[var(--gmaps-text-secondary)]">
-        Koridor: <strong>{routeName}</strong> · {isReview ? "Review" : "Sesi berjalan"}
-      </p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs text-[var(--gmaps-text-secondary)]">
+          Koridor: <strong>{routeName}</strong> · {isReview ? "Review" : "Sesi berjalan"}
+        </p>
+        {/* Jalan keluar dari mode edit juga saat sesi/review berjalan --
+            sebelumnya tombol ini cuma ada di status idle, jadi sekali sesi
+            mulai tidak ada cara keluar sama sekali. */}
+        <button
+          type="button"
+          onClick={() => {
+            if (
+              tagging.points.length > 0 &&
+              !window.confirm("Keluar akan membuang titik yang belum disimpan. Lanjutkan?")
+            ) {
+              return;
+            }
+            onExit();
+          }}
+          className="shrink-0 text-xs text-[var(--gmaps-text-secondary)] underline"
+        >
+          Keluar Mode Edit
+        </button>
+      </div>
 
       {tagging.geoError && (
         <p className="text-xs text-[var(--gmaps-red)]">{tagging.geoError}</p>

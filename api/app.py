@@ -623,10 +623,11 @@ def _validate_stops_payload(data):
             lon = float(stop['lon'])
         except (KeyError, TypeError, ValueError):
             return None, "each stop needs numeric lat/lon"
-        # Rentang longgar wilayah Indonesia -- cukup utk menolak salah input
-        # kasar (mis. lat/lon tertukar), bukan validasi presisi lokasi.
-        if not (-11 <= lat <= 6) or not (95 <= lon <= 141):
-            return None, "lat/lon out of range for Indonesia"
+        # Kotak Palembang/Sumatera Selatan (margin longgar, bukan presisi):
+        # rentang se-Indonesia terlalu lebar utk melindungi data produksi --
+        # satu salah klik di peta bisa memindahkan halte ratusan km.
+        if not (-4.5 <= lat <= -2.0) or not (103.5 <= lon <= 105.5):
+            return None, "lat/lon out of range for Palembang/Sumatera Selatan"
         clean.append({"name": name, "lat": lat, "lon": lon})
 
     return clean, None
@@ -667,10 +668,17 @@ def update_corridor_stops(route_name):
 
         result = replace_corridor_stops(complete_data, bidir_data, route_name, stops)
 
-        with open(NETWORK_COMPLETE_PATH, 'w', encoding='utf-8') as f:
-            json.dump(result["complete_data"], f, ensure_ascii=False, indent=2)
-        with open(NETWORK_BIDIR_PATH, 'w', encoding='utf-8') as f:
-            json.dump(result["bidir_data"], f, ensure_ascii=False, indent=2)
+        # Tulis lewat file sementara + os.replace (atomik di filesystem yg
+        # sama): kalau proses mati di tengah json.dump, file asli tetap utuh
+        # -- bukan JSON terpotong yg bikin load_network() gagal saat restart.
+        def _atomic_write_json(path, data):
+            tmp_path = f"{path}.tmp"
+            with open(tmp_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            os.replace(tmp_path, path)
+
+        _atomic_write_json(NETWORK_COMPLETE_PATH, result["complete_data"])
+        _atomic_write_json(NETWORK_BIDIR_PATH, result["bidir_data"])
 
         global network_graph
         network_graph = None
