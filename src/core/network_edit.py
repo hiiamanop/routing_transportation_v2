@@ -91,7 +91,10 @@ def replace_corridor_stops(complete_data: dict, bidir_data: dict, route_name: st
 
     old_count = sum(1 for n in complete_data["nodes"] if n["route"] == route_name)
 
-    max_id = max((n["id"] for n in complete_data["nodes"]), default=-1)
+    max_id = max(
+        max((n["id"] for n in complete_data["nodes"]), default=-1),
+        max((n["id"] for n in bidir_data["nodes"]), default=-1),
+    )
     new_nodes, new_edges = _build_nodes_and_edges(route_name, stops)
     for i, node in enumerate(new_nodes):
         node["id"] = max_id + 1 + i
