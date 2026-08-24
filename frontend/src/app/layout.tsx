@@ -10,8 +10,8 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Palembang Multi-Modal Router",
-  description: "Palembang Multi-Modal Router",
+  title: "Rute Angkutan Umum Palembang",
+  description: "Pencarian rute angkutan umum Kota Palembang: LRT, Teman Bus, dan Feeder.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -30,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="id">
       <body className={`${roboto.variable} antialiased`}>{children}</body>
     </html>
   );

@@ -26,7 +26,7 @@ const MapComponent = dynamic(() => import("./components/MapComponent"), {
   ssr: false,
   loading: () => (
     <div className="flex h-full w-full items-center justify-center bg-[var(--gmaps-surface-hover)] text-sm text-[var(--gmaps-text-secondary)]">
-      Loading map...
+      Memuat peta...
     </div>
   ),
 });
@@ -193,6 +193,7 @@ export default function Home() {
   const [showDestinationSuggestions, setShowDestinationSuggestions] =
     useState(false);
   const [originSearching, setOriginSearching] = useState(false);
+  const [locating, setLocating] = useState(false);
   const [destinationSearching, setDestinationSearching] = useState(false);
   const originInputRef = useRef<HTMLInputElement>(null);
   const destinationInputRef = useRef<HTMLInputElement>(null);
@@ -297,6 +298,62 @@ export default function Home() {
       setShowOriginSuggestions(suggestions.length > 0);
       setOriginSearching(false);
     }, DEBOUNCE_DELAY);
+  };
+
+  // Isi titik asal dari GPS perangkat. Backend hanya memerlukan lat/lon --
+  // `name` opsional & default "Origin" (api/app.py:251) -- jadi tidak perlu
+  // reverse geocoding; koordinatnya ditulis apa adanya di kolom supaya
+  // pengguna bisa memastikan lokasinya masuk akal sebelum mencari rute.
+  const fillOriginWithCurrentLocation = () => {
+    if (!("geolocation" in navigator)) {
+      setError("Peramban ini tidak mendukung penentuan lokasi.");
+      return;
+    }
+    // Tanpa cek ini, peramban di alamat HTTP polos menolak permintaan lokasi
+    // dengan kode PERMISSION_DENIED -- pesan yang menyesatkan, karena
+    // pengguna mengira izinnya yang salah padahal koneksinya yang tidak aman.
+    if (!window.isSecureContext) {
+      setError(
+        "Penentuan lokasi hanya bisa dipakai lewat koneksi aman (HTTPS). " +
+          "Silakan ketik titik asal secara manual."
+      );
+      return;
+    }
+
+    setLocating(true);
+    setError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        // Batalkan pencarian teks yang masih tertunda: tanpa ini hasilnya
+        // datang belakangan lalu menimpa koordinat GPS yang baru diisi.
+        if (originSearchTimeoutRef.current) {
+          clearTimeout(originSearchTimeoutRef.current);
+          originSearchTimeoutRef.current = null;
+        }
+        setOriginSearching(false);
+        setOriginSuggestions([]);
+        setShowOriginSuggestions(false);
+        setRouteRequest((prev) => ({
+          ...prev,
+          origin: {
+            name: `Lokasi saya saat ini (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`,
+            lat: latitude,
+            lon: longitude,
+          },
+        }));
+        setLocating(false);
+      },
+      (err) => {
+        setLocating(false);
+        setError(
+          err.code === err.PERMISSION_DENIED
+            ? "Izin lokasi ditolak. Aktifkan izin lokasi untuk situs ini di pengaturan peramban, lalu coba lagi."
+            : `Gagal mengambil lokasi saat ini: ${err.message}`
+        );
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+    );
   };
 
   // Handle destination input change with debouncing
@@ -551,7 +608,7 @@ export default function Home() {
       }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } } };
-      setError(error.response?.data?.error || "Failed to get route");
+      setError(error.response?.data?.error || "Gagal mendapatkan rute.");
     } finally {
       setLoading(false);
     }
@@ -560,7 +617,7 @@ export default function Home() {
   const formatTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = Math.floor(minutes % 60);
-    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+    return hours > 0 ? `${hours} jam ${mins} mnt` : `${mins} mnt`;
   };
 
   const formatCost = (cost: number) => {
@@ -634,7 +691,7 @@ export default function Home() {
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-base font-medium leading-tight text-[var(--gmaps-text)]">
-              Palembang Transit Router
+              Rute Angkutan Umum Palembang
             </h1>
             <p className="truncate text-xs text-[var(--gmaps-text-secondary)]">
               Rute angkutan umum tercepat
@@ -685,7 +742,7 @@ export default function Home() {
                   <span className="pointer-events-none absolute left-3 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-[var(--gmaps-green)] bg-white" />
                   <input
                     type="text"
-                    placeholder="Choose origin..."
+                    placeholder="Pilih titik asal..."
                     value={routeRequest.origin.name}
                     onChange={(e) => handleOriginChange(e.target.value)}
                     onFocus={() => {
@@ -693,16 +750,30 @@ export default function Home() {
                         setShowOriginSuggestions(true);
                       }
                     }}
-                    className="w-full rounded-lg border border-[var(--gmaps-border)] bg-[var(--gmaps-surface-hover)] py-2.5 pl-9 pr-8 text-sm text-[var(--gmaps-text)] outline-none placeholder:text-[var(--gmaps-text-secondary)] focus:border-[var(--gmaps-blue)] focus:bg-white focus:ring-2 focus:ring-[var(--gmaps-blue-tint)]"
+                    className="w-full rounded-lg border border-[var(--gmaps-border)] bg-[var(--gmaps-surface-hover)] py-2.5 pl-9 pr-10 text-sm text-[var(--gmaps-text)] outline-none placeholder:text-[var(--gmaps-text-secondary)] focus:border-[var(--gmaps-blue)] focus:bg-white focus:ring-2 focus:ring-[var(--gmaps-blue-tint)]"
                     required
                   />
                   {originSearching && (
                     <LoaderIcon
                       width={16}
                       height={16}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--gmaps-text-secondary)]"
+                      className="absolute right-10 top-1/2 -translate-y-1/2 text-[var(--gmaps-text-secondary)]"
                     />
                   )}
+                  <button
+                    type="button"
+                    onClick={fillOriginWithCurrentLocation}
+                    disabled={locating}
+                    title="Gunakan lokasi saya saat ini"
+                    aria-label="Gunakan lokasi saya saat ini"
+                    className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-[var(--gmaps-text-secondary)] hover:bg-white hover:text-[var(--gmaps-blue)] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {locating ? (
+                      <LoaderIcon width={15} height={15} />
+                    ) : (
+                      <NavigationIcon width={15} height={15} />
+                    )}
+                  </button>
                   {!originSearching &&
                     showOriginSuggestions &&
                     originSuggestions.length > 0 && (
@@ -737,7 +808,7 @@ export default function Home() {
                   <span className="pointer-events-none absolute left-3 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-sm bg-[var(--gmaps-red)]" />
                   <input
                     type="text"
-                    placeholder="Choose destination..."
+                    placeholder="Pilih titik tujuan..."
                     value={routeRequest.destination.name}
                     onChange={(e) => handleDestinationChange(e.target.value)}
                     onFocus={() => {
@@ -788,7 +859,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={handleSwapLocations}
-                title="Swap origin & destination"
+                title="Tukar titik asal dan tujuan"
                 className="mt-1 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--gmaps-border)] text-[var(--gmaps-text-secondary)] hover:bg-[var(--gmaps-surface-hover)] hover:text-[var(--gmaps-blue)]"
               >
                 <SwapIcon width={16} height={16} />
@@ -824,12 +895,12 @@ export default function Home() {
               {loading ? (
                 <>
                   <LoaderIcon width={16} height={16} />
-                  Finding route...
+                  Mencari rute...
                 </>
               ) : (
                 <>
                   <SearchIcon width={16} height={16} />
-                  Find route
+                  Cari rute
                 </>
               )}
             </button>
@@ -942,7 +1013,7 @@ export default function Home() {
                   <div className="mt-3 rounded-lg border border-[var(--gmaps-blue-tint)] bg-[var(--gmaps-blue-tint)] px-3 py-2">
                     <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[var(--gmaps-blue-hover)]">
                       <ClockIcon width={13} height={13} />
-                      Departure Time
+                      Waktu keberangkatan
                     </div>
                     <div className="text-sm text-[var(--gmaps-text)]">
                       {new Date(
@@ -1029,7 +1100,7 @@ export default function Home() {
                               )}
                           </div>
                           <span className="shrink-0 text-xs text-[var(--gmaps-text-secondary)]">
-                            {Math.round(segment.duration_minutes)} min
+                            {Math.round(segment.duration_minutes)} menit
                           </span>
                         </div>
                         <p className="mt-0.5 truncate text-xs text-[var(--gmaps-text-secondary)]">
