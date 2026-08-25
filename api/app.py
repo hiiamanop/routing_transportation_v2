@@ -25,6 +25,7 @@ from core import service_model
 from core.survey_export import build_long_format_rows, rows_to_csv
 import shutil
 from core.network_edit import replace_corridor_stops
+from core.mnl_recommend import load_latest_beta, compute_probabilities, select_model_recommendation
 
 app = Flask(__name__)
 # Enable CORS for all routes with explicit configuration
@@ -46,6 +47,27 @@ def after_request(response):
 
 # Global variable to store loaded network
 network_graph = None
+
+# S-5/S-7: rekomendasi berbasis probabilitas MNL. OFF by default -- baru
+# dinyalakan (via env var) setelah beta dari data survei ASLI (bukan
+# sintetis) tersedia & dinilai layak, spy tidak mencemari S-6 yg masih/re
+# berjalan. Lihat src/core/mnl_recommend.py.
+ENABLE_MODEL_RECOMMENDATION = os.environ.get("ENABLE_MODEL_RECOMMENDATION", "false").lower() == "true"
+MNL_BETA_HISTORY_PATH = os.environ.get("MNL_BETA_HISTORY_PATH", "dataset/survey/beta_history.jsonl")
+_model_beta = None
+_model_beta_loaded = False
+
+
+def get_model_beta():
+    """Muat beta sekali (cache proses, spt load_network()). None kalau
+    fitur mati atau file riwayat belum ada/kosong."""
+    global _model_beta, _model_beta_loaded
+    if not ENABLE_MODEL_RECOMMENDATION:
+        return None
+    if not _model_beta_loaded:
+        _model_beta = load_latest_beta(MNL_BETA_HISTORY_PATH)
+        _model_beta_loaded = True
+    return _model_beta
 
 # GMT+7 timezone (WIB - Waktu Indonesia Barat)
 WIB_TZ = timezone(timedelta(hours=7))
@@ -281,16 +303,35 @@ def route_alternatives():
                 "departure_time": departure_time.isoformat(),
             }), 200
 
+        # S-5: probabilitas model (P_ij) dari beta hasil estimasi -- hanya
+        # atribut dasar (BUKAN interaksi preferensi), spy nilainya sama utk
+        # semua pengguna atas himpunan alternatif yang sama (lihat invariant
+        # di docs/RENCANA_SISTEM.md: alternatif umum tak boleh bergantung ke
+        # preferensi). None kalau fitur mati / beta belum ada.
+        model_beta = get_model_beta()
+        model_probabilities = compute_probabilities(alternatives, model_beta) if model_beta is not None else None
+
+        # S-7: rekomendasi personal. Preferensi HANYA menilai ulang alternatif
+        # yang sudah ada (tak pernah memicu pencarian rute baru). Kalau beta
+        # model tersedia, gantikan heuristik weighted-sum lama sepenuhnya
+        # dengan pilihan berbasis probabilitas -- keputusan yg sudah diambil,
+        # tinggal menunggu beta dari data survei asli utk dinyalakan default.
         if preferences is not None:
-            preferred = select_preferred_route(alternatives, preferences)
+            if model_beta is not None:
+                preferred = select_model_recommendation(alternatives, model_beta, preferences)
+            else:
+                preferred = select_preferred_route(alternatives, preferences)
             if preferred is not None:
                 alternatives.append(preferred)
+                if model_probabilities is not None:
+                    model_probabilities.append(None)  # pseudo-alt, bukan bagian himpunan asli
 
         return jsonify({
             "success": True,
             "origin": origin,
             "destination": destination,
             "departure_time": departure_time.isoformat(),
+            "model_recommendation_enabled": model_beta is not None,
             "alternatives": [
                 {
                     "label": alt["label"],
@@ -299,6 +340,7 @@ def route_alternatives():
                     # himpunan pilihan bisa direkam apa adanya saat pengguna
                     # memilih salah satu (POST /api/choice).
                     "attributes": route_attributes(alt["route"]),
+                    "model_probability": prob,
                     "route": serialize_route(
                         alt["route"], origin.get('name', 'Origin'),
                         destination.get('name', 'Destination'),
@@ -306,7 +348,10 @@ def route_alternatives():
                         (destination['lat'], destination['lon']),
                     ),
                 }
-                for alt in alternatives
+                for alt, prob in zip(
+                    alternatives,
+                    model_probabilities if model_probabilities is not None else [None] * len(alternatives),
+                )
             ],
         })
     except Exception as e:

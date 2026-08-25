@@ -20,6 +20,7 @@ Usage:
 
 import argparse
 import json
+import math
 import random
 import sys
 from datetime import datetime, timezone, timedelta
@@ -34,6 +35,18 @@ from core.gmaps_style_routing import (  # noqa: E402
 )
 
 WIB_TZ = timezone(timedelta(hours=7))
+
+# Sama persis dgn true_beta di scripts/estimate_mnl.py:demo() (BASE_ATTRIBUTES
+# order: time_minutes, cost_rupiah, transfers, access_km, comfort, reliability)
+# + interaksi waktu/biaya x preferensi -- dipakai sbg SATU sumber kebenaran
+# spy hasil `estimate_mnl.py --interactions` bisa dicek: apakah beta yg
+# dipulihkan mendekati angka ini. Ini bukan klaim ttg perilaku Palembang
+# sungguhan, cuma parameter model yg dipakai buat menguji pipa estimasi.
+TRUE_BETA = {
+    "time_minutes": -0.05, "cost_rupiah": -0.0004, "transfers": -0.3,
+    "access_km": -0.5, "comfort": 0.4, "reliability": 0.4,
+}
+TRUE_GAMMA = {"time_minutes": -0.01, "cost_rupiah": -0.00006}  # x pref_time / pref_cost
 
 AGE_OPTIONS = ["<18", "18-25", "26-35", "36-50", ">50"]
 GENDER_OPTIONS = ["Laki-laki", "Perempuan"]
@@ -59,28 +72,34 @@ def make_synthetic_respondent(rng: random.Random) -> dict:
     }
 
 
-def simulate_choice(rng: random.Random, alternatives: list, has_vehicle: bool) -> int:
+def simulate_choice(rng: random.Random, alternatives: list, has_vehicle: bool,
+                     preferences: dict) -> int:
     """
-    Model utilitas acak SEDERHANA (bukan MNL sungguhan): skor = -waktu -
-    0.05*biaya + noise, lalu softmax. Responden tanpa kendaraan pribadi
-    tidak akan pernah "memilih" alternatif Kendaraan Pribadi -- constraint
-    realistis minimal (orang tidak bisa naik kendaraan yang tidak dimiliki).
+    Model utilitas acak (RUM) konsisten dgn MNL: U = sum(TRUE_BETA * atribut)
+    + sum(TRUE_GAMMA * atribut * preferensi terkait), lalu pilihan digambar
+    dari distribusi softmax(U) -- proses generatif yg SAMA persis dgn yg
+    diasumsikan scripts/estimate_mnl.py, spy beta hasil estimasi pd data ini
+    bisa dicek terhadap TRUE_BETA/TRUE_GAMMA. Responden tanpa kendaraan
+    pribadi tidak akan pernah "memilih" alternatif Kendaraan Pribadi --
+    constraint realistis minimal (tidak bisa naik kendaraan yang tak dimiliki).
     """
-    scores = []
+    utilities = []
+    blocked = []
     for alt in alternatives:
-        if not has_vehicle and alt["optimized_for"] == "private_vehicle":
-            scores.append(float("-inf"))
-            continue
+        is_private = alt["optimized_for"] == "private_vehicle"
+        blocked.append(not has_vehicle and is_private)
         attrs = route_attributes(alt["route"])
-        utility = -0.08 * attrs["time_minutes"] - 0.0006 * attrs["cost_rupiah"]
-        utility += rng.gauss(0, 1.5)  # noise acak, bukan preferensi nyata
-        scores.append(utility)
+        u = sum(TRUE_BETA[k] * attrs[k] for k in TRUE_BETA)
+        u += TRUE_GAMMA["time_minutes"] * attrs["time_minutes"] * preferences["time"]
+        u += TRUE_GAMMA["cost_rupiah"] * attrs["cost_rupiah"] * preferences["cost"]
+        utilities.append(u)
 
-    if all(s == float("-inf") for s in scores):
-        return 0  # fallback: semua diblokir (tidak realistis, tapi jaga2)
+    if all(blocked):
+        return 0  # semua diblokir (tidak realistis, tapi jaga2)
 
-    max_score = max(s for s in scores if s != float("-inf"))
-    return max(range(len(scores)), key=lambda i: scores[i] if scores[i] != float("-inf") else -1e18)
+    max_u = max(u for u, b in zip(utilities, blocked) if not b)
+    weights = [0.0 if b else math.exp(u - max_u) for u, b in zip(utilities, blocked)]
+    return rng.choices(range(len(alternatives)), weights=weights, k=1)[0]
 
 
 def generate(n_respondents: int, trips_per_respondent: int, seed: int,
@@ -116,7 +135,7 @@ def generate(n_respondents: int, trips_per_respondent: int, seed: int,
             if len(alternatives) < 2:
                 continue  # sama seperti UI nyata -- himpunan pilihan perlu >=2 opsi
 
-            chosen_index = simulate_choice(rng, alternatives, has_vehicle)
+            chosen_index = simulate_choice(rng, alternatives, has_vehicle, preferences)
 
             choices.append({
                 "synthetic": True,
@@ -165,6 +184,10 @@ def main():
     print("=" * 70)
     print("  DATA SINTETIS -- BUKAN DATA SURVEI NYATA")
     print("  Jangan dipakai sbg dasar kesimpulan penelitian.")
+    print(f"  TRUE_BETA (base)  = {TRUE_BETA}")
+    print(f"  TRUE_GAMMA (x pref) = {TRUE_GAMMA}")
+    print("  Bandingkan dgn output 'scripts/estimate_mnl.py --interactions'")
+    print("  buat cek apakah estimator memulihkan angka2 ini.")
     print("=" * 70)
 
     resp_path, choice_path, n_resp, n_choice = generate(
