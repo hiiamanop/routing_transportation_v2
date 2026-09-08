@@ -14,3 +14,5 @@ DEPLOYMENT.md
 # data, bukan data riset. Jangan pernah ter-commit tercampur data asli.
 *.dummy.jsonl
 *_long.dummy.csv
+
+docs/

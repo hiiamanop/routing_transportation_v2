@@ -110,7 +110,8 @@ pengembangan.
 | PUT | `/api/network/corridor/<route_name>/stops` | Perbarui koordinat halte (tagging GPS) |
 | POST | `/api/choice` | Rekam pilihan rute responden |
 | POST | `/api/respondent` | Rekam karakteristik responden |
-| GET | `/api/survey/export` | Unduh data survei dalam format long |
+| GET | `/api/survey/export` | Unduh data survei dalam format long (CSV) |
+| GET | `/api/survey/report` | Ringkasan dan visualisasi laporan survei (HTML / JSON) |
 
 Contoh permintaan pencarian rute:
 

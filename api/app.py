@@ -23,6 +23,7 @@ from core.gmaps_style_routing import (
 )
 from core import service_model
 from core.survey_export import build_long_format_rows, rows_to_csv
+from core.survey_report import generate_survey_report_data, render_survey_report_html
 import shutil
 from core.network_edit import replace_corridor_stops
 from core.mnl_recommend import load_latest_beta, compute_probabilities, select_model_recommendation
@@ -580,6 +581,38 @@ def export_survey_data():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route('/api/survey/report', methods=['GET'])
+def get_survey_report():
+    """
+    Ringkasan dan visualisasi laporan hasil survei pemilihan moda.
+    Mendukung format HTML (default untuk browser) dan JSON (jika diminta lewat
+    parameter ?format=json atau header Accept: application/json).
+    """
+    try:
+        report_data = generate_survey_report_data(
+            choices_path=CHOICE_LOG_PATH,
+            respondents_path=RESPONDENT_LOG_PATH,
+            beta_history_path=MNL_BETA_HISTORY_PATH,
+        )
+
+        format_param = request.args.get("format", "").lower()
+        accept_header = request.headers.get("Accept", "")
+
+        # Kembalikan JSON jika diminta secara eksplisit atau client hanya menerima JSON
+        if format_param == "json" or (
+            "application/json" in accept_header and "text/html" not in accept_header and format_param != "html"
+        ):
+            return jsonify(report_data), 200
+
+        # Default ke HTML jika diakses lewat browser
+        html_content = render_survey_report_html(report_data)
+        return Response(html_content, mimetype="text/html", status=200)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.route('/api/route/waypoints/<route_name>', methods=['GET'])
 def get_route_waypoints(route_name):
     """Get route waypoints from KMZ for accurate visualization"""
@@ -754,6 +787,9 @@ if __name__ == '__main__':
     print("   GET  /api/network/info - Informasi jaringan")
     print("   POST /api/route/alternatives - Alternatif rute + atributnya")
     print("   POST /api/choice - Rekam pilihan rute (data survei)")
+    print("   POST /api/respondent - Rekam karakteristik responden")
+    print("   GET  /api/survey/export - Unduh data survei (CSV)")
+    print("   GET  /api/survey/report - Ringkasan & laporan survei (HTML/JSON)")
     print("   GET  /api/route/waypoints/<route_name> - Jalur koridor")
     print("   GET  /api/stops - Daftar halte")
     print("="*60)
