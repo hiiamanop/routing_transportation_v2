@@ -17,6 +17,20 @@ COLOR_MID = RGBColor(110, 110, 110)
 HEX_HEADER_BG = "F2F4F4"
 HEX_BORDER = "000000"
 
+# Explicit column widths for each table (to prevent overlapping text)
+# In 2-column mode, column width is ~2.90 inches.
+# In 1-column mode (wide table), total width is ~6.27 inches.
+TABLE_WIDTHS_COL = {
+    3: [Inches(0.95), Inches(1.15), Inches(0.80)],   # Table 1: Variable, Def, Sign (2.90 in)
+    3: [Inches(1.05), Inches(1.10), Inches(0.75)],   # Table 2: Char, Category, n(%) (2.90 in)
+    2: [Inches(1.70), Inches(1.20)],                 # Table 3: Stage, Obs (2.90 in)
+    3: [Inches(1.00), Inches(0.95), Inches(0.95)],   # Table 4: Variable, Basic, MNL+ASC (2.90 in)
+}
+
+TABLE_WIDTHS_WIDE = {
+    6: [Inches(1.47), Inches(0.95), Inches(0.85), Inches(0.95), Inches(0.95), Inches(1.10)],  # Table 5: Spec, LL, rho2, AIC, BIC, p (6.27 in)
+}
+
 
 def _set_section_layout(section, num_cols=1, col_space_dxa=708, continuous=True):
     """Configure section column layout and continuous break."""
@@ -193,7 +207,8 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
             i += 1
             continue
 
-        # Wide Table: if markdown table has >= 5 columns, span 1 full-width column
+        # Wide Table: if markdown table has >= 5 columns (Table 5), switch to 1-column section
+        # Smaller tables (Tables 1-4) stay inside the 2-column layout with explicit cell widths
         if line.startswith('|') and line.endswith('|'):
             table_lines = []
             while i < len(lines) and lines[i].rstrip().startswith('|') and lines[i].rstrip().endswith('|'):
@@ -204,7 +219,7 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
             is_wide_table = (num_cols_table >= 5)
 
             if is_wide_table and current_cols == 2:
-                # Break to 1 column for wide table
+                # Switch to 1 column for wide table
                 s_wide = doc.add_section()
                 _set_section_layout(s_wide, num_cols=1, continuous=True)
                 current_cols = 1
@@ -212,24 +227,30 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
             _build_docx_table(doc, table_lines, is_wide=is_wide_table)
 
             if is_wide_table and current_cols == 1:
-                # Return back to 2 columns for subsequent text
+                # Switch back to 2 columns after wide table
                 s_back = doc.add_section()
                 _set_section_layout(s_back, num_cols=2, col_space_dxa=708, continuous=True)
                 current_cols = 2
 
             continue
 
-        # Images: span 1 full-width column if wide, or place in column
+        # Images: fit nicely into the current column (width=2.85 in in 2-col)
+        # Figure 1, Figure 3, Figure 6 are wide complex diagrams -> switch to 1 column (width=6.0 in)
         img_match = re.match(r'!\[(.*?)\]\((.*?)\)', line)
         if img_match:
             img_rel_path = img_match.group(2)
             full_img_path = (base_dir / img_rel_path).resolve()
             if full_img_path.exists():
-                # Switch to 1 column for large clear figure display (matching template structure)
-                if current_cols == 2:
+                is_wide_fig = any(k in str(full_img_path) for k in ("figure_01", "figure_03", "figure_06"))
+
+                if is_wide_fig and current_cols == 2:
                     s_fig = doc.add_section()
                     _set_section_layout(s_fig, num_cols=1, continuous=True)
                     current_cols = 1
+                elif not is_wide_fig and current_cols == 1:
+                    s_back = doc.add_section()
+                    _set_section_layout(s_back, num_cols=2, col_space_dxa=708, continuous=True)
+                    current_cols = 2
 
                 p = doc.add_paragraph()
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -237,25 +258,32 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
                 p.paragraph_format.space_after = Pt(2)
                 p.paragraph_format.keep_with_next = True
                 run = p.add_run()
-                run.add_picture(str(full_img_path), width=Inches(6.0))
+
+                # Width: 6.0 in for wide figures in 1-col; 2.85 in for figures inside 2-col
+                target_width = Inches(6.0) if current_cols == 1 else Inches(2.85)
+                run.add_picture(str(full_img_path), width=target_width)
 
             i += 1
             continue
 
         # Figure / Table Caption line
         if re.match(r'^(FIGURE|GAMBAR|TABLE|TABEL)\s+\d+\.', line):
+            is_caption_for_wide_fig = any(k in line for k in ("FIGURE 1", "GAMBAR 1", "FIGURE 3", "GAMBAR 3", "FIGURE 6", "GAMBAR 6"))
+            is_caption_for_wide_tbl = any(k in line for k in ("TABLE 5", "TABEL 5"))
+
             p = doc.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p.paragraph_format.space_before = Pt(2)
             p.paragraph_format.space_after = Pt(8)
+            p.paragraph_format.keep_with_next = True if line.startswith(('TABLE', 'TABEL')) else False
             run = p.add_run(line.strip())
             run.font.name = 'Times New Roman'
             run.font.size = Pt(9.0)
             run.bold = True
             run.font.color.rgb = COLOR_PRIMARY
 
-            # After figure caption in 1-col, switch back to 2-col body
-            if line.startswith(('FIGURE', 'GAMBAR')) and current_cols == 1:
+            # If this was caption for wide figure, return to 2-column layout for text
+            if line.startswith(('FIGURE', 'GAMBAR')) and is_caption_for_wide_fig and current_cols == 1:
                 s_back = doc.add_section()
                 _set_section_layout(s_back, num_cols=2, col_space_dxa=708, continuous=True)
                 current_cols = 2
@@ -313,7 +341,7 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
 
 
 def _build_docx_table(doc, table_lines, is_wide=False):
-    """Parse markdown table lines and generate academic 3-line table."""
+    """Parse markdown table lines and generate academic 3-line table with explicit cell widths."""
     parsed_rows = []
     for l in table_lines:
         cells = [c.strip() for c in l.strip('|').split('|')]
@@ -329,6 +357,22 @@ def _build_docx_table(doc, table_lines, is_wide=False):
 
     table = doc.add_table(rows=num_rows, cols=num_cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    table.autofit = False
+
+    # Determine explicit column widths
+    if is_wide and num_cols in TABLE_WIDTHS_WIDE:
+        col_widths = TABLE_WIDTHS_WIDE[num_cols]
+    elif not is_wide and num_cols in TABLE_WIDTHS_COL:
+        col_widths = TABLE_WIDTHS_COL[num_cols]
+    else:
+        # Fallback distribution
+        total_w = 6.0 if is_wide else 2.85
+        col_widths = [Inches(total_w / num_cols)] * num_cols
+
+    # Apply widths to columns
+    for c_idx, w in enumerate(col_widths):
+        if c_idx < len(table.columns):
+            table.columns[c_idx].width = w
 
     for row_idx, row_data in enumerate(parsed_rows):
         is_header = (row_idx == 0)
@@ -338,6 +382,8 @@ def _build_docx_table(doc, table_lines, is_wide=False):
         for col_idx, cell_value in enumerate(row_data):
             cell = tr.cells[col_idx]
             cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+            if col_idx < len(col_widths):
+                cell.width = col_widths[col_idx]
 
             p = cell.paragraphs[0]
             p.paragraph_format.space_before = Pt(1.5)
@@ -353,7 +399,7 @@ def _build_docx_table(doc, table_lines, is_wide=False):
 
             for r in p.runs:
                 r.font.name = 'Times New Roman'
-                r.font.size = Pt(8.0 if is_wide else 8.5)
+                r.font.size = Pt(7.8 if is_wide else 8.2)
                 if is_header:
                     r.bold = True
                     r.font.color.rgb = COLOR_PRIMARY
@@ -382,7 +428,7 @@ def main():
     parser.add_argument("--docx", required=True, type=Path)
     args = parser.parse_args()
     out = convert_markdown_to_docx(args.md, args.docx)
-    print(f"Generated 2-Column DOCX: {out}")
+    print(f"Generated Clean 2-Column DOCX: {out}")
 
 
 if __name__ == "__main__":
