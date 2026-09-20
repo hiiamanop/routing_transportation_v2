@@ -1,0 +1,470 @@
+{
+  "models": {
+    "full_asc": {
+      "timestamp": "2026-09-20T07:35:10.610712+07:00",
+      "n_observations": 318,
+      "iterations": 5,
+      "log_likelihood": -252.04855748776055,
+      "log_likelihood_null": -265.71511249052077,
+      "rho_squared_mcfadden": 0.05143311148043106,
+      "coefficients": {
+        "time_minutes": {
+          "beta": -0.002386042815830199,
+          "se": 0.008612811919920433,
+          "t_stat": -0.2770341252096263,
+          "significant_at_5pct": false,
+          "clustered_se": 0.008054044551263245,
+          "clustered_t_stat": -0.296253987750286,
+          "clustered_significant_at_5pct": false
+        },
+        "cost_rupiah": {
+          "beta": -2.114880930878967e-05,
+          "se": 1.7853120554390235e-05,
+          "t_stat": -1.18460015123737,
+          "significant_at_5pct": false,
+          "clustered_se": 1.5734310927076277e-05,
+          "clustered_t_stat": -1.344120464303009,
+          "clustered_significant_at_5pct": false
+        },
+        "transfers": {
+          "beta": 0.23117095376803096,
+          "se": 0.262960485329805,
+          "t_stat": 0.8791090930566864,
+          "significant_at_5pct": false,
+          "clustered_se": 0.22088241009993445,
+          "clustered_t_stat": 1.0465792801855143,
+          "clustered_significant_at_5pct": false
+        },
+        "access_km": {
+          "beta": 0.5016079102701713,
+          "se": 0.2142411447272223,
+          "t_stat": 2.341323889530334,
+          "significant_at_5pct": true,
+          "clustered_se": 0.20767418278287117,
+          "clustered_t_stat": 2.4153599814311804,
+          "clustered_significant_at_5pct": true
+        },
+        "comfort": {
+          "beta": 0.25504747998444194,
+          "se": 0.17429661354128836,
+          "t_stat": 1.4632956705382278,
+          "significant_at_5pct": false,
+          "clustered_se": 0.15862791587246666,
+          "clustered_t_stat": 1.6078347785234377,
+          "clustered_significant_at_5pct": false
+        },
+        "reliability": {
+          "beta": 0.3531018852874873,
+          "se": 0.16641497327860832,
+          "t_stat": 2.1218155934582392,
+          "significant_at_5pct": true,
+          "clustered_se": 0.16872624322915203,
+          "clustered_t_stat": 2.092750235705357,
+          "clustered_significant_at_5pct": true
+        },
+        "asc_private_vehicle": {
+          "beta": 0.6100063457105597,
+          "se": 0.24699064156535916,
+          "t_stat": 2.4697548937259577,
+          "significant_at_5pct": true,
+          "clustered_se": 0.24120911858376012,
+          "clustered_t_stat": 2.528952260561967,
+          "clustered_significant_at_5pct": true
+        }
+      },
+      "value_of_time_rupiah_per_hour": 6769.296883787782,
+      "sign_warnings": [
+        "transfers: beta=0.23117 (tanda TERBALIK -- harusnya negatif)",
+        "access_km: beta=0.50161 (tanda TERBALIK -- harusnya negatif)"
+      ],
+      "uses_interactions": false,
+      "aic": 518.0971149755211,
+      "bic": 544.4314746549824,
+      "parameters": 7,
+      "respondent_clusters": 318,
+      "primary_standard_error": "ordinary"
+    },
+    "without_access": {
+      "timestamp": "2026-09-20T07:35:10.621996+07:00",
+      "n_observations": 318,
+      "iterations": 5,
+      "log_likelihood": -255.12241648915293,
+      "log_likelihood_null": -265.71511249052077,
+      "rho_squared_mcfadden": 0.03986486091093422,
+      "coefficients": {
+        "time_minutes": {
+          "beta": 0.01002890167474916,
+          "se": 0.0069038597475554655,
+          "t_stat": 1.452651421300993,
+          "significant_at_5pct": false,
+          "clustered_se": 0.006582215982843044,
+          "clustered_t_stat": 1.523636067380669,
+          "clustered_significant_at_5pct": false
+        },
+        "cost_rupiah": {
+          "beta": -2.2972359536967384e-05,
+          "se": 1.7646575432909486e-05,
+          "t_stat": -1.3018026995836103,
+          "significant_at_5pct": false,
+          "clustered_se": 1.5624179144198968e-05,
+          "clustered_t_stat": -1.4703082526736573,
+          "clustered_significant_at_5pct": false
+        },
+        "transfers": {
+          "beta": -0.04767046365730502,
+          "se": 0.233815479677511,
+          "t_stat": -0.2038806999564541,
+          "significant_at_5pct": false,
+          "clustered_se": 0.1947516850644534,
+          "clustered_t_stat": -0.24477561589019575,
+          "clustered_significant_at_5pct": false
+        },
+        "comfort": {
+          "beta": 0.2970844882292175,
+          "se": 0.17603504747501178,
+          "t_stat": 1.6876439805055794,
+          "significant_at_5pct": false,
+          "clustered_se": 0.16153094251255645,
+          "clustered_t_stat": 1.8391800580630175,
+          "clustered_significant_at_5pct": false
+        },
+        "reliability": {
+          "beta": 0.3555135791191695,
+          "se": 0.16516245539084673,
+          "t_stat": 2.152508439511078,
+          "significant_at_5pct": true,
+          "clustered_se": 0.1650552939539741,
+          "clustered_t_stat": 2.153905946320661,
+          "clustered_significant_at_5pct": true
+        },
+        "asc_private_vehicle": {
+          "beta": 0.4179521352816817,
+          "se": 0.23076384781412143,
+          "t_stat": 1.8111681671140232,
+          "significant_at_5pct": false,
+          "clustered_se": 0.22559796009368005,
+          "clustered_t_stat": 1.8526414649677068,
+          "clustered_significant_at_5pct": false
+        }
+      },
+      "value_of_time_rupiah_per_hour": null,
+      "sign_warnings": [
+        "time_minutes: beta=0.01003 (tanda TERBALIK -- harusnya negatif)"
+      ],
+      "uses_interactions": false,
+      "aic": 522.2448329783058,
+      "bic": 544.8171412749869,
+      "parameters": 6,
+      "respondent_clusters": 318,
+      "primary_standard_error": "ordinary"
+    },
+    "without_transfers": {
+      "timestamp": "2026-09-20T07:35:10.633626+07:00",
+      "n_observations": 318,
+      "iterations": 5,
+      "log_likelihood": -252.43550860338152,
+      "log_likelihood_null": -265.71511249052077,
+      "rho_squared_mcfadden": 0.04997684837219407,
+      "coefficients": {
+        "time_minutes": {
+          "beta": 0.0029174231016625874,
+          "se": 0.006129135522960342,
+          "t_stat": 0.47599259157080714,
+          "significant_at_5pct": false,
+          "clustered_se": 0.006147270152664758,
+          "clustered_t_stat": 0.4745883992747454,
+          "clustered_significant_at_5pct": false
+        },
+        "cost_rupiah": {
+          "beta": -1.7824168778265314e-05,
+          "se": 1.7192743135040338e-05,
+          "t_stat": -1.0367262884267767,
+          "significant_at_5pct": false,
+          "clustered_se": 1.5515929716545076e-05,
+          "clustered_t_stat": -1.1487657590546376,
+          "clustered_significant_at_5pct": false
+        },
+        "access_km": {
+          "beta": 0.4230594379733962,
+          "se": 0.19192998123603705,
+          "t_stat": 2.2042384167855165,
+          "significant_at_5pct": true,
+          "clustered_se": 0.18121887845445706,
+          "clustered_t_stat": 2.334521886359192,
+          "clustered_significant_at_5pct": true
+        },
+        "comfort": {
+          "beta": 0.22930688235915853,
+          "se": 0.17148396844318373,
+          "t_stat": 1.3371913680381893,
+          "significant_at_5pct": false,
+          "clustered_se": 0.157183941771295,
+          "clustered_t_stat": 1.4588442036452012,
+          "clustered_significant_at_5pct": false
+        },
+        "reliability": {
+          "beta": 0.35296458209981324,
+          "se": 0.16578266414777104,
+          "t_stat": 2.129080165976805,
+          "significant_at_5pct": true,
+          "clustered_se": 0.16778574730818457,
+          "clustered_t_stat": 2.1036624848205783,
+          "clustered_significant_at_5pct": true
+        },
+        "asc_private_vehicle": {
+          "beta": 0.6115252515389824,
+          "se": 0.24584195192966293,
+          "t_stat": 2.487473137676453,
+          "significant_at_5pct": true,
+          "clustered_se": 0.239853206180017,
+          "clustered_t_stat": 2.549581309661604,
+          "clustered_significant_at_5pct": true
+        }
+      },
+      "value_of_time_rupiah_per_hour": null,
+      "sign_warnings": [
+        "time_minutes: beta=0.00292 (tanda TERBALIK -- harusnya negatif)",
+        "access_km: beta=0.42306 (tanda TERBALIK -- harusnya negatif)"
+      ],
+      "uses_interactions": false,
+      "aic": 516.8710172067631,
+      "bic": 539.4433255034442,
+      "parameters": 6,
+      "respondent_clusters": 318,
+      "primary_standard_error": "ordinary"
+    },
+    "without_access_transfers": {
+      "timestamp": "2026-09-20T07:35:10.645162+07:00",
+      "n_observations": 318,
+      "iterations": 5,
+      "log_likelihood": -255.14322824748976,
+      "log_likelihood_null": -265.71511249052077,
+      "rho_squared_mcfadden": 0.03978653733294213,
+      "coefficients": {
+        "time_minutes": {
+          "beta": 0.009170342861330293,
+          "se": 0.0054686280176853425,
+          "t_stat": 1.6769000984659663,
+          "significant_at_5pct": false,
+          "clustered_se": 0.005552984564187823,
+          "clustered_t_stat": 1.651425959378935,
+          "clustered_significant_at_5pct": false
+        },
+        "cost_rupiah": {
+          "beta": -2.3892455267073265e-05,
+          "se": 1.711661742371671e-05,
+          "t_stat": -1.3958631355496667,
+          "significant_at_5pct": false,
+          "clustered_se": 1.5671344067661284e-05,
+          "clustered_t_stat": -1.5245951568619258,
+          "clustered_significant_at_5pct": false
+        },
+        "comfort": {
+          "beta": 0.3055004222931537,
+          "se": 0.17130011796893727,
+          "t_stat": 1.7834221360463494,
+          "significant_at_5pct": false,
+          "clustered_se": 0.15870784581298983,
+          "clustered_t_stat": 1.9249232495609192,
+          "clustered_significant_at_5pct": false
+        },
+        "reliability": {
+          "beta": 0.355396605187098,
+          "se": 0.16526505239473718,
+          "t_stat": 2.1504643603550844,
+          "significant_at_5pct": true,
+          "clustered_se": 0.16512913367825133,
+          "clustered_t_stat": 2.1522344196365526,
+          "clustered_significant_at_5pct": true
+        },
+        "asc_private_vehicle": {
+          "beta": 0.4095180026798008,
+          "se": 0.22708741586494913,
+          "t_stat": 1.803349609312322,
+          "significant_at_5pct": false,
+          "clustered_se": 0.2235172876752242,
+          "clustered_t_stat": 1.8321535973308696,
+          "clustered_significant_at_5pct": false
+        }
+      },
+      "value_of_time_rupiah_per_hour": null,
+      "sign_warnings": [
+        "time_minutes: beta=0.00917 (tanda TERBALIK -- harusnya negatif)"
+      ],
+      "uses_interactions": false,
+      "aic": 520.2864564949796,
+      "bic": 539.0967134088804,
+      "parameters": 5,
+      "respondent_clusters": 318,
+      "primary_standard_error": "ordinary"
+    },
+    "without_ride_hailing": {
+      "timestamp": "2026-09-20T07:35:10.655989+07:00",
+      "n_observations": 298,
+      "iterations": 5,
+      "log_likelihood": -237.3965390065383,
+      "log_likelihood_null": -247.39205269013203,
+      "rho_squared_mcfadden": 0.0404035359054703,
+      "coefficients": {
+        "time_minutes": {
+          "beta": -0.0039236498063725915,
+          "se": 0.008994295763474746,
+          "t_stat": -0.43623757874477287,
+          "significant_at_5pct": false,
+          "clustered_se": 0.008379930814912777,
+          "clustered_t_stat": -0.4682198329597344,
+          "clustered_significant_at_5pct": false
+        },
+        "cost_rupiah": {
+          "beta": 1.2894023590883462e-05,
+          "se": 2.8112566147815492e-05,
+          "t_stat": 0.4586569409240999,
+          "significant_at_5pct": false,
+          "clustered_se": 2.84956617958131e-05,
+          "clustered_t_stat": 0.4524907574800735,
+          "clustered_significant_at_5pct": false
+        },
+        "transfers": {
+          "beta": 0.16150736054854084,
+          "se": 0.271047019213723,
+          "t_stat": 0.5958647360043124,
+          "significant_at_5pct": false,
+          "clustered_se": 0.23045383955742635,
+          "clustered_t_stat": 0.7008230405651156,
+          "clustered_significant_at_5pct": false
+        },
+        "access_km": {
+          "beta": 0.5108150508501806,
+          "se": 0.21880476754921693,
+          "t_stat": 2.3345700213560487,
+          "significant_at_5pct": true,
+          "clustered_se": 0.21221637397462423,
+          "clustered_t_stat": 2.407048246481025,
+          "clustered_significant_at_5pct": true
+        },
+        "comfort": {
+          "beta": 0.27281520453622704,
+          "se": 0.18362273207706964,
+          "t_stat": 1.4857376396170916,
+          "significant_at_5pct": false,
+          "clustered_se": 0.16324439188292295,
+          "clustered_t_stat": 1.6712072089550682,
+          "clustered_significant_at_5pct": false
+        },
+        "reliability": {
+          "beta": 0.3097203746834279,
+          "se": 0.18023167833162332,
+          "t_stat": 1.7184569191745942,
+          "significant_at_5pct": false,
+          "clustered_se": 0.17270036078135012,
+          "clustered_t_stat": 1.793397380770698,
+          "clustered_significant_at_5pct": false
+        },
+        "asc_private_vehicle": {
+          "beta": 0.4756792042280211,
+          "se": 0.27450800197599773,
+          "t_stat": 1.732842761609599,
+          "significant_at_5pct": false,
+          "clustered_se": 0.26027003430417234,
+          "clustered_t_stat": 1.8276372287718088,
+          "clustered_significant_at_5pct": false
+        }
+      },
+      "value_of_time_rupiah_per_hour": null,
+      "sign_warnings": [
+        "cost_rupiah: beta=0.00001 (tanda TERBALIK -- harusnya negatif)",
+        "transfers: beta=0.16151 (tanda TERBALIK -- harusnya negatif)",
+        "access_km: beta=0.51082 (tanda TERBALIK -- harusnya negatif)"
+      ],
+      "uses_interactions": false,
+      "aic": 488.7930780130766,
+      "bic": 514.6727324186144,
+      "parameters": 7,
+      "respondent_clusters": 298,
+      "primary_standard_error": "ordinary"
+    }
+  },
+  "likelihood_ratio_tests": {
+    "without_access": {
+      "statistic": 6.147718002784757,
+      "degrees_of_freedom": 1,
+      "p_value": 0.013158177708818032
+    },
+    "without_transfers": {
+      "statistic": 0.7739022312419479,
+      "degrees_of_freedom": 1,
+      "p_value": 0.3790125664615651
+    },
+    "without_access_transfers": {
+      "statistic": 6.189341519458424,
+      "degrees_of_freedom": 2,
+      "p_value": 0.04528992127177314
+    }
+  },
+  "coefficient_stability": {
+    "time_minutes": {
+      "estimates": {
+        "full_asc": -0.002386042815830199,
+        "without_access": 0.01002890167474916,
+        "without_transfers": 0.0029174231016625874,
+        "without_access_transfers": 0.009170342861330293,
+        "without_ride_hailing": -0.0039236498063725915
+      },
+      "same_sign_across_models": false,
+      "minimum": -0.0039236498063725915,
+      "maximum": 0.01002890167474916
+    },
+    "cost_rupiah": {
+      "estimates": {
+        "full_asc": -2.114880930878967e-05,
+        "without_access": -2.2972359536967384e-05,
+        "without_transfers": -1.7824168778265314e-05,
+        "without_access_transfers": -2.3892455267073265e-05,
+        "without_ride_hailing": 1.2894023590883462e-05
+      },
+      "same_sign_across_models": false,
+      "minimum": -2.3892455267073265e-05,
+      "maximum": 1.2894023590883462e-05
+    },
+    "comfort": {
+      "estimates": {
+        "full_asc": 0.25504747998444194,
+        "without_access": 0.2970844882292175,
+        "without_transfers": 0.22930688235915853,
+        "without_access_transfers": 0.3055004222931537,
+        "without_ride_hailing": 0.27281520453622704
+      },
+      "same_sign_across_models": true,
+      "minimum": 0.22930688235915853,
+      "maximum": 0.3055004222931537
+    },
+    "reliability": {
+      "estimates": {
+        "full_asc": 0.3531018852874873,
+        "without_access": 0.3555135791191695,
+        "without_transfers": 0.35296458209981324,
+        "without_access_transfers": 0.355396605187098,
+        "without_ride_hailing": 0.3097203746834279
+      },
+      "same_sign_across_models": true,
+      "minimum": 0.3097203746834279,
+      "maximum": 0.3555135791191695
+    },
+    "asc_private_vehicle": {
+      "estimates": {
+        "full_asc": 0.6100063457105597,
+        "without_access": 0.4179521352816817,
+        "without_transfers": 0.6115252515389824,
+        "without_access_transfers": 0.4095180026798008,
+        "without_ride_hailing": 0.4756792042280211
+      },
+      "same_sign_across_models": true,
+      "minimum": 0.4095180026798008,
+      "maximum": 0.6115252515389824
+    }
+  },
+  "without_ride_hailing_exclusions": {
+    "fewer_than_two_alternatives": 14,
+    "chosen_ride_hailing": 6
+  }
+}
