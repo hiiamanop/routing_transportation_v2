@@ -80,19 +80,19 @@ A total of 136 duplicate alternative rows were consolidated, leaving 748 final a
 
 ### MNL Specification
 
-The utility of alternative *j* for respondent *i* is:
+The utility of alternative $j$ for respondent $i$ is specified as:
 
-\[
-U_{ij}=\beta_{time}Time_{ij}+\beta_{cost}Cost_{ij}+\beta_{transfer}Transfer_{ij}+\beta_{access}Access_{ij}+\beta_{comfort}Comfort_{ij}+\beta_{reliability}Reliability_{ij}.
-\]
+$$
+U_{ij} = \beta_{\text{time}} \text{Time}_{ij} + \beta_{\text{cost}} \text{Cost}_{ij} + \beta_{\text{transfer}} \text{Transfer}_{ij} + \beta_{\text{access}} \text{Access}_{ij} + \beta_{\text{comfort}} \text{Comfort}_{ij} + \beta_{\text{reliability}} \text{Reliability}_{ij}
+$$
 
-The MNL probability is:
+The multinomial logit (MNL) probability is expressed as:
 
-\[
-P_{ij}=\frac{\exp(U_{ij})}{\sum_m\exp(U_{im})}.
-\]
+$$
+P_{ij} = \frac{\exp(U_{ij})}{\sum_{m} \exp(U_{im})}
+$$
 
-The main model adds \(\alpha_{private}I(private)_{ij}\), with public transport as the reference. Parameters were estimated using Newton–Raphson. Ordinary standard errors are the primary inference because each final UUID contributes one observation. Fit is assessed through log-likelihood, McFadden ρ², AIC, and BIC.
+The main model adds $\alpha_{\text{private}} I(\text{private})_{ij}$, with public transport as the reference category. Parameters were estimated using Newton–Raphson. Ordinary standard errors are the primary inference because each final UUID contributes one observation. Fit is assessed through log-likelihood, McFadden $\rho^2$, AIC, and BIC.
 
 ### Sensitivity Analysis
 

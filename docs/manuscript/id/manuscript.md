@@ -80,19 +80,19 @@ Sebanyak 136 baris alternatif duplikat digabung, menghasilkan 748 baris alternat
 
 ### Spesifikasi MNL
 
-Utilitas alternatif *j* bagi responden *i* dirumuskan sebagai:
+Utilitas alternatif $j$ bagi responden $i$ dirumuskan sebagai:
 
-\[
-U_{ij}=\beta_{time}Time_{ij}+\beta_{cost}Cost_{ij}+\beta_{transfer}Transfer_{ij}+\beta_{access}Access_{ij}+\beta_{comfort}Comfort_{ij}+\beta_{reliability}Reliability_{ij}.
-\]
+$$
+U_{ij} = \beta_{\text{time}} \text{Time}_{ij} + \beta_{\text{cost}} \text{Cost}_{ij} + \beta_{\text{transfer}} \text{Transfer}_{ij} + \beta_{\text{access}} \text{Access}_{ij} + \beta_{\text{comfort}} \text{Comfort}_{ij} + \beta_{\text{reliability}} \text{Reliability}_{ij}
+$$
 
-Probabilitas MNL adalah:
+Probabilitas model logit multinomial (MNL) dirumuskan sebagai:
 
-\[
-P_{ij}=\frac{\exp(U_{ij})}{\sum_m\exp(U_{im})}.
-\]
+$$
+P_{ij} = \frac{\exp(U_{ij})}{\sum_{m} \exp(U_{im})}
+$$
 
-Model utama menambahkan \(\alpha_{private}I(private)_{ij}\), dengan transportasi publik sebagai kategori acuan. Parameter diestimasi menggunakan Newton–Raphson. Inferensi utama menggunakan standard error biasa karena setiap UUID final hanya menyumbang satu observasi. Kecocokan dinilai melalui log-likelihood, McFadden ρ², AIC, dan BIC.
+Model utama menambahkan $\alpha_{\text{private}} I(\text{private})_{ij}$, dengan transportasi publik sebagai kategori acuan. Parameter diestimasi menggunakan Newton–Raphson. Inferensi utama menggunakan standard error biasa karena setiap UUID final hanya menyumbang satu observasi. Kecocokan dinilai melalui log-likelihood, McFadden $\rho^2$, AIC, dan BIC.
 
 ### Analisis Sensitivitas
 

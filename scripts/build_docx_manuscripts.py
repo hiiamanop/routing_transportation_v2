@@ -63,6 +63,68 @@ def _set_cell_background(cell, hex_color):
     tcPr.append(shd)
 
 
+def _insert_latex_math_equation(doc, formula_text):
+    """Insert clean native OMML equation or styled math block into Word document."""
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.paragraph_format.space_before = Pt(4)
+    p.paragraph_format.space_after = Pt(4)
+
+    def sub(b, s):
+        return (
+            f'<m:sSub xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">'
+            f'<m:e><m:r><m:t>{b}</m:t></m:r></m:e>'
+            f'<m:sub><m:r><m:t>{s}</m:t></m:r></m:sub>'
+            f'</m:sSub>'
+        )
+
+    def txt(t):
+        return f'<m:r xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:t>{t}</m:t></m:r>'
+
+    # Equation 1: Utility specification
+    if "U_{ij}" in formula_text:
+        omml = (
+            f'<m:oMathPara xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">'
+            f'<m:oMath>'
+            f'{sub("U", "ij")} {txt("=")} '
+            f'{sub("β", "time")}{sub("Time", "ij")} {txt("+")} '
+            f'{sub("β", "cost")}{sub("Cost", "ij")} {txt("+")} '
+            f'{sub("β", "transfer")}{sub("Transfer", "ij")} {txt("+")} '
+            f'{sub("β", "access")}{sub("Access", "ij")} {txt("+")} '
+            f'{sub("β", "comfort")}{sub("Comfort", "ij")} {txt("+")} '
+            f'{sub("β", "reliability")}{sub("Reliability", "ij")}'
+            f'</m:oMath>'
+            f'</m:oMathPara>'
+        )
+        p._p.append(parse_xml(omml))
+    # Equation 2: MNL probability
+    elif "P_{ij}" in formula_text:
+        num = f'{txt("exp(")}{sub("U", "ij")}{txt(")")}'
+        sum_denom = (
+            f'<m:nary xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">'
+            f'<m:naryPr><m:chr m:val="∑"/></m:naryPr>'
+            f'<m:sub><m:r><m:t>m</m:t></m:r></m:sub>'
+            f'<m:sup/>'
+            f'<m:e>{txt("exp(")}{sub("U", "im")}{txt(")")}</m:e>'
+            f'</m:nary>'
+        )
+        frac = f'<m:f xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:num>{num}</m:num><m:den>{sum_denom}</m:den></m:f>'
+        omml = (
+            f'<m:oMathPara xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">'
+            f'<m:oMath>'
+            f'{sub("P", "ij")} {txt("=")} {frac}'
+            f'</m:oMath>'
+            f'</m:oMathPara>'
+        )
+        p._p.append(parse_xml(omml))
+    else:
+        # Fallback styled equation run
+        run = p.add_run(formula_text)
+        run.font.name = "Times New Roman"
+        run.font.size = Pt(9.5)
+        run.italic = True
+
+
 def _format_inline_text(paragraph, text):
     """Parse basic inline markdown bold and italic formatting."""
     tokens = re.split(r'(\*\*.*?\*\*)', text)
@@ -291,22 +353,20 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
             i += 1
             continue
 
-        # Display math block
-        if line.startswith(r'\['):
+        # Display math block (LaTeX $$...$$ or \[...\])
+        is_math_block = line.startswith('$$') or line.startswith(r'\[')
+        if is_math_block:
+            end_marker = '$$' if line.startswith('$$') else r'\]'
             math_lines = [line]
-            while not line.endswith(r'\]') and i + 1 < len(lines):
-                i += 1
-                line = lines[i].rstrip()
-                math_lines.append(line)
-            formula_text = " ".join(math_lines).replace(r'\[', '').replace(r'\]', '').strip()
-            p = doc.add_paragraph()
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.paragraph_format.space_before = Pt(4)
-            p.paragraph_format.space_after = Pt(4)
-            run = p.add_run(formula_text)
-            run.font.name = 'Times New Roman'
-            run.font.size = Pt(9.0)
-            run.italic = True
+            if not (line.endswith(end_marker) and len(line) > 2):
+                while i + 1 < len(lines):
+                    i += 1
+                    line = lines[i].rstrip()
+                    math_lines.append(line)
+                    if line.endswith(end_marker):
+                        break
+            formula_text = " ".join(math_lines).replace('$$', '').replace(r'\[', '').replace(r'\]', '').strip()
+            _insert_latex_math_equation(doc, formula_text)
             i += 1
             continue
 
