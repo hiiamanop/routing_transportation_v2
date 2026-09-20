@@ -58,6 +58,10 @@ LABELS = {
         "m2": "M2 (-Akses)",
         "m3": "M3 (-Transfer)",
         "m4": "M4 (-Keduanya)",
+        "m1_full": "M1: Penuh + ASC",
+        "m2_full": "M2: Tanpa Akses",
+        "m3_full": "M3: Tanpa Transfer",
+        "m4_full": "M4: Tanpa Keduanya",
         # Flow diagram texts
         "stage1_title": "TAHAP 1: MASUKAN DARI RESPONDEN",
         "stage1_box1": "Asal & Tujuan\nPerjalanan Rutin",
@@ -107,6 +111,10 @@ LABELS = {
         "m2": "M2 (-Access)",
         "m3": "M3 (-Transfers)",
         "m4": "M4 (-Both)",
+        "m1_full": "M1: Full + ASC",
+        "m2_full": "M2: Without Access",
+        "m3_full": "M3: Without Transfers",
+        "m4_full": "M4: Without Both",
         # Flow diagram texts
         "stage1_title": "STAGE 1: RESPONDENT INPUTS",
         "stage1_box1": "Routine Origin\n& Destination",
@@ -564,59 +572,57 @@ def figure_05(language: str, data: dict):
 
 
 # ==============================================================================
-# FIGURE 6: COEFFICIENT STABILITY ACROSS SPECIFICATIONS (CLEAN 2-ROW FACET)
+# FIGURE 6: COEFFICIENT STABILITY (SPACIOUS 5-TIER HORIZONTAL FOREST PLOT)
 # ==============================================================================
 def figure_06(language: str, data: dict):
     t = LABELS[language]
     models = data["sensitivity"]["models"]
     model_keys = ["full_asc", "without_access", "without_transfers", "without_access_transfers"]
-    model_labels = [t["m1"], t["m2"], t["m3"], t["m4"]]
+    model_labels = [t["m1_full"], t["m2_full"], t["m3_full"], t["m4_full"]]
     features = ["time_minutes", "cost_rupiah", "comfort", "reliability", "asc_private_vehicle"]
 
-    fig = plt.figure(figsize=(WIDTH_IN, 5.2), constrained_layout=True)
-    gs = fig.add_gridspec(2, 6)
-    ax1 = fig.add_subplot(gs[0, 0:2])
-    ax2 = fig.add_subplot(gs[0, 2:4])
-    ax3 = fig.add_subplot(gs[0, 4:6])
-    ax4 = fig.add_subplot(gs[1, 1:3])
-    ax5 = fig.add_subplot(gs[1, 3:5])
-    axes = [ax1, ax2, ax3, ax4, ax5]
-
-    facet_colors = [PRIMARY_BLUE, SECONDARY_BLUE, ACCENT_GREEN, ACCENT_ORANGE, DARK_GRAY]
+    # 5 stacked horizontal strip plots (spacious vertical layout, 17 cm wide, 7.8 in high)
+    fig, axes = plt.subplots(5, 1, figsize=(WIDTH_IN, 7.8), constrained_layout=True)
+    tier_colors = [PRIMARY_BLUE, SECONDARY_BLUE, ACCENT_ORANGE, ACCENT_GREEN]
 
     for idx, (ax, feat) in enumerate(zip(axes, features)):
         vals = [models[k]["coefficients"][feat]["beta"] for k in model_keys]
         ses = [models[k]["coefficients"][feat]["se"] for k in model_keys]
-        x_coords = np.arange(len(model_keys))
-        c = facet_colors[idx]
+        y_pos = np.arange(4)
 
         # Zero reference line
-        ax.axhline(0, color=BORDER_GRAY, linestyle="-", linewidth=0.9)
+        ax.axvline(0, color=BORDER_GRAY, linestyle="-", linewidth=1.0)
 
-        # Plot line + points with confidence interval
-        ax.errorbar(
-            x_coords, vals, yerr=[1.96 * s for s in ses],
-            fmt="o-", color=c, ecolor=c,
-            linewidth=1.8, markersize=5.5, capsize=3.5, capthick=1.2,
-        )
+        # Horizontal error bars with distinct model colors
+        for i in range(4):
+            ax.errorbar(
+                vals[i], y_pos[i], xerr=1.96 * ses[i],
+                fmt="o", color=tier_colors[i], ecolor=tier_colors[i],
+                capsize=4.0, elinewidth=1.6, capthick=1.2, markersize=6.0,
+            )
 
-        ax.set_title(t[feat], fontsize=8.8, fontweight="bold", color=DARK_GRAY, loc="left", pad=8)
-        ax.set_xticks(x_coords)
-        ax.set_xticklabels(model_labels, fontsize=7.2, color=DARK_GRAY)
-        ax.tick_params(axis="y", labelsize=7.5)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(model_labels, fontsize=8.2, fontweight="bold", color=DARK_GRAY)
+        ax.invert_yaxis()
+        ax.set_title(t[feat], fontsize=9.2, fontweight="bold", loc="left", color=DARK_GRAY, pad=6)
+        ax.tick_params(axis="x", labelsize=7.5)
 
-        # Safe Y margins to avoid tight borders
-        ymin = min(v - 1.96 * s for v, s in zip(vals, ses))
-        ymax = max(v + 1.96 * s for v, s in zip(vals, ses))
-        pad = (ymax - ymin) * 0.15 if (ymax - ymin) > 0 else 0.1
-        ax.set_ylim(ymin - pad, ymax + pad)
-
+        # Clean borders
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_color(BORDER_GRAY)
         ax.spines["bottom"].set_color(BORDER_GRAY)
-        ax.grid(axis="y", color="#EAECEE", linestyle="--", linewidth=0.7)
+        ax.grid(axis="x", color="#EAECEE", linestyle="--", linewidth=0.7)
         ax.set_axisbelow(True)
+
+        # Adequate X margin padding so error bars and zero line never hit axes limits
+        xmin = min(v - 1.96 * s for v, s in zip(vals, ses))
+        xmax = max(v + 1.96 * s for v, s in zip(vals, ses))
+        # Ensure zero is included in visible span
+        xmin = min(xmin, 0.0)
+        xmax = max(xmax, 0.0)
+        pad = (xmax - xmin) * 0.15 if (xmax - xmin) > 0 else 0.1
+        ax.set_xlim(xmin - pad, xmax + pad)
 
     return fig
 
