@@ -10,9 +10,9 @@ Integrasi layanan tidak otomatis meningkatkan penggunaan transportasi publik apa
 
 Sistem transportasi publik perkotaan perlu menyediakan konektivitas dan kualitas layanan yang mampu bersaing dengan kendaraan pribadi. Di Kota Palembang, LRT Sumsel, Teman Bus, dan Angkot Feeder membentuk jaringan yang memungkinkan perjalanan antarmoda. Ketersediaan jaringan, bagaimanapun, belum menjelaskan bagaimana pengguna menilai waktu, biaya, perpindahan, akses, kenyamanan, dan keandalan ketika memilih moda. Analisis perilaku diperlukan agar investasi integrasi layanan tidak berhenti pada penyediaan infrastruktur.
 
-Kerangka utilitas acak memodelkan pilihan sebagai hasil perbandingan utilitas alternatif (McFadden 1974; Ben-Akiva & Lerman 1985). Multinomial Logit (MNL) banyak digunakan karena probabilitas pilihan dapat dihubungkan langsung dengan atribut alternatif dan parameternya dapat diestimasi melalui maximum likelihood (Train 2009). Dalam konteks perjalanan, waktu dan biaya lazim diharapkan menurunkan utilitas, sementara kenyamanan dan keandalan diharapkan meningkatkannya. Nilai akses dan transfer juga penting karena waktu di luar kendaraan sering dihargai berbeda dari waktu di dalam kendaraan (Wardman 2004), sedangkan ketidakpastian waktu perjalanan dapat menimbulkan disutilitas tersendiri (Bates et al. 2001).
+Kerangka utilitas acak memodelkan pilihan sebagai hasil perbandingan utilitas alternatif (McFadden 1974; Ben-Akiva & Lerman 1985). Multinomial Logit (MNL) tetap menjadi landasan utama analisis pemilihan moda kontemporer karena menghubungkan probabilitas pilihan secara langsung dengan atribut perjalanan dan memungkinkan estimasi parameter melalui maximum likelihood (Train 2009; Zhao et al. 2020). Berbagai studi mutakhir menunjukkan bahwa waktu tempuh dan biaya merupakan disutilitas utama, sementara kualitas layanan, kenyamanan, dan keandalan operasional meningkatkan daya tarik angkutan umum secara signifikan (Eldeeb & Mohamed 2020; Ranjan & Sinha 2024). Di samping itu, kemudahan transfer dan jarak akses first-mile/last-mile terbukti menjadi faktor krusial yang menentukan apakah pengguna bersedia beralih dari kendaraan pribadi menuju sistem transit berbasis rel maupun bus pengumpan (Lu et al. 2023; Ramos-Santiago 2022; Lieu & Akar 2025).
 
-Model sederhana tetap memiliki keterbatasan. Respons terhadap atribut dapat berbeda antarindividu (Bhat 1998), dan konstanta spesifik alternatif diperlukan untuk menangkap kecenderungan dasar yang tidak direpresentasikan oleh atribut terukur (Ben-Akiva & Lerman 1985). Selain itu, pilihan yang dinyatakan sebelum perjalanan tidak identik dengan perilaku yang telah diwujudkan; konteks pilihan dan realisme skenario harus dinyatakan secara transparan (Louviere et al. 2000).
+Meskipun demikian, model logit multinomial dasar menghadapi tantangan dalam menangkap preferensi intrinsik yang belum teramati. Pilihan moda sering kali dipengaruhi oleh kebiasaan, ketersediaan moda, atau persepsi fleksibilitas yang tidak sepenuhnya terwakili oleh variabel tingkat layanan (Zhao et al. 2020; Ranjan & Sinha 2024). Oleh karena itu, penyertaan konstanta spesifik alternatif (alternative-specific constant/ASC) menjadi esensial untuk memisahkan preferensi bawaan terhadap moda tertentu dari pengaruh atribut perjalanan yang terukur (Ben-Akiva & Lerman 1985; Train 2009). Selain itu, penyusunan alternatif perjalanan yang realistis dan relevan dengan aktivitas rutin pelaku perjalanan menjadi kunci dalam menghasilkan model perilaku yang andal (Lu et al. 2023).
 
 Penelitian ini menggunakan aplikasi pencarian rute sebagai instrumen pembentuk choice set untuk asal–tujuan rutin yang ditentukan sendiri oleh responden. Mesin Dijkstra (Dijkstra 1959) hanya berfungsi membangkitkan alternatif; kontribusi utama penelitian adalah estimasi determinan pemilihan moda. Tujuannya ialah: (1) mendeskripsikan pola pilihan antarkelompok moda; (2) mengestimasi MNL dasar dan MNL dengan alternative-specific constant (ASC) kendaraan pribadi; dan (3) menilai ketahanan hasil melalui spesifikasi tereduksi dan sensitivitas sampel.
 
@@ -194,22 +194,24 @@ Tidak ada.
 
 Badan Pusat Statistik Kota Palembang. 2024. *Kota Palembang dalam Angka 2024*. Palembang: BPS Kota Palembang.
 
-Bates, J., Polak, J., Jones, P. & Cook, A. 2001. The valuation of reliability for personal travel. *Transportation Research Part E* 37(2–3): 191–229. https://doi.org/10.1016/S1366-5545(00)00011-9
-
 Ben-Akiva, M. & Lerman, S.R. 1985. *Discrete Choice Analysis: Theory and Application to Travel Demand*. Cambridge, MA: MIT Press.
-
-Bhat, C.R. 1998. Accommodating variations in responsiveness to level-of-service measures in travel mode choice modeling. *Transportation Research Part A* 32(7): 495–507. https://doi.org/10.1016/S0965-8564(98)00011-1
 
 Dijkstra, E.W. 1959. A note on two problems in connexion with graphs. *Numerische Mathematik* 1: 269–271. https://doi.org/10.1007/BF01386390
 
 Direktorat Jenderal Perkeretaapian. 2023. *Profil Pengoperasian LRT Sumatera Selatan*. Jakarta: Kementerian Perhubungan Republik Indonesia.
 
-Hensher, D.A., Rose, J.M. & Greene, W.H. 2015. *Applied Choice Analysis*. Cambridge: Cambridge University Press. https://doi.org/10.1017/CBO9781316136232
+Eldeeb, G. & Mohamed, M. 2020. Quantifying preference heterogeneity in transit service desired quality using a latent class choice model. *Transportation Research Part A: Policy and Practice* 139: 119–133. https://doi.org/10.1016/j.tra.2020.07.006
 
-Louviere, J.J., Hensher, D.A. & Swait, J.D. 2000. *Stated Choice Methods: Analysis and Applications*. Cambridge: Cambridge University Press. https://doi.org/10.1017/CBO9780511753831
+Lieu, S. & Akar, G. 2025. Understanding rail users' mode choice behavior for first and last mile travel. *Journal of Transport Geography* 125: 104214. https://doi.org/10.1016/j.jtrangeo.2025.104214
+
+Lu, Y., Prato, C.G. & Sipe, N. 2023. Understanding the role of household modality style on first and last mile travel mode choice and public transit station choice. *Travel Behaviour and Society* 32: 100580. https://doi.org/10.1016/j.tbs.2023.100580
 
 McFadden, D. 1974. Conditional logit analysis of qualitative choice behavior. In *Frontiers in Econometrics*, edited by P. Zarembka, 105–142. New York: Academic Press.
 
+Ramos-Santiago, L. 2022. Does walkability around feeder bus-stops influence rapid-transit station boardings? *Journal of Public Transportation* 24: 100026. https://doi.org/10.1016/j.jpubtr.2022.100026
+
+Ranjan, R. & Sinha, S. 2024. Mode choice analysis for work trips of urban residents using multinomial logit model. *Innovative Infrastructure Solutions* 9(5): 181. https://doi.org/10.1007/s41062-024-01681-5
+
 Train, K.E. 2009. *Discrete Choice Methods with Simulation*. 2nd ed. Cambridge: Cambridge University Press.
 
-Wardman, M. 2004. Public transport values of time. *Transport Policy* 11(4): 363–377. https://doi.org/10.1016/j.tranpol.2004.05.001
+Zhao, X., Yan, X., Yu, A. & Van Hentenryck, P. 2020. Prediction and behavioral analysis of travel mode choice: A comparison of machine learning and logit models. *Travel Behaviour and Society* 20: 22–35. https://doi.org/10.1016/j.tbs.2020.02.003

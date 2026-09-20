@@ -10,9 +10,9 @@ Service integration does not automatically increase public transport use unless 
 
 Urban public transport must provide connectivity and service quality capable of competing with private vehicles. In Palembang, LRT Sumsel, Teman Bus, and Angkot Feeder form a network that enables intermodal trips. Network availability alone, however, does not explain how users value time, cost, transfers, access, comfort, and reliability when choosing a mode. Behavioural analysis is required so that service integration extends beyond infrastructure provision.
 
-Random utility theory represents choice as a comparison of alternative utilities (McFadden 1974; Ben-Akiva & Lerman 1985). Multinomial Logit (MNL) is widely used because choice probabilities can be linked directly to alternative attributes and estimated by maximum likelihood (Train 2009). Travel time and cost are normally expected to reduce utility, whereas comfort and reliability should increase it. Access and transfers are also important because out-of-vehicle time is often valued differently from in-vehicle time (Wardman 2004), and travel-time uncertainty carries its own disutility (Bates et al. 2001).
+Random utility theory represents choice as a comparison of alternative utilities (McFadden 1974; Ben-Akiva & Lerman 1985). Multinomial Logit (MNL) remains the cornerstone of contemporary mode-choice modelling because it connects choice probabilities directly to travel attributes and permits parameter estimation via maximum likelihood (Train 2009; Zhao et al. 2020). Recent literature indicates that travel time and monetary cost represent primary sources of disutility, whereas operational reliability, service quality, and comfort significantly enhance the attractiveness of public transport options (Eldeeb & Mohamed 2020; Ranjan & Sinha 2024). Moreover, transfer convenience and first-mile/last-mile access distance have consistently been identified as critical determinants governing willingness to shift from private motor vehicles to integrated rail and feeder transit systems (Lu et al. 2023; Ramos-Santiago 2022; Lieu & Akar 2025).
 
-A basic model remains limited. Responsiveness to service attributes may vary across individuals (Bhat 1998), while alternative-specific constants can capture baseline preferences omitted from measured attributes (Ben-Akiva & Lerman 1985). Moreover, a choice stated before travelling is not equivalent to observed realised behaviour; choice context and scenario realism must therefore be reported transparently (Louviere et al. 2000).
+Nevertheless, basic multinomial logit models face well-known challenges in capturing unobserved intrinsic preferences. Travel mode choices are frequently shaped by habits, modal availability, or perceived flexibility that are not fully reflected in service-level variables alone (Zhao et al. 2020; Ranjan & Sinha 2024). Consequently, incorporating alternative-specific constants (ASCs) is essential to disentangle innate modal bias from the marginal utility of measured level-of-service attributes (Ben-Akiva & Lerman 1985; Train 2009). Furthermore, constructing choice sets that reflect realistic, routine travel activities specified by travelers themselves provides a more grounded behavioral context for empirical estimation (Lu et al. 2023).
 
 This study uses a route-search application as an instrument to generate choice sets for respondent-defined routine origin–destination pairs. Dijkstra’s algorithm (Dijkstra 1959) only generates alternatives; the main contribution is the estimation of mode-choice determinants. The objectives are to: (1) describe choices across mode groups; (2) estimate a basic MNL and an MNL with a private-vehicle alternative-specific constant (ASC); and (3) examine robustness through reduced specifications and sample sensitivity.
 
@@ -194,22 +194,24 @@ None.
 
 Badan Pusat Statistik Kota Palembang. 2024. *Kota Palembang dalam Angka 2024*. Palembang: BPS Kota Palembang.
 
-Bates, J., Polak, J., Jones, P. & Cook, A. 2001. The valuation of reliability for personal travel. *Transportation Research Part E* 37(2–3): 191–229. https://doi.org/10.1016/S1366-5545(00)00011-9
-
 Ben-Akiva, M. & Lerman, S.R. 1985. *Discrete Choice Analysis: Theory and Application to Travel Demand*. Cambridge, MA: MIT Press.
-
-Bhat, C.R. 1998. Accommodating variations in responsiveness to level-of-service measures in travel mode choice modeling. *Transportation Research Part A* 32(7): 495–507. https://doi.org/10.1016/S0965-8564(98)00011-1
 
 Dijkstra, E.W. 1959. A note on two problems in connexion with graphs. *Numerische Mathematik* 1: 269–271. https://doi.org/10.1007/BF01386390
 
 Direktorat Jenderal Perkeretaapian. 2023. *Profil Pengoperasian LRT Sumatera Selatan*. Jakarta: Kementerian Perhubungan Republik Indonesia.
 
-Hensher, D.A., Rose, J.M. & Greene, W.H. 2015. *Applied Choice Analysis*. Cambridge: Cambridge University Press. https://doi.org/10.1017/CBO9781316136232
+Eldeeb, G. & Mohamed, M. 2020. Quantifying preference heterogeneity in transit service desired quality using a latent class choice model. *Transportation Research Part A: Policy and Practice* 139: 119–133. https://doi.org/10.1016/j.tra.2020.07.006
 
-Louviere, J.J., Hensher, D.A. & Swait, J.D. 2000. *Stated Choice Methods: Analysis and Applications*. Cambridge: Cambridge University Press. https://doi.org/10.1017/CBO9780511753831
+Lieu, S. & Akar, G. 2025. Understanding rail users' mode choice behavior for first and last mile travel. *Journal of Transport Geography* 125: 104214. https://doi.org/10.1016/j.jtrangeo.2025.104214
+
+Lu, Y., Prato, C.G. & Sipe, N. 2023. Understanding the role of household modality style on first and last mile travel mode choice and public transit station choice. *Travel Behaviour and Society* 32: 100580. https://doi.org/10.1016/j.tbs.2023.100580
 
 McFadden, D. 1974. Conditional logit analysis of qualitative choice behavior. In *Frontiers in Econometrics*, edited by P. Zarembka, 105–142. New York: Academic Press.
 
+Ramos-Santiago, L. 2022. Does walkability around feeder bus-stops influence rapid-transit station boardings? *Journal of Public Transportation* 24: 100026. https://doi.org/10.1016/j.jpubtr.2022.100026
+
+Ranjan, R. & Sinha, S. 2024. Mode choice analysis for work trips of urban residents using multinomial logit model. *Innovative Infrastructure Solutions* 9(5): 181. https://doi.org/10.1007/s41062-024-01681-5
+
 Train, K.E. 2009. *Discrete Choice Methods with Simulation*. 2nd ed. Cambridge: Cambridge University Press.
 
-Wardman, M. 2004. Public transport values of time. *Transport Policy* 11(4): 363–377. https://doi.org/10.1016/j.tranpol.2004.05.001
+Zhao, X., Yan, X., Yu, A. & Van Hentenryck, P. 2020. Prediction and behavioral analysis of travel mode choice: A comparison of machine learning and logit models. *Travel Behaviour and Society* 20: 22–35. https://doi.org/10.1016/j.tbs.2020.02.003
