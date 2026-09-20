@@ -1,0 +1,258 @@
+{
+  "sample": {
+    "rows": 748,
+    "observations": 318,
+    "respondents": 318,
+    "respondents_with_multiple_observations": 0,
+    "max_observations_per_respondent": 1,
+    "observations_with_preferences": 294
+  },
+  "choices": {
+    "by_group": {
+      "transit": 176,
+      "private_vehicle": 136,
+      "ride_hailing": 6
+    }
+  },
+  "within_choice_set_variation": {
+    "time_minutes": {
+      "varying_observations": 318,
+      "constant_observations": 0,
+      "varying_percentage": 100.0
+    },
+    "cost_rupiah": {
+      "varying_observations": 312,
+      "constant_observations": 6,
+      "varying_percentage": 98.1
+    },
+    "transfers": {
+      "varying_observations": 131,
+      "constant_observations": 187,
+      "varying_percentage": 41.2
+    },
+    "access_km": {
+      "varying_observations": 304,
+      "constant_observations": 14,
+      "varying_percentage": 95.6
+    },
+    "comfort": {
+      "varying_observations": 312,
+      "constant_observations": 6,
+      "varying_percentage": 98.1
+    },
+    "reliability": {
+      "varying_observations": 318,
+      "constant_observations": 0,
+      "varying_percentage": 100.0
+    }
+  },
+  "correlations": {
+    "time_minutes": {
+      "time_minutes": 1.0,
+      "cost_rupiah": 0.19116980812873904,
+      "transfers": 0.6063336511358592,
+      "access_km": 0.4786316042253944,
+      "comfort": -0.3733011735401184,
+      "reliability": 0.11553791627201111
+    },
+    "cost_rupiah": {
+      "time_minutes": 0.19116980812873907,
+      "cost_rupiah": 0.9999999999999998,
+      "transfers": 0.026076830717236415,
+      "access_km": -0.2195297850018797,
+      "comfort": 0.05346294223510584,
+      "reliability": 0.11707345014999293
+    },
+    "transfers": {
+      "time_minutes": 0.6063336511358592,
+      "cost_rupiah": 0.02607683071723642,
+      "transfers": 1.0,
+      "access_km": 0.20773156805654355,
+      "comfort": -0.520763425452139,
+      "reliability": -0.11119609519460127
+    },
+    "access_km": {
+      "time_minutes": 0.47863160422539447,
+      "cost_rupiah": -0.21952978500187967,
+      "transfers": 0.20773156805654355,
+      "access_km": 0.9999999999999998,
+      "comfort": -0.2411360786398408,
+      "reliability": 0.11176414683962539
+    },
+    "comfort": {
+      "time_minutes": -0.3733011735401184,
+      "cost_rupiah": 0.05346294223510582,
+      "transfers": -0.5207634254521392,
+      "access_km": -0.24113607863984077,
+      "comfort": 0.9999999999999999,
+      "reliability": 0.31468724790646546
+    },
+    "reliability": {
+      "time_minutes": 0.1155379162720111,
+      "cost_rupiah": 0.11707345014999293,
+      "transfers": -0.11119609519460126,
+      "access_km": 0.11176414683962539,
+      "comfort": 0.31468724790646546,
+      "reliability": 1.0
+    }
+  },
+  "models": {
+    "basic": {
+      "timestamp": "2026-09-20T07:17:45.314655+07:00",
+      "n_observations": 318,
+      "iterations": 5,
+      "log_likelihood": -255.16636099496284,
+      "log_likelihood_null": -265.71511249052077,
+      "rho_squared_mcfadden": 0.03969947887677727,
+      "coefficients": {
+        "time_minutes": {
+          "beta": -0.0069305978120766405,
+          "se": 0.00840660547569801,
+          "t_stat": -0.8244228698624858,
+          "significant_at_5pct": false,
+          "clustered_se": 0.007764244014621191,
+          "clustered_t_stat": -0.8926300872339052,
+          "clustered_significant_at_5pct": false
+        },
+        "cost_rupiah": {
+          "beta": -2.2482535276003798e-05,
+          "se": 1.7414287045546494e-05,
+          "t_stat": -1.2910396628470329,
+          "significant_at_5pct": false,
+          "clustered_se": 1.516559922418249e-05,
+          "clustered_t_stat": -1.482469300662647,
+          "clustered_significant_at_5pct": false
+        },
+        "transfers": {
+          "beta": 0.2401265864051368,
+          "se": 0.25792114297557184,
+          "t_stat": 0.9310077632056694,
+          "significant_at_5pct": false,
+          "clustered_se": 0.21662096875829634,
+          "clustered_t_stat": 1.1085103523522128,
+          "clustered_significant_at_5pct": false
+        },
+        "access_km": {
+          "beta": 0.3360408399897903,
+          "se": 0.19419706720907282,
+          "t_stat": 1.7304115083674683,
+          "significant_at_5pct": false,
+          "clustered_se": 0.18087399794403286,
+          "clustered_t_stat": 1.8578725732250918,
+          "clustered_significant_at_5pct": false
+        },
+        "comfort": {
+          "beta": 0.41285767788985994,
+          "se": 0.1635401991134621,
+          "t_stat": 2.524502722437219,
+          "significant_at_5pct": true,
+          "clustered_se": 0.1487136815595252,
+          "clustered_t_stat": 2.7761916291784265,
+          "clustered_significant_at_5pct": true
+        },
+        "reliability": {
+          "beta": 0.11796440218015102,
+          "se": 0.13248910111509077,
+          "t_stat": 0.8903706130338795,
+          "significant_at_5pct": false,
+          "clustered_se": 0.1340744462083809,
+          "clustered_t_stat": 0.8798425465566244,
+          "clustered_significant_at_5pct": false
+        }
+      },
+      "value_of_time_rupiah_per_hour": 18495.950906765884,
+      "sign_warnings": [
+        "transfers: beta=0.24013 (tanda TERBALIK -- harusnya negatif)",
+        "access_km: beta=0.33604 (tanda TERBALIK -- harusnya negatif)"
+      ],
+      "uses_interactions": false,
+      "aic": 522.3327219899256,
+      "bic": 544.9050302866067,
+      "respondent_clusters": 318,
+      "primary_standard_error": "ordinary"
+    },
+    "private_vehicle_asc": {
+      "timestamp": "2026-09-20T07:17:45.327940+07:00",
+      "n_observations": 318,
+      "iterations": 5,
+      "log_likelihood": -252.04855748776055,
+      "log_likelihood_null": -265.71511249052077,
+      "rho_squared_mcfadden": 0.05143311148043106,
+      "coefficients": {
+        "time_minutes": {
+          "beta": -0.002386042815830199,
+          "se": 0.008612811919920433,
+          "t_stat": -0.2770341252096263,
+          "significant_at_5pct": false,
+          "clustered_se": 0.008054044551263245,
+          "clustered_t_stat": -0.296253987750286,
+          "clustered_significant_at_5pct": false
+        },
+        "cost_rupiah": {
+          "beta": -2.114880930878967e-05,
+          "se": 1.7853120554390235e-05,
+          "t_stat": -1.18460015123737,
+          "significant_at_5pct": false,
+          "clustered_se": 1.5734310927076277e-05,
+          "clustered_t_stat": -1.344120464303009,
+          "clustered_significant_at_5pct": false
+        },
+        "transfers": {
+          "beta": 0.23117095376803096,
+          "se": 0.262960485329805,
+          "t_stat": 0.8791090930566864,
+          "significant_at_5pct": false,
+          "clustered_se": 0.22088241009993445,
+          "clustered_t_stat": 1.0465792801855143,
+          "clustered_significant_at_5pct": false
+        },
+        "access_km": {
+          "beta": 0.5016079102701713,
+          "se": 0.2142411447272223,
+          "t_stat": 2.341323889530334,
+          "significant_at_5pct": true,
+          "clustered_se": 0.20767418278287117,
+          "clustered_t_stat": 2.4153599814311804,
+          "clustered_significant_at_5pct": true
+        },
+        "comfort": {
+          "beta": 0.25504747998444194,
+          "se": 0.17429661354128836,
+          "t_stat": 1.4632956705382278,
+          "significant_at_5pct": false,
+          "clustered_se": 0.15862791587246666,
+          "clustered_t_stat": 1.6078347785234377,
+          "clustered_significant_at_5pct": false
+        },
+        "reliability": {
+          "beta": 0.3531018852874873,
+          "se": 0.16641497327860832,
+          "t_stat": 2.1218155934582392,
+          "significant_at_5pct": true,
+          "clustered_se": 0.16872624322915203,
+          "clustered_t_stat": 2.092750235705357,
+          "clustered_significant_at_5pct": true
+        },
+        "asc_private_vehicle": {
+          "beta": 0.6100063457105597,
+          "se": 0.24699064156535916,
+          "t_stat": 2.4697548937259577,
+          "significant_at_5pct": true,
+          "clustered_se": 0.24120911858376012,
+          "clustered_t_stat": 2.528952260561967,
+          "clustered_significant_at_5pct": true
+        }
+      },
+      "value_of_time_rupiah_per_hour": 6769.296883787782,
+      "sign_warnings": [
+        "transfers: beta=0.23117 (tanda TERBALIK -- harusnya negatif)",
+        "access_km: beta=0.50161 (tanda TERBALIK -- harusnya negatif)"
+      ],
+      "uses_interactions": false,
+      "aic": 518.0971149755211,
+      "bic": 544.4314746549824,
+      "respondent_clusters": 318,
+      "primary_standard_error": "ordinary"
+    }
+  }
+}

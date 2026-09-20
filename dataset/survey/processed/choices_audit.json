@@ -1,0 +1,21 @@
+{
+  "source_rows": 981,
+  "source_observations": 400,
+  "source_respondents": 400,
+  "valid_observations": 318,
+  "valid_respondents": 318,
+  "clean_rows": 748,
+  "excluded_observations": 82,
+  "exclusions_by_reason": {
+    "extreme_value": 22,
+    "fewer_than_two_unique_alternatives": 60
+  },
+  "collapsed_duplicate_alternatives": 136,
+  "thresholds": {
+    "max_time_minutes": 1000.0,
+    "max_cost_rupiah": 100000.0
+  },
+  "source_file": "dataset/choices_long_20260919_112629_diseragamkan.csv",
+  "source_sha256": "93fcf7d061e8e294f2ebefd8dc8a52b7b5632484085b960e30820fc615219c2a",
+  "output_file": "dataset/survey/processed/choices_long_clean.csv"
+}

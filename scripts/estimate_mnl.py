@@ -80,7 +80,9 @@ def expected_sign(feature_name: str) -> int:
     raise KeyError(feature_name)
 
 
-def load_long_format(path: Path, use_interactions: bool = False):
+def load_long_format(path: Path, use_interactions: bool = False,
+                     use_private_vehicle_asc: bool = False,
+                     return_respondent_ids: bool = False):
     """
     CSV long-format -> (X_list, chosen_list, feature_names, n_with_preference).
 
@@ -92,20 +94,34 @@ def load_long_format(path: Path, use_interactions: bool = False):
     feature_names = list(BASE_ATTRIBUTES)
     if use_interactions:
         feature_names += list(INTERACTION_FEATURE_NAMES)
+    if use_private_vehicle_asc:
+        feature_names.append("asc_private_vehicle")
 
     by_obs = {}
-    with open(path, "r", encoding="utf-8", newline="") as f:
+    with open(path, "r", encoding="utf-8-sig", newline="") as f:
         for row in csv.DictReader(f):
             by_obs.setdefault(row["observation_id"], []).append(row)
 
-    X_list, chosen_list = [], []
+    X_list, chosen_list, respondent_ids = [], [], []
     n_with_preference = 0
     for obs_id, rows in by_obs.items():
         rows.sort(key=lambda r: int(r["alternative_index"]))
 
+        if len(rows) < 2:
+            raise ValueError(
+                f"Observation {obs_id} must have at least two alternatives, got {len(rows)}."
+            )
+
         has_preference = use_interactions and all(r.get("pref_time", "") != "" for r in rows)
         if has_preference:
             n_with_preference += 1
+
+        chosen_matches = [i for i, r in enumerate(rows) if float(r.get("chosen", 0)) == 1]
+        if len(chosen_matches) != 1:
+            raise ValueError(
+                f"Observation {obs_id} must have exactly one chosen alternative, got {len(chosen_matches)}."
+            )
+        chosen_list.append(chosen_matches[0])
 
         feature_rows = []
         for r in rows:
@@ -115,12 +131,15 @@ def load_long_format(path: Path, use_interactions: bool = False):
                     raw_pref = r.get(pref_col, "")
                     pref = float(raw_pref) if raw_pref != "" else NEUTRAL_PREFERENCE
                     values.append(float(r[attr]) * pref)
+            if use_private_vehicle_asc:
+                values.append(1.0 if r.get("optimized_for") == "private_vehicle" else 0.0)
             feature_rows.append(values)
 
         X_list.append(np.array(feature_rows))
-        chosen_list.append(next(i for i, r in enumerate(rows) if r["chosen"] == "1"))
+        respondent_ids.append(rows[0].get("respondent_id", "") or f"observation:{obs_id}")
 
-    return X_list, chosen_list, feature_names, n_with_preference
+    result = (X_list, chosen_list, feature_names, n_with_preference)
+    return (*result, respondent_ids) if return_respondent_ids else result
 
 
 def log_likelihood_grad_hess(beta, X_list, chosen_list):
@@ -142,6 +161,23 @@ def log_likelihood_grad_hess(beta, X_list, chosen_list):
         hess -= X.T @ (np.diag(P) - np.outer(P, P)) @ X
 
     return ll, grad, hess
+
+
+def cluster_robust_se(beta, bread, X_list, chosen_list, respondent_ids):
+    """Sandwich standard errors, clustered by respondent_id."""
+    scores_by_respondent = {}
+    for X, chosen, respondent_id in zip(X_list, chosen_list, respondent_ids):
+        utilities = X @ beta
+        probabilities = np.exp(utilities - utilities.max())
+        probabilities /= probabilities.sum()
+        score = X[chosen] - probabilities @ X
+        scores_by_respondent.setdefault(respondent_id, np.zeros(len(beta)))
+        scores_by_respondent[respondent_id] += score
+
+    meat = sum((np.outer(score, score) for score in scores_by_respondent.values()),
+               np.zeros_like(bread))
+    covariance = bread @ meat @ bread
+    return np.sqrt(np.maximum(np.diag(covariance), 0.0))
 
 
 def null_log_likelihood(X_list):
@@ -181,9 +217,11 @@ def fit_mnl(X_list, chosen_list, max_iter=100, tol=1e-8):
     }
 
 
-def build_report(fit: dict, X_list, feature_names, n_with_preference=None) -> dict:
+def build_report(fit: dict, X_list, feature_names, n_with_preference=None,
+                 clustered_se=None) -> dict:
     beta, se = fit["beta"], fit["se"]
     t_stat = beta / se
+    clustered_t_stat = beta / clustered_se if clustered_se is not None else None
     ll_final = fit["log_likelihood"]
     ll_null = null_log_likelihood(X_list)
     rho2 = 1 - ll_final / ll_null
@@ -195,6 +233,14 @@ def build_report(fit: dict, X_list, feature_names, n_with_preference=None) -> di
             "beta": float(beta[i]), "se": float(se[i]), "t_stat": float(t_stat[i]),
             "significant_at_5pct": bool(abs(t_stat[i]) > 1.96),
         }
+        if clustered_se is not None:
+            coefficients[name].update({
+                "clustered_se": float(clustered_se[i]),
+                "clustered_t_stat": float(clustered_t_stat[i]),
+                "clustered_significant_at_5pct": bool(abs(clustered_t_stat[i]) > 1.96),
+            })
+        if name == "asc_private_vehicle":
+            continue  # konstanta moda tidak punya tanda teoritis wajib
         actual_sign = 1 if beta[i] > 0 else -1
         if actual_sign != expected_sign(name):
             sign_warnings.append(
@@ -393,9 +439,10 @@ def main():
     X_list, chosen_list, feature_names, n_with_preference = load_long_format(
         input_path, use_interactions=args.interactions)
     n_params = len(feature_names)
-    if len(X_list) < 30 * n_params / 6:  # skala patokan sesuai jumlah parameter
+    target_observations = 30 * n_params
+    if len(X_list) < target_observations:
         print(f"PERINGATAN: cuma {len(X_list)} observasi -- di bawah patokan minimal "
-              f"30 obs/parameter x {n_params} parameter = {30*n_params} observasi. "
+              f"30 obs/parameter x {n_params} parameter = {target_observations} observasi. "
               f"Hasil di bawah ini TIDAK layak dilaporkan sbg temuan final.", file=sys.stderr)
 
     try:

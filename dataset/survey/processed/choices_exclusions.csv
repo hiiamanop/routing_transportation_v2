@@ -1,0 +1,83 @@
+source_observation_id,respondent_id,reason,detail,source_alternatives
+6,ccb09cc9-6b8b-486d-9b1f-f977e08f70fa,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+10,6c8c38e3-85f1-42ab-8ad1-7c26b6c04fb8,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+12,0b15243c-bc52-4b4c-9f59-ea7570338e01,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+15,aed07363-0193-48cf-bb47-e209f319c050,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+16,7cafd262-d9c2-59f5-8832-1f0ca799e5f7,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+19,d0567775-6c0b-4574-a23a-683c4bbace3d,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+20,763179a8-b5db-49d8-8aae-c6a1b3005111,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+21,b5ca0ad3-157f-46b2-9be5-9a17edb9537b,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+22,95f87bcb-5830-477b-8a7d-9c95d08d0304,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+24,2b35a342-89ef-4aee-b2e0-1bb42905cd03,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+36,45ff895f-b310-4942-9ed9-bf60425c3da1,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+37,43ea6dee-917b-4755-b89a-e81e4d929edf,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+38,db0e00f7-2087-5732-b41b-a4df15e74d49,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+39,55179cdc-0ea8-511f-ace6-6fe0e8a7ea6b,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+42,950bdad8-cd20-4dee-b4dd-caf576aff5b3,extreme_value,time_minutes>1000 or cost_rupiah>100000,1
+43,c37af11d-2e82-4e2f-8acb-6b763f418e9e,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+44,24319e5b-1921-42bd-84d8-af618bf03ede,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+45,9fa7f5aa-036b-58c3-886d-c748a4de125e,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+46,231df460-36c8-45a2-ad4d-9cb653acfd9a,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+47,48f53a38-42cb-54fa-8719-af5ce1dfca2a,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+48,43d4e91e-824e-5e46-a24d-66ece69727e2,extreme_value,time_minutes>1000 or cost_rupiah>100000,1
+49,c0af9d68-744a-57d7-add5-5067eec403c2,extreme_value,time_minutes>1000 or cost_rupiah>100000,1
+50,c03cd66c-ed41-5199-bde5-d752653e3b53,extreme_value,time_minutes>1000 or cost_rupiah>100000,1
+51,aafe1d81-84d8-45c0-b421-0c7bab64f259,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+52,23c06752-ca0d-52bd-bdf8-828e00640038,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+53,d1a6817b-c66a-5aa2-ac94-69ae35818bc1,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+54,5d17b0a2-3b68-4185-a54f-b596bdeb2f6d,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+55,508ad9ca-523b-485d-8a3c-49ce16a9553c,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+57,1c1b8438-5600-43bb-a7c2-c545fbc93ae0,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+58,686d32eb-3742-4e82-a1f0-77f80efbfead,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+61,d1776ede-5e5d-4046-857c-2437f980b398,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+62,80cc5409-a032-5fa8-bf6a-0ca72b5652ac,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+63,a8c98f55-b9b5-4554-aba6-c621be51e762,extreme_value,time_minutes>1000 or cost_rupiah>100000,1
+64,f1443221-a144-5ea6-bee5-0261711b4d84,extreme_value,time_minutes>1000 or cost_rupiah>100000,1
+66,fb52297e-629a-4529-ae3f-545c5d2981cd,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+67,0fba1c28-b4fc-5f1c-8a4a-a165f1d69461,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+68,76be77b3-c323-5c5a-85fc-236ea50f45d7,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+80,3074d4b3-6be1-4dcb-8ae9-94a63fc11ead,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+81,3a537367-0da0-44a5-b876-a60ba9194789,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+83,4760b0ad-bde5-44ce-ab85-18364ab6bc9e,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+84,39dc4dc7-7f69-4ba5-87bc-f43fff838002,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+85,a15e6638-3204-4166-bf4a-df2f97a7cdb8,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+86,a447bea9-3c06-5bce-b9f9-c6444e2cf820,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+87,950bbcb3-9312-563c-b714-5098c457d942,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+91,b2ecf424-3b22-40aa-b6b7-ef7c11d84f12,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+92,ce24805f-b4e5-47d9-ba4d-3a2f6f755304,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+93,d9c04834-8d32-5219-b841-5dfc218a597c,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+94,2778e4a5-13ee-52f3-81f3-d8dd9b146547,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+95,80f82332-414c-4d3a-8b0b-7eec6148498c,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+98,8e0836bb-6e3c-4aa3-9845-13874f58d3bd,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+101,1c7c97ae-d30f-4286-8730-2fbb9c2fb1d3,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+102,d9d373cf-f7d9-4fd6-b80c-2f84f29a26e8,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+103,877982cd-15c9-5886-ae41-dc4187f7c8bc,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+106,9c5a4dfb-3771-4902-ba0a-9e35e9fd7102,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+108,efd57ac5-37d9-43c4-b693-c611a9a7ea39,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+111,7e3b494f-3636-4d3c-9026-e55830db0962,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+112,71f45238-8c69-5755-a094-12997b4d9a71,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+115,5cad4a8b-77ed-4540-a3e8-1b8e20a1e39d,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+116,f0f4a148-b9fa-5127-9888-ab31f1e0e997,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+117,c39d2a8e-5251-5382-8d36-09ce058868ba,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+121,a80863c9-3d87-4f59-86c3-75e3f6cea4a8,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+122,7088d563-fd7e-510f-ab9f-40aab82e38be,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+124,5ea8ac7b-d160-49bb-a9ba-15ba3fbc4077,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+126,4483df30-b23d-58fe-bb44-99fcb4d454b8,extreme_value,time_minutes>1000 or cost_rupiah>100000,2
+129,41f80d41-0a33-475a-a069-94c4215f60e5,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+133,9e9121ef-8963-465a-8c0c-ae1e18166238,extreme_value,time_minutes>1000 or cost_rupiah>100000,1
+136,6275cdbe-8ee5-4764-bfb3-fa7d1904ce35,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+137,52c0221f-266f-4100-8ec5-78a34d8e66c6,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+138,55a70c30-2a28-516e-aac6-1d6e933df204,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+141,d3da9aba-6bd5-4875-a45d-0efc29c4da6d,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+143,b7c45c88-2292-4533-a5e6-09fde3af87a1,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+144,207a04bf-0910-4c4d-ad07-744dc4b3cde0,fewer_than_two_unique_alternatives,only 1 unique alternative(s),1
+146,e74bb6ef-f93e-4c16-83a8-0189a8bb9801,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+147,3538d8e5-79d3-454e-876b-2203c8e35aca,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+148,33a4de08-2315-5b1c-9a8d-4236ad592a9b,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+149,facc03b9-77b8-502e-a429-932a8de314a5,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+154,c41cc81f-f450-4178-9e03-57623cebd927,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+155,911614f3-c7a3-5ff0-9c32-6cde8e2702b7,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+163,ce18df16-0556-589e-8c9e-ed8735e2b21b,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+174,b954eb72-1923-578f-85c2-710e49fd6b50,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+198,b5911b3e-ca37-50e8-8585-915cc62c1177,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
+199,559bddad-fda2-5417-b9a8-1d21e5e786cf,fewer_than_two_unique_alternatives,only 1 unique alternative(s),2
