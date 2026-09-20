@@ -38,8 +38,8 @@ class ResearchFigureTests(unittest.TestCase):
         generate_all(PROCESSED, self.output)
         id_svg = (self.output / "id" / "figures" / "figure_02_distribusi_pilihan.svg").read_text()
         en_svg = (self.output / "en" / "figures" / "figure_02_choice_distribution.svg").read_text()
-        self.assertIn("Transportasi publik", id_svg)
-        self.assertIn("Public transport", en_svg)
+        self.assertIn("Transportasi Publik", id_svg)
+        self.assertIn("Public Transport", en_svg)
 
     def test_revised_figures_are_spacious_directly_labelled_and_have_no_patterns(self):
         generate_all(PROCESSED, self.output)
@@ -54,9 +54,9 @@ class ResearchFigureTests(unittest.TestCase):
         coefficients = (self.output / "en" / "figures" / "figure_04_mnl_coefficients.svg").read_text()
         model_fit = (self.output / "en" / "figures" / "figure_05_model_fit.svg").read_text()
         stability = (self.output / "en" / "figures" / "figure_06_coefficient_stability.svg").read_text()
-        self.assertIn("Standardised coefficient", coefficients)
+        self.assertIn("Standardised Coefficient", coefficients)
         self.assertIn("518.10", model_fit)
-        self.assertIn("Travel time", stability)
+        self.assertIn("Travel Time", stability)
 
 
 if __name__ == "__main__":
