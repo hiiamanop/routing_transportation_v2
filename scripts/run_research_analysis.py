@@ -41,7 +41,10 @@ def run_pipeline(source: Path, output_dir: Path, figures: bool = True,
     if figures:
         if manuscript_dir is None:
             raise ValueError("manuscript_dir wajib diberikan saat figures=True")
-        from scripts.generate_research_figures import generate_all
+        try:
+            from scripts.generate_research_figures import generate_all
+        except ModuleNotFoundError:
+            from generate_research_figures import generate_all
         result["figures"] = [str(path) for path in generate_all(output_dir, manuscript_dir)]
     return result
 

@@ -1,7 +1,7 @@
 {
   "models": {
     "full_asc": {
-      "timestamp": "2026-09-20T07:17:45.340341+07:00",
+      "timestamp": "2026-09-20T07:35:10.610712+07:00",
       "n_observations": 318,
       "iterations": 5,
       "log_likelihood": -252.04855748776055,
@@ -85,7 +85,7 @@
       "primary_standard_error": "ordinary"
     },
     "without_access": {
-      "timestamp": "2026-09-20T07:17:45.351933+07:00",
+      "timestamp": "2026-09-20T07:35:10.621996+07:00",
       "n_observations": 318,
       "iterations": 5,
       "log_likelihood": -255.12241648915293,
@@ -159,7 +159,7 @@
       "primary_standard_error": "ordinary"
     },
     "without_transfers": {
-      "timestamp": "2026-09-20T07:17:45.363764+07:00",
+      "timestamp": "2026-09-20T07:35:10.633626+07:00",
       "n_observations": 318,
       "iterations": 5,
       "log_likelihood": -252.43550860338152,
@@ -234,7 +234,7 @@
       "primary_standard_error": "ordinary"
     },
     "without_access_transfers": {
-      "timestamp": "2026-09-20T07:17:45.375639+07:00",
+      "timestamp": "2026-09-20T07:35:10.645162+07:00",
       "n_observations": 318,
       "iterations": 5,
       "log_likelihood": -255.14322824748976,
@@ -299,7 +299,7 @@
       "primary_standard_error": "ordinary"
     },
     "without_ride_hailing": {
-      "timestamp": "2026-09-20T07:17:45.386966+07:00",
+      "timestamp": "2026-09-20T07:35:10.655989+07:00",
       "n_observations": 298,
       "iterations": 5,
       "log_likelihood": -237.3965390065383,

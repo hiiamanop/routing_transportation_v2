@@ -6,7 +6,7 @@ Sasarannya: sistem informasi integrasi tiga moda angkutan publik Kota Palembang 
 
 > **Catatan arah penelitian.** Fokus bukan lagi perbandingan algoritma. Dijkstra sudah final sebagai mesin pencarian rute. Kontribusi yang sedang dibangun ada di sisi perencanaan transportasi: pemodelan preferensi dan pemilihan moda.
 
-> **📍 Checkpoint 2026-08-25.** S-1, S-2, S-3, S-4 selesai dibangun & diuji. **Aplikasi sudah live di https://transportasi.meetsin.id** -- siap disebar ke responden. S-6 (kumpulkan ±200 observasi) **baru mulai**, 1 observasi asli terkumpul. S-5/S-7 sekarang **sudah dibangun & lulus uji dgn β sintetis** (`src/core/mnl_recommend.py`), menggantikan heuristik lama sepenuhnya -- tapi **dimatikan secara default** (`ENABLE_MODEL_RECOMMENDATION=false`) sampai data S-6 cukup dan β dari data asli tersedia: menampilkan probabilitas dari β yang belum matang ke pengguna asli berisiko mempengaruhi pilihan mereka sendiri, mencemari data yang sedang dikumpulkan. S-8 belum dikerjakan. Lihat bagian 7 untuk urutan pengerjaan terbaru.
+> **📍 Checkpoint 2026-09-20.** Survei selesai: CSV sumber terbaru memuat 400 responden unik (SHA-256 `93fcf7d061e8e294f2ebefd8dc8a52b7b5632484085b960e30820fc615219c2a`). Audit reproducible menghasilkan 318 observasi layak estimasi setelah 22 nilai ekstrem dan 60 choice set dengan kurang dari dua alternatif unik dikeluarkan. Model MNL+ASC kendaraan pribadi telah diestimasi, tetapi daya jelas masih rendah (McFadden ρ²=0,0514) dan tanda akses berlawanan dengan teori; karena itu `ENABLE_MODEL_RECOMMENDATION` tetap **false** sampai hasil ditinjau secara ilmiah. Manuskrip dan enam figure bilingual tersedia di `docs/manuscript/id/` dan `docs/manuscript/en/`.
 
 ---
 
@@ -161,9 +161,9 @@ Berurutan menurut ketergantungan, bukan menurut kemudahan.
 | S-1 | Formulir karakteristik responden | ✅ Selesai | — |
 | S-3 | Ekspor data siap-estimasi | ✅ Selesai | — |
 | S-4 | Estimasi β (skrip) | ✅ Selesai | — |
-| **S-6** | **Kumpulkan ±200 observasi** | 🔶 **Baru 1 observasi asli** | **Blocker satu-satunya sekarang** |
-| S-5 | Utilitas & probabilitas saat melayani | 🔶 Dibangun & diuji dgn β sintetis (`src/core/mnl_recommend.py`) | Dimatikan default (`ENABLE_MODEL_RECOMMENDATION=false`) sampai β dari data asli |
-| S-7 | Tampilkan probabilitas, alihkan rekomendasi | 🔶 Dibangun & diuji dgn β sintetis | Gate sama dgn S-5 -- ganti heuristik lama sepenuhnya begitu dinyalakan |
+| **S-6** | **Kumpulkan ±200 observasi** | ✅ **400 responden; 318 observasi final** | — |
+| S-5 | Utilitas & probabilitas saat melayani | 🔶 Dibangun; β data asli sudah diestimasi tetapi belum layak produksi | Tetap dimatikan (`ENABLE_MODEL_RECOMMENDATION=false`) sampai review ilmiah |
+| S-7 | Tampilkan probabilitas, alihkan rekomendasi | 🔶 Dibangun & diuji | Gate sama dgn S-5 |
 | S-8 | Re-estimasi berkala (penjadwalan) | 🔶 Riwayat β (S-4) sudah tersimpan otomatis, penjadwalannya belum | — |
 
 **Satu-satunya pekerjaan mendesak sekarang: sebar aplikasi & kumpulkan data nyata (S-6).** Semua alat (formulir, pencarian alternatif, ekspor, estimator, S-5/S-7) sudah teruji dan siap pakai -- begitu ±200 observasi terkumpul, tinggal jalankan `scripts/export_long_format.py` lalu `scripts/estimate_mnl.py` (atau unduh lewat `GET /api/survey/export`) untuk hasilkan β asli ke `dataset/survey/beta_history.jsonl`, lalu nyalakan `ENABLE_MODEL_RECOMMENDATION=true` di server. Tidak perlu sentuh kode lagi.

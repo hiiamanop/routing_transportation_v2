@@ -73,6 +73,12 @@ def _read(processed):
 def save_figure(fig, svg_path, png_path):
     svg_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(svg_path, format="svg", bbox_inches="tight")
+    # Matplotlib menulis spasi di akhir sebagian path SVG; normalkan agar
+    # artefak generated tetap lulus git diff --check.
+    svg_path.write_text(
+        "\n".join(line.rstrip() for line in svg_path.read_text().splitlines()) + "\n",
+        encoding="utf-8",
+    )
     fig.savefig(png_path, format="png", dpi=300, bbox_inches=None)
     plt.close(fig)
 
