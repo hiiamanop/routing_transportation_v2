@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert research manuscript Markdown documents into professionally styled Word (.docx) files."""
+"""Convert research manuscript Markdown documents into professionally styled 2-column Word (.docx) files matching the official Jurnal Kejuruteraan template."""
 
 import re
 from pathlib import Path
@@ -7,19 +7,29 @@ import docx
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
-from docx.oxml import parse_xml, OxmlElement
-from docx.oxml.ns import nsdecls, qn
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
 
-COLOR_PRIMARY = RGBColor(26, 82, 118)   # #1A5276 Dark Blue
-COLOR_DARK = RGBColor(44, 62, 80)       # #2C3E50 Body Text
-COLOR_MID = RGBColor(127, 140, 141)     # #7F8C8D Gray
-MID_GRAY = COLOR_MID
-HEX_HEADER_BG = "F2F4F4"                # Light gray-blue table header
-HEX_BORDER = "BDC3C7"
+# Colors matching the official academic template and modern journal standards
+COLOR_PRIMARY = RGBColor(0, 0, 0)       # Black standard in Jurnal Kejuruteraan
+COLOR_DARK = RGBColor(0, 0, 0)          # Black text
+COLOR_MID = RGBColor(110, 110, 110)
+HEX_HEADER_BG = "F2F4F4"
+HEX_BORDER = "000000"
+
+
+def _set_section_layout(section, num_cols=1, col_space_dxa=708, continuous=True):
+    """Configure section column layout and continuous break."""
+    sectPr = section._sectPr
+    for elem in sectPr.xpath('./w:type | ./w:cols'):
+        sectPr.remove(elem)
+    if continuous:
+        sectPr.append(parse_xml(f'<w:type {nsdecls("w")} w:val="continuous"/>'))
+    sectPr.append(parse_xml(f'<w:cols {nsdecls("w")} w:num="{num_cols}" w:space="{col_space_dxa}"/>'))
 
 
 def _set_cell_border(cell, **kwargs):
-    """Set cell borders with XML formatting."""
+    """Set cell borders with XML formatting (APA/IEEE 3-line standard)."""
     tcPr = cell._tc.get_or_add_tcPr()
     tcBorders = parse_xml(
         f'<w:tcBorders {nsdecls("w")}>\n'
@@ -39,40 +49,12 @@ def _set_cell_background(cell, hex_color):
     tcPr.append(shd)
 
 
-def _add_styled_heading(doc, text, level):
-    """Add styled headings with clean typography."""
-    p = doc.add_paragraph()
-    p.paragraph_format.keep_with_next = True
-    run = p.add_run(text)
-    run.font.name = "Times New Roman"
-    run.bold = True
-
-    if level == 1:
-        p.paragraph_format.space_before = Pt(14)
-        p.paragraph_format.space_after = Pt(4)
-        run.font.size = Pt(12)
-        run.font.color.rgb = COLOR_PRIMARY
-    elif level == 2:
-        p.paragraph_format.space_before = Pt(10)
-        p.paragraph_format.space_after = Pt(3)
-        run.font.size = Pt(11)
-        run.font.color.rgb = COLOR_PRIMARY
-    else:
-        p.paragraph_format.space_before = Pt(8)
-        p.paragraph_format.space_after = Pt(2)
-        run.font.size = Pt(10)
-        run.font.color.rgb = COLOR_DARK
-    return p
-
-
 def _format_inline_text(paragraph, text):
-    """Parse basic inline markdown bold, italic, math-like symbols."""
-    # Split by bold first (**...**)
+    """Parse basic inline markdown bold and italic formatting."""
     tokens = re.split(r'(\*\*.*?\*\*)', text)
     for token in tokens:
         if token.startswith('**') and token.endswith('**') and len(token) >= 4:
             content = token[2:-2]
-            # check italic inside bold
             sub_tokens = re.split(r'(\*.*?\*)', content)
             for st in sub_tokens:
                 if st.startswith('*') and st.endswith('*') and len(st) >= 2:
@@ -84,7 +66,6 @@ def _format_inline_text(paragraph, text):
                     r.bold = True
                 r.font.name = "Times New Roman"
         else:
-            # check italic (*...*)
             sub_tokens = re.split(r'(\*.*?\*)', token)
             for st in sub_tokens:
                 if st.startswith('*') and st.endswith('*') and len(st) >= 2:
@@ -96,7 +77,7 @@ def _format_inline_text(paragraph, text):
 
 
 def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
-    """Convert a manuscript markdown file into a styled docx file."""
+    """Convert manuscript Markdown into 2-column Word Document matching template layout."""
     md_path = Path(md_path)
     docx_path = Path(docx_path)
     content = md_path.read_text(encoding="utf-8")
@@ -104,49 +85,38 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
 
     doc = docx.Document()
 
-    # Page setup: A4, 1 inch margins
-    sections = doc.sections
-    for s in sections:
-        s.page_width = Inches(8.27)   # A4
-        s.page_height = Inches(11.69)
-        s.top_margin = Inches(1.0)
-        s.bottom_margin = Inches(1.0)
-        s.left_margin = Inches(1.0)
-        s.right_margin = Inches(1.0)
-
-    # Set base Normal style
-    style_normal = doc.styles['Normal']
-    style_normal.font.name = 'Times New Roman'
-    style_normal.font.size = Pt(10)
-    style_normal.font.color.rgb = COLOR_DARK
+    # Section 0: Title & Abstract (1 Column, A4, 1-inch margins)
+    s0 = doc.sections[0]
+    s0.page_width = Inches(8.27)
+    s0.page_height = Inches(11.69)
+    s0.top_margin = Inches(1.0)
+    s0.bottom_margin = Inches(1.0)
+    s0.left_margin = Inches(1.0)
+    s0.right_margin = Inches(1.0)
+    _set_section_layout(s0, num_cols=1, continuous=False)
 
     lines = content.splitlines()
     i = 0
-    in_table = False
-    table_lines = []
+    current_cols = 1
+
+    # Header Journal metadata
+    p_meta = doc.add_paragraph()
+    p_meta.paragraph_format.space_before = Pt(0)
+    p_meta.paragraph_format.space_after = Pt(2)
+    r_meta = p_meta.add_run("Jurnal Kejuruteraan (Journal of Engineering) Online First | ISSN: 0128-0198 E-ISSN: 2289-7526")
+    r_meta.font.name = "Times New Roman"
+    r_meta.font.size = Pt(8.5)
+    r_meta.font.color.rgb = COLOR_MID
 
     while i < len(lines):
         line = lines[i].rstrip()
-
-        # Check for Markdown Table block
-        if line.startswith('|') and line.endswith('|'):
-            table_lines.append(line)
-            in_table = True
-            i += 1
-            continue
-        elif in_table:
-            # End of table block: process table
-            _build_docx_table(doc, table_lines)
-            in_table = False
-            table_lines = []
-            # do not increment i, let current line be processed below
 
         # Title (# Title)
         if line.startswith('# '):
             p = doc.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.paragraph_format.space_before = Pt(0)
-            p.paragraph_format.space_after = Pt(14)
+            p.paragraph_format.space_before = Pt(14)
+            p.paragraph_format.space_after = Pt(12)
             run = p.add_run(line[2:].strip())
             run.font.name = 'Times New Roman'
             run.font.size = Pt(14)
@@ -155,15 +125,66 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
             i += 1
             continue
 
-        # Heading 1 (## Heading)
-        if line.startswith('## '):
-            _add_styled_heading(doc, line[3:].strip(), level=1)
+        # Abstract header (## ABSTRAK / ## ABSTRACT)
+        if line == '## ABSTRAK' or line == '## ABSTRACT':
+            p = doc.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.paragraph_format.space_before = Pt(10)
+            p.paragraph_format.space_after = Pt(6)
+            run = p.add_run(line[3:].strip())
+            run.font.name = 'Times New Roman'
+            run.font.size = Pt(10.5)
+            run.bold = True
+            run.font.color.rgb = COLOR_PRIMARY
             i += 1
             continue
 
-        # Heading 2 (### Heading)
+        # Keywords line
+        if line.startswith('**Kata kunci:**') or line.startswith('**Keywords:**'):
+            p = doc.add_paragraph()
+            p.paragraph_format.space_before = Pt(4)
+            p.paragraph_format.space_after = Pt(14)
+            _format_inline_text(p, line)
+            for r in p.runs:
+                r.font.size = Pt(9.5)
+
+            # Switch to 2-column layout starting from INTRODUCTION
+            s_body = doc.add_section()
+            _set_section_layout(s_body, num_cols=2, col_space_dxa=708, continuous=True)
+            current_cols = 2
+
+            i += 1
+            continue
+
+        # Heading 1 (## PENDAHULUAN / ## INTRODUCTION / etc.)
+        if line.startswith('## '):
+            h_text = line[3:].strip()
+            p = doc.add_paragraph()
+            p.paragraph_format.keep_with_next = True
+            p.paragraph_format.space_before = Pt(12)
+            p.paragraph_format.space_after = Pt(4)
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            run = p.add_run(h_text)
+            run.font.name = "Times New Roman"
+            run.font.size = Pt(10)
+            run.bold = True
+            run.font.color.rgb = COLOR_PRIMARY
+            i += 1
+            continue
+
+        # Heading 2 (### Subheading)
         if line.startswith('### '):
-            _add_styled_heading(doc, line[4:].strip(), level=2)
+            h_text = line[4:].strip()
+            p = doc.add_paragraph()
+            p.paragraph_format.keep_with_next = True
+            p.paragraph_format.space_before = Pt(8)
+            p.paragraph_format.space_after = Pt(2)
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            run = p.add_run(h_text)
+            run.font.name = "Times New Roman"
+            run.font.size = Pt(9.5)
+            run.bold = True
+            run.font.color.rgb = COLOR_PRIMARY
             i += 1
             continue
 
@@ -172,39 +193,77 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
             i += 1
             continue
 
-        # Image tag: ![caption](relative_path)
+        # Wide Table: if markdown table has >= 5 columns, span 1 full-width column
+        if line.startswith('|') and line.endswith('|'):
+            table_lines = []
+            while i < len(lines) and lines[i].rstrip().startswith('|') and lines[i].rstrip().endswith('|'):
+                table_lines.append(lines[i].rstrip())
+                i += 1
+
+            num_cols_table = max(len([c for c in l.strip('|').split('|')]) for l in table_lines)
+            is_wide_table = (num_cols_table >= 5)
+
+            if is_wide_table and current_cols == 2:
+                # Break to 1 column for wide table
+                s_wide = doc.add_section()
+                _set_section_layout(s_wide, num_cols=1, continuous=True)
+                current_cols = 1
+
+            _build_docx_table(doc, table_lines, is_wide=is_wide_table)
+
+            if is_wide_table and current_cols == 1:
+                # Return back to 2 columns for subsequent text
+                s_back = doc.add_section()
+                _set_section_layout(s_back, num_cols=2, col_space_dxa=708, continuous=True)
+                current_cols = 2
+
+            continue
+
+        # Images: span 1 full-width column if wide, or place in column
         img_match = re.match(r'!\[(.*?)\]\((.*?)\)', line)
         if img_match:
             img_rel_path = img_match.group(2)
             full_img_path = (base_dir / img_rel_path).resolve()
             if full_img_path.exists():
+                # Switch to 1 column for large clear figure display (matching template structure)
+                if current_cols == 2:
+                    s_fig = doc.add_section()
+                    _set_section_layout(s_fig, num_cols=1, continuous=True)
+                    current_cols = 1
+
                 p = doc.add_paragraph()
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                p.paragraph_format.space_before = Pt(10)
+                p.paragraph_format.space_before = Pt(8)
                 p.paragraph_format.space_after = Pt(2)
                 p.paragraph_format.keep_with_next = True
                 run = p.add_run()
-                # Insert image scaled to 6.2 inches (standard margin width on A4)
-                run.add_picture(str(full_img_path), width=Inches(6.2))
+                run.add_picture(str(full_img_path), width=Inches(6.0))
+
             i += 1
             continue
 
-        # Caption text (FIGURE X or GAMBAR X or TABEL X or TABLE X)
+        # Figure / Table Caption line
         if re.match(r'^(FIGURE|GAMBAR|TABLE|TABEL)\s+\d+\.', line):
             p = doc.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.paragraph_format.space_before = Pt(3)
-            p.paragraph_format.space_after = Pt(10)
-            p.paragraph_format.keep_with_next = True if line.startswith(('TABLE', 'TABEL')) else False
+            p.paragraph_format.space_before = Pt(2)
+            p.paragraph_format.space_after = Pt(8)
             run = p.add_run(line.strip())
             run.font.name = 'Times New Roman'
-            run.font.size = Pt(9.5)
+            run.font.size = Pt(9.0)
             run.bold = True
             run.font.color.rgb = COLOR_PRIMARY
+
+            # After figure caption in 1-col, switch back to 2-col body
+            if line.startswith(('FIGURE', 'GAMBAR')) and current_cols == 1:
+                s_back = doc.add_section()
+                _set_section_layout(s_back, num_cols=2, col_space_dxa=708, continuous=True)
+                current_cols = 2
+
             i += 1
             continue
 
-        # Math formula display block (\[ ... \])
+        # Display math block
         if line.startswith(r'\['):
             math_lines = [line]
             while not line.endswith(r'\]') and i + 1 < len(lines):
@@ -214,35 +273,24 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
             formula_text = " ".join(math_lines).replace(r'\[', '').replace(r'\]', '').strip()
             p = doc.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.paragraph_format.space_before = Pt(6)
-            p.paragraph_format.space_after = Pt(6)
+            p.paragraph_format.space_before = Pt(4)
+            p.paragraph_format.space_after = Pt(4)
             run = p.add_run(formula_text)
             run.font.name = 'Times New Roman'
-            run.font.size = Pt(10)
+            run.font.size = Pt(9.0)
             run.italic = True
             i += 1
             continue
 
-        # Note / Footnote paragraph
+        # Notes
         if line.startswith('**Catatan:**') or line.startswith('**Note:**'):
             p = doc.add_paragraph()
             p.paragraph_format.space_before = Pt(2)
-            p.paragraph_format.space_after = Pt(8)
+            p.paragraph_format.space_after = Pt(6)
             _format_inline_text(p, line)
             for r in p.runs:
-                r.font.size = Pt(8.5)
-                r.font.color.rgb = MID_GRAY
-            i += 1
-            continue
-
-        # Keywords line
-        if line.startswith('**Kata kunci:**') or line.startswith('**Keywords:**'):
-            p = doc.add_paragraph()
-            p.paragraph_format.space_before = Pt(4)
-            p.paragraph_format.space_after = Pt(12)
-            _format_inline_text(p, line)
-            for r in p.runs:
-                r.font.size = Pt(9.5)
+                r.font.size = Pt(8.0)
+                r.font.color.rgb = COLOR_MID
             i += 1
             continue
 
@@ -250,27 +298,25 @@ def convert_markdown_to_docx(md_path: Path, docx_path: Path) -> Path:
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         p.paragraph_format.space_before = Pt(0)
-        p.paragraph_format.space_after = Pt(5)
-        p.paragraph_format.line_spacing = 1.15
+        p.paragraph_format.space_after = Pt(4)
+        p.paragraph_format.line_spacing = 1.05
         _format_inline_text(p, line)
-        i += 1
+        for r in p.runs:
+            if not r.font.size:
+                r.font.size = Pt(9.5) if current_cols == 2 else Pt(10)
 
-    # If document ended inside a table
-    if in_table and table_lines:
-        _build_docx_table(doc, table_lines)
+        i += 1
 
     docx_path.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(docx_path))
     return docx_path
 
 
-def _build_docx_table(doc, table_lines):
-    """Parse markdown table lines and generate a styled Word table."""
-    # Filter out divider lines (e.g. |---|---|)
+def _build_docx_table(doc, table_lines, is_wide=False):
+    """Parse markdown table lines and generate academic 3-line table."""
     parsed_rows = []
     for l in table_lines:
         cells = [c.strip() for c in l.strip('|').split('|')]
-        # check if it's separator row
         if all(re.match(r'^:?-+:?$', c) for c in cells if c):
             continue
         parsed_rows.append(cells)
@@ -287,17 +333,16 @@ def _build_docx_table(doc, table_lines):
     for row_idx, row_data in enumerate(parsed_rows):
         is_header = (row_idx == 0)
         tr = table.rows[row_idx]
-        tr.height = Pt(18 if is_header else 15)
+        tr.height = Pt(16 if is_header else 14)
 
         for col_idx, cell_value in enumerate(row_data):
             cell = tr.cells[col_idx]
             cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
             p = cell.paragraphs[0]
-            p.paragraph_format.space_before = Pt(2)
-            p.paragraph_format.space_after = Pt(2)
+            p.paragraph_format.space_before = Pt(1.5)
+            p.paragraph_format.space_after = Pt(1.5)
 
-            # Alignment heuristics: numbers right-aligned, text left-aligned
             val_clean = cell_value.replace('**', '').strip()
             if re.match(r'^[−\-+]?[0-9\.,]+%?$', val_clean) or val_clean in ('—', '−'):
                 p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -308,28 +353,26 @@ def _build_docx_table(doc, table_lines):
 
             for r in p.runs:
                 r.font.name = 'Times New Roman'
-                r.font.size = Pt(8.5 if not is_header else 9.0)
+                r.font.size = Pt(8.0 if is_wide else 8.5)
                 if is_header:
                     r.bold = True
                     r.font.color.rgb = COLOR_PRIMARY
                 else:
                     r.font.color.rgb = COLOR_DARK
 
-            # Borders & Shading: Academic standard (APA/IEEE 3-line style)
+            # Borders: APA/IEEE 3-line table format
             if is_header:
                 _set_cell_background(cell, HEX_HEADER_BG)
-                _set_cell_border(cell, top="single", top_sz="12", top_color="1A5276",
-                                 bottom="single", bottom_sz="6", bottom_color="1A5276")
+                _set_cell_border(cell, top="single", top_sz="12", top_color="000000",
+                                 bottom="single", bottom_sz="6", bottom_color="000000")
             elif row_idx == num_rows - 1:
-                # Bottom border for final row
-                _set_cell_border(cell, bottom="single", bottom_sz="12", bottom_color="1A5276")
+                _set_cell_border(cell, bottom="single", bottom_sz="12", bottom_color="000000")
             else:
-                _set_cell_border(cell, bottom="single", bottom_sz="4", bottom_color=HEX_BORDER)
+                _set_cell_border(cell, bottom="single", bottom_sz="4", bottom_color="E0E0E0")
 
-    # Add space after table
     post_p = doc.add_paragraph()
     post_p.paragraph_format.space_before = Pt(0)
-    post_p.paragraph_format.space_after = Pt(6)
+    post_p.paragraph_format.space_after = Pt(4)
 
 
 def main():
@@ -339,7 +382,7 @@ def main():
     parser.add_argument("--docx", required=True, type=Path)
     args = parser.parse_args()
     out = convert_markdown_to_docx(args.md, args.docx)
-    print(f"Generated DOCX: {out}")
+    print(f"Generated 2-Column DOCX: {out}")
 
 
 if __name__ == "__main__":
