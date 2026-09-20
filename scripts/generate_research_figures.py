@@ -572,7 +572,7 @@ def figure_05(language: str, data: dict):
 
 
 # ==============================================================================
-# FIGURE 6: COEFFICIENT STABILITY (SPACIOUS 5-TIER HORIZONTAL FOREST PLOT)
+# FIGURE 6: COEFFICIENT STABILITY (CLEAN & COMPACT 5-TIER HORIZONTAL FOREST PLOT)
 # ==============================================================================
 def figure_06(language: str, data: dict):
     t = LABELS[language]
@@ -581,8 +581,8 @@ def figure_06(language: str, data: dict):
     model_labels = [t["m1_full"], t["m2_full"], t["m3_full"], t["m4_full"]]
     features = ["time_minutes", "cost_rupiah", "comfort", "reliability", "asc_private_vehicle"]
 
-    # 5 stacked horizontal strip plots (spacious vertical layout, 17 cm wide, 7.8 in high)
-    fig, axes = plt.subplots(5, 1, figsize=(WIDTH_IN, 7.8), constrained_layout=True)
+    # Compact 5-tier horizontal forest plot (height=4.4 in, fits cleanly on Page 5)
+    fig, axes = plt.subplots(5, 1, figsize=(WIDTH_IN, 4.4), constrained_layout=True)
     tier_colors = [PRIMARY_BLUE, SECONDARY_BLUE, ACCENT_ORANGE, ACCENT_GREEN]
 
     for idx, (ax, feat) in enumerate(zip(axes, features)):
@@ -591,34 +591,34 @@ def figure_06(language: str, data: dict):
         y_pos = np.arange(4)
 
         # Zero reference line
-        ax.axvline(0, color=BORDER_GRAY, linestyle="-", linewidth=1.0)
+        ax.axvline(0, color=BORDER_GRAY, linestyle="-", linewidth=0.9)
 
         # Horizontal error bars with distinct model colors
         for i in range(4):
             ax.errorbar(
                 vals[i], y_pos[i], xerr=1.96 * ses[i],
                 fmt="o", color=tier_colors[i], ecolor=tier_colors[i],
-                capsize=4.0, elinewidth=1.6, capthick=1.2, markersize=6.0,
+                capsize=3.0, elinewidth=1.3, capthick=1.0, markersize=4.5,
             )
 
         ax.set_yticks(y_pos)
-        ax.set_yticklabels(model_labels, fontsize=8.2, fontweight="bold", color=DARK_GRAY)
+        ax.set_yticklabels(model_labels, fontsize=7.2, fontweight="bold", color=DARK_GRAY)
         ax.invert_yaxis()
-        ax.set_title(t[feat], fontsize=9.2, fontweight="bold", loc="left", color=DARK_GRAY, pad=6)
-        ax.tick_params(axis="x", labelsize=7.5)
+        ax.set_title(t[feat], fontsize=8.2, fontweight="bold", loc="left", color=DARK_GRAY, pad=2)
+        ax.tick_params(axis="x", labelsize=6.8, pad=1)
+        ax.tick_params(axis="y", pad=2)
 
         # Clean borders
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_color(BORDER_GRAY)
         ax.spines["bottom"].set_color(BORDER_GRAY)
-        ax.grid(axis="x", color="#EAECEE", linestyle="--", linewidth=0.7)
+        ax.grid(axis="x", color="#EAECEE", linestyle="--", linewidth=0.6)
         ax.set_axisbelow(True)
 
         # Adequate X margin padding so error bars and zero line never hit axes limits
         xmin = min(v - 1.96 * s for v, s in zip(vals, ses))
         xmax = max(v + 1.96 * s for v, s in zip(vals, ses))
-        # Ensure zero is included in visible span
         xmin = min(xmin, 0.0)
         xmax = max(xmax, 0.0)
         pad = (xmax - xmin) * 0.15 if (xmax - xmin) > 0 else 0.1

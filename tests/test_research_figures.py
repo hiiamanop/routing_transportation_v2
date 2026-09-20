@@ -51,6 +51,9 @@ class ResearchFigureTests(unittest.TestCase):
         with Image.open(self.output / "en" / "figures" / "figure_01_research_flow.png") as image:
             self.assertGreaterEqual(image.height, 1400)
 
+        with Image.open(self.output / "en" / "figures" / "figure_06_coefficient_stability.png") as image:
+            self.assertLessEqual(image.height, 1400)  # Compact height to fit cleanly on page 5
+
         coefficients = (self.output / "en" / "figures" / "figure_04_mnl_coefficients.svg").read_text()
         model_fit = (self.output / "en" / "figures" / "figure_05_model_fit.svg").read_text()
         stability = (self.output / "en" / "figures" / "figure_06_coefficient_stability.svg").read_text()
