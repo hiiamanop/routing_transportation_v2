@@ -564,7 +564,7 @@ def figure_05(language: str, data: dict):
 
 
 # ==============================================================================
-# FIGURE 6: COEFFICIENT STABILITY ACROSS SPECIFICATIONS (CLEAN FACET PLOT)
+# FIGURE 6: COEFFICIENT STABILITY ACROSS SPECIFICATIONS (CLEAN 2-ROW FACET)
 # ==============================================================================
 def figure_06(language: str, data: dict):
     t = LABELS[language]
@@ -573,8 +573,14 @@ def figure_06(language: str, data: dict):
     model_labels = [t["m1"], t["m2"], t["m3"], t["m4"]]
     features = ["time_minutes", "cost_rupiah", "comfort", "reliability", "asc_private_vehicle"]
 
-    fig, axes = plt.subplots(2, 3, figsize=(WIDTH_IN, 5.6), constrained_layout=True)
-    axes = axes.ravel()
+    fig = plt.figure(figsize=(WIDTH_IN, 5.2), constrained_layout=True)
+    gs = fig.add_gridspec(2, 6)
+    ax1 = fig.add_subplot(gs[0, 0:2])
+    ax2 = fig.add_subplot(gs[0, 2:4])
+    ax3 = fig.add_subplot(gs[0, 4:6])
+    ax4 = fig.add_subplot(gs[1, 1:3])
+    ax5 = fig.add_subplot(gs[1, 3:5])
+    axes = [ax1, ax2, ax3, ax4, ax5]
 
     facet_colors = [PRIMARY_BLUE, SECONDARY_BLUE, ACCENT_GREEN, ACCENT_ORANGE, DARK_GRAY]
 
@@ -599,21 +605,18 @@ def figure_06(language: str, data: dict):
         ax.set_xticklabels(model_labels, fontsize=7.2, color=DARK_GRAY)
         ax.tick_params(axis="y", labelsize=7.5)
 
+        # Safe Y margins to avoid tight borders
+        ymin = min(v - 1.96 * s for v, s in zip(vals, ses))
+        ymax = max(v + 1.96 * s for v, s in zip(vals, ses))
+        pad = (ymax - ymin) * 0.15 if (ymax - ymin) > 0 else 0.1
+        ax.set_ylim(ymin - pad, ymax + pad)
+
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_color(BORDER_GRAY)
         ax.spines["bottom"].set_color(BORDER_GRAY)
         ax.grid(axis="y", color="#EAECEE", linestyle="--", linewidth=0.7)
         ax.set_axisbelow(True)
-
-        # Value annotations on first and last point
-        ax.text(0, vals[0], f" {vals[0]:.2e}" if abs(vals[0]) < 0.001 else f" {vals[0]:+.2f}",
-                va="bottom", ha="left", fontsize=6.8, color=c, fontweight="bold")
-        ax.text(3, vals[3], f" {vals[3]:.2e}" if abs(vals[3]) < 0.001 else f" {vals[3]:+.2f}",
-                va="bottom", ha="left", fontsize=6.8, color=c, fontweight="bold")
-
-    # Hide 6th empty subplot
-    axes[5].axis("off")
 
     return fig
 
