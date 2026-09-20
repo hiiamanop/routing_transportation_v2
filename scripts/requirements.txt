@@ -2,3 +2,4 @@
 # dipisah dari api/requirements.txt, krn Flask API tidak butuh aljabar
 # matriks & JANGAN dibebani dependency ini di image produksi.
 numpy>=1.24
+matplotlib>=3.8
