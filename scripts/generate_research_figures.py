@@ -20,7 +20,7 @@ ATTRS = ("time_minutes", "cost_rupiah", "transfers", "access_km", "comfort", "re
 LABELS = {
     "id": {
         "public": "Transportasi publik", "private": "Kendaraan pribadi",
-        "paid": "Transportasi nonpublik berbayar", "count": "Jumlah pilihan",
+        "count": "Jumlah pilihan",
         "percent": "Persentase choice set bervariasi (%)", "correlation": "Korelasi",
         "time_minutes": "Waktu", "cost_rupiah": "Biaya", "transfers": "Transfer",
         "access_km": "Jarak akses", "comfort": "Kenyamanan", "reliability": "Keandalan",
@@ -36,7 +36,7 @@ LABELS = {
     },
     "en": {
         "public": "Public transport", "private": "Private vehicle",
-        "paid": "Paid non-public transport", "count": "Number of choices",
+        "count": "Number of choices",
         "percent": "Choice sets with attribute variation (%)", "correlation": "Correlation",
         "time_minutes": "Travel time", "cost_rupiah": "Cost", "transfers": "Transfers",
         "access_km": "Access distance", "comfort": "Comfort", "reliability": "Reliability",
@@ -104,10 +104,10 @@ def figure_01(language, data):
 
 def figure_02(language, data):
     t = LABELS[language]; counts = data["diagnostics"]["choices"]["by_group"]
-    values = [counts.get("transit",0), counts.get("private_vehicle",0), counts.get("ride_hailing",0)]
-    labels = [t["public"], t["private"], t["paid"]]
-    fig, ax = _fig(3.3); y = np.arange(3)
-    bars=ax.barh(y, values, color=COLORS[:3], edgecolor="#333333", hatch=["","//",".."])
+    values = [counts.get("transit",0), counts.get("private_vehicle",0)]
+    labels = [t["public"], t["private"]]
+    fig, ax = _fig(3.0); y = np.arange(2)
+    bars=ax.barh(y, values, color=COLORS[:2], edgecolor="#333333", hatch=["","//"])
     ax.set_yticks(y, labels); ax.invert_yaxis(); ax.set_xlabel(t["count"])
     total=sum(values)
     for bar,value in zip(bars,values): ax.text(value+max(values)*.02,bar.get_y()+bar.get_height()/2,f"{value} ({100*value/total:.1f}%)",va="center",fontsize=9)

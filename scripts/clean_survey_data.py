@@ -31,7 +31,7 @@ def _observation_key(row):
     return row["observation_id"], row.get("respondent_id", "")
 
 
-def clean_rows(rows):
+def clean_rows(rows, merge_identical=True):
     grouped = defaultdict(list)
     for row in rows:
         grouped[_observation_key(row)].append(row)
@@ -54,15 +54,20 @@ def clean_rows(rows):
                 values = [float(row[key]) for key in ATTRIBUTE_KEYS]
                 if any(value < 0 or value != value or abs(value) == float("inf") for value in values):
                     raise ValueError("attribute values must be finite and non-negative")
+            zero_time = any(float(row["time_minutes"]) <= 0 for row in choice_set)
         except (KeyError, TypeError, ValueError) as error:
             reason = "invalid_attribute"
             detail = str(error)
         else:
-            reason = "extreme_value" if extreme else ""
-            detail = (
-                f"time_minutes>{MAX_TIME_MINUTES:g} or cost_rupiah>{MAX_COST_RUPIAH:g}"
-                if extreme else ""
-            )
+            if extreme:
+                reason = "extreme_value"
+                detail = f"time_minutes>{MAX_TIME_MINUTES:g} or cost_rupiah>{MAX_COST_RUPIAH:g}"
+            elif zero_time:
+                reason = "zero_time"
+                detail = "an alternative has time_minutes<=0 (origin equals destination)"
+            else:
+                reason = ""
+                detail = ""
 
         if reason:
             exclusions.append({
@@ -77,7 +82,7 @@ def clean_rows(rows):
 
         identical = defaultdict(list)
         for row in choice_set:
-            identical[_signature(row)].append(row)
+            identical[_signature(row) if merge_identical else id(row)].append(row)
 
         collapsed = []
         for alternatives in identical.values():

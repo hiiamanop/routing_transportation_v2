@@ -22,8 +22,6 @@ def alternative_group(row):
     optimized_for = row.get("optimized_for")
     if optimized_for == "private_vehicle":
         return "private_vehicle"
-    if optimized_for == "ride_hailing":
-        return "ride_hailing"
     return "transit"
 
 
@@ -115,7 +113,7 @@ def write_markdown(path, report):
         "## Pilihan menurut kelompok", "",
         "| Kelompok | Pilihan |", "|---|---:|",
     ]
-    for group in ("transit", "private_vehicle", "ride_hailing"):
+    for group in ("transit", "private_vehicle"):
         lines.append(f"| {group} | {choices.get(group, 0)} |")
 
     lines += ["", "## Variasi atribut di dalam choice set", "",
@@ -138,7 +136,7 @@ def write_markdown(path, report):
             f"{coefficient['clustered_se']:.6g} | {coefficient['clustered_t_stat']:.2f} | "
             f"{'Ya' if coefficient['clustered_significant_at_5pct'] else 'Tidak'} |"
         )
-    lines += ["", "> ASC memakai angkutan umum sebagai kategori acuan; ride-hailing tidak diklasifikasikan sebagai kendaraan pribadi.", ""]
+    lines += ["", "> ASC memakai angkutan umum sebagai kategori acuan.", ""]
 
     Path(path).write_text("\n".join(lines), encoding="utf-8")
 

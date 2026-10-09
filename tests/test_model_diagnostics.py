@@ -62,7 +62,7 @@ class ModelDiagnosticsTests(unittest.TestCase):
             "sample": {"observations": 3, "respondents": 2,
                        "respondents_with_multiple_observations": 1,
                        "observations_with_preferences": 3},
-            "choices": {"by_group": {"transit": 2, "private_vehicle": 1, "ride_hailing": 0}},
+            "choices": {"by_group": {"transit": 2, "private_vehicle": 1}},
             "within_choice_set_variation": {},
             "correlations": {},
             "models": {

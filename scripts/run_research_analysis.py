@@ -37,7 +37,7 @@ def run_pipeline(source: Path, output_dir: Path, figures: bool = True,
 
     result = {"audit": audit}
     if models:
-        result["models"] = _run_models(clean_path, output_dir)
+        result["models"] = _run_models(clean_path, output_dir, rows)
     if figures:
         if manuscript_dir is None:
             raise ValueError("manuscript_dir wajib diberikan saat figures=True")
@@ -49,13 +49,13 @@ def run_pipeline(source: Path, output_dir: Path, figures: bool = True,
     return result
 
 
-def _run_models(clean_path: Path, output_dir: Path) -> dict:
+def _run_models(clean_path: Path, output_dir: Path, raw_rows: list) -> dict:
     try:
         from scripts.model_diagnostics import build_diagnostics, estimate_model, write_markdown
-        from scripts.sensitivity_analysis import run_sensitivity_analysis, write_markdown as write_sensitivity
+        from scripts.sensitivity_analysis import run_sensitivity_analysis, run_unmerged_check, write_markdown as write_sensitivity
     except ModuleNotFoundError:
         from model_diagnostics import build_diagnostics, estimate_model, write_markdown
-        from sensitivity_analysis import run_sensitivity_analysis, write_markdown as write_sensitivity
+        from sensitivity_analysis import run_sensitivity_analysis, run_unmerged_check, write_markdown as write_sensitivity
 
     rows, _ = read_csv_rows(clean_path)
     diagnostics = build_diagnostics(rows)
@@ -69,6 +69,7 @@ def _run_models(clean_path: Path, output_dir: Path) -> dict:
     write_markdown(output_dir / "model_diagnostics.md", diagnostics)
 
     sensitivity = run_sensitivity_analysis(rows)
+    sensitivity["unmerged_check"] = run_unmerged_check(raw_rows)
     (output_dir / "sensitivity_analysis.json").write_text(
         json.dumps(sensitivity, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )

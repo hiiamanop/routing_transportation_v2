@@ -81,6 +81,17 @@ class CleanSurveyDataTests(unittest.TestCase):
         )
         self.assertEqual(3, audit["excluded_observations"])
 
+    def test_excludes_zero_time_choice_set(self):
+        rows = [
+            row(1, "zero", 0, "A", "time", 1, time=14),
+            row(1, "zero", 1, "B", "private_vehicle", 0, time=0, cost=0, comfort=0, reliability=0),
+        ]
+
+        cleaned, exclusions, _ = clean_rows(rows)
+
+        self.assertEqual([], cleaned)
+        self.assertEqual(["zero_time"], [item["reason"] for item in exclusions])
+
     def test_reads_utf8_bom_header(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "survey.csv"
@@ -133,7 +144,7 @@ class EstimateMnlInputTests(unittest.TestCase):
         path = self.write_csv([
             row(1, "r", 0, "Transit", "time", 1),
             row(1, "r", 1, "Motor", "private_vehicle", 0, time=20),
-            row(1, "r", 2, "Ojek", "ride_hailing", 0, time=25),
+            row(1, "r", 2, "Termurah", "cost", 0, time=25),
         ])
 
         X_list, _, features, _, respondent_ids = load_long_format(

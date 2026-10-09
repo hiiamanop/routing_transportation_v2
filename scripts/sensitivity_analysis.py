@@ -10,10 +10,10 @@ from pathlib import Path
 import numpy as np
 
 try:
-    from scripts.clean_survey_data import ATTRIBUTE_KEYS, read_csv_rows
+    from scripts.clean_survey_data import ATTRIBUTE_KEYS, clean_rows, read_csv_rows
     from scripts.estimate_mnl import build_report, cluster_robust_se, fit_mnl
 except ModuleNotFoundError:  # eksekusi langsung
-    from clean_survey_data import ATTRIBUTE_KEYS, read_csv_rows
+    from clean_survey_data import ATTRIBUTE_KEYS, clean_rows, read_csv_rows
     from estimate_mnl import build_report, cluster_robust_se, fit_mnl
 
 ASC = "asc_private_vehicle"
@@ -21,26 +21,20 @@ SPECS = {
     "full_asc": list(ATTRIBUTE_KEYS) + [ASC],
     "without_access": [key for key in ATTRIBUTE_KEYS if key != "access_km"] + [ASC],
     "without_transfers": [key for key in ATTRIBUTE_KEYS if key != "transfers"] + [ASC],
+    "without_comfort": [key for key in ATTRIBUTE_KEYS if key != "comfort"] + [ASC],
     "without_access_transfers": [
         key for key in ATTRIBUTE_KEYS if key not in ("access_km", "transfers")
     ] + [ASC],
-    "without_ride_hailing": list(ATTRIBUTE_KEYS) + [ASC],
 }
 
 
-def prepare_choice_sets(rows, exclude_ride_hailing=False):
+def prepare_choice_sets(rows):
     grouped = defaultdict(list)
     for row in rows:
         grouped[row["observation_id"]].append(row)
 
     kept, dropped = [], Counter()
     for choice_set in grouped.values():
-        if exclude_ride_hailing:
-            chosen = next(row for row in choice_set if float(row["chosen"]) == 1)
-            if chosen.get("optimized_for") == "ride_hailing":
-                dropped["chosen_ride_hailing"] += 1
-                continue
-            choice_set = [row for row in choice_set if row.get("optimized_for") != "ride_hailing"]
         if len(choice_set) < 2:
             dropped["fewer_than_two_alternatives"] += 1
             continue
@@ -101,20 +95,15 @@ def likelihood_ratio_test(full_ll, reduced_ll, degrees_of_freedom):
 
 
 def run_sensitivity_analysis(rows):
-    regular_sets, _ = prepare_choice_sets(rows)
-    no_ride_hailing_sets, ride_hailing_dropped = prepare_choice_sets(
-        rows, exclude_ride_hailing=True
-    )
-    models = {}
-    for name, features in SPECS.items():
-        choice_sets = no_ride_hailing_sets if name == "without_ride_hailing" else regular_sets
-        models[name] = estimate_spec(choice_sets, features)
+    choice_sets, _ = prepare_choice_sets(rows)
+    models = {name: estimate_spec(choice_sets, features) for name, features in SPECS.items()}
 
     full = models["full_asc"]
     likelihood_tests = {}
     for name, removed_count in (
         ("without_access", 1),
         ("without_transfers", 1),
+        ("without_comfort", 1),
         ("without_access_transfers", 2),
     ):
         likelihood_tests[name] = likelihood_ratio_test(
@@ -140,17 +129,26 @@ def run_sensitivity_analysis(rows):
         "models": models,
         "likelihood_ratio_tests": likelihood_tests,
         "coefficient_stability": stability,
-        "without_ride_hailing_exclusions": ride_hailing_dropped,
     }
 
+
+def run_unmerged_check(raw_rows):
+    """Model penuh + ASC tanpa menggabungkan alternatif identik (eksklusi lain tetap).
+    Dasar untuk menunjukkan mengapa penggabungan diperlukan."""
+    cleaned, _, audit = clean_rows(raw_rows, merge_identical=False)
+    choice_sets, _ = prepare_choice_sets(cleaned)
+    return {
+        "valid_observations": audit["valid_observations"],
+        "model": estimate_spec(choice_sets, SPECS["full_asc"]),
+    }
 
 def write_markdown(path, report):
     labels = {
         "full_asc": "Penuh + ASC",
         "without_access": "Tanpa akses",
         "without_transfers": "Tanpa transfer",
+        "without_comfort": "Tanpa kenyamanan",
         "without_access_transfers": "Tanpa akses & transfer",
-        "without_ride_hailing": "Tanpa ride-hailing",
     }
     lines = [
         "# Analisis Sensitivitas Model MNL", "",
@@ -194,7 +192,16 @@ def write_markdown(path, report):
             f"| {feature} | {'Ya' if values['same_sign_across_models'] else 'Tidak'} | "
             f"{values['minimum']:.6g} s.d. {values['maximum']:.6g} |"
         )
-    lines += ["", "> Model tanpa ride-hailing adalah uji sensitivitas sampel dan tidak tersarang pada model penuh; karena itu tidak diuji dengan likelihood-ratio test.", ""]
+    unmerged = report.get("unmerged_check")
+    if unmerged:
+        lines += ["", "## Uji tanpa penggabungan alternatif identik", "",
+                  f"Observasi valid: **{unmerged['valid_observations']}**; "
+                  f"LL {unmerged['model']['log_likelihood']:.3f}; "
+                  f"rho² {unmerged['model']['rho_squared_mcfadden']:.4f}.", "",
+                  "| Fitur | Beta | t |", "|---|---:|---:|"]
+        for feature, coefficient in unmerged["model"]["coefficients"].items():
+            lines.append(f"| {feature} | {coefficient['beta']:.6g} | {coefficient['t_stat']:.2f} |")
+    lines.append("")
     Path(path).write_text("\n".join(lines), encoding="utf-8")
 
 
